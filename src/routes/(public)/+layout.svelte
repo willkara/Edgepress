@@ -1,10 +1,17 @@
 <script lang="ts">
 	import PublicSidebar from '$lib/components/PublicSidebar.svelte';
 	import MobilePublicNav from '$lib/components/MobilePublicNav.svelte';
+	import AnimatedOrbs from '$lib/components/AnimatedOrbs.svelte';
+	import PageTransition from '$lib/components/PageTransition.svelte';
+	import ScrollToTop from '$lib/components/ScrollToTop.svelte';
 	import type { LayoutData } from './$types';
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
 </script>
+
+<AnimatedOrbs />
+<PageTransition />
+<ScrollToTop />
 
 <div class="min-h-screen flex flex-col lg:flex-row">
 	<!-- Mobile Header (visible only on small screens) -->
