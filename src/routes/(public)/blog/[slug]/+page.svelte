@@ -8,6 +8,7 @@
 	import ViewCounter from '$lib/components/ViewCounter.svelte';
 	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import RelatedPosts from '$lib/components/RelatedPosts.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const post = data.post; // post can be null here
@@ -101,6 +102,9 @@
 
 				<div class="article-meta flex flex-wrap items-center gap-x-2 gap-y-1">
 					<span>By {post.author_name} on {formatDateStandard(post.published_at)}</span>
+					{#if post.updated_at && post.updated_at !== post.published_at}
+						<span>· Updated {formatDateStandard(post.updated_at)}</span>
+					{/if}
 					{#if post.category_name}
 						<span>· <a href="/blog/category/{post.category_slug}" class="category-link">{post.category_name}</a></span>
 					{/if}
@@ -130,6 +134,11 @@
 			<div class="article-body">
 				{@html sanitizedContent}
 			</div>
+
+			<!-- Related Posts -->
+			{#if data.relatedPosts && data.relatedPosts.length > 0}
+				<RelatedPosts posts={data.relatedPosts} />
+			{/if}
 		</div>
 
 		<!-- Table of Contents Sidebar -->

@@ -1,4 +1,4 @@
-import { getPublishedPostsCached } from '$lib/server/db/posts';
+import { getPublishedPostsCached, getPopularPosts } from '$lib/server/db/posts';
 import { getFeaturedProjects } from '$lib/server/db/featured-projects';
 import { getAllCategories } from '$lib/server/db/categories';
 import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
@@ -9,30 +9,34 @@ export const load: PageServerLoad = async ({ platform, setHeaders }) => {
 		return {
 			latestPosts: [],
 			featuredProjects: [],
-			categories: []
+			categories: [],
+			popularPosts: []
 		};
 	}
 
 	try {
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		const [latestPosts, featuredProjects, categories] = await Promise.all([
+		const [latestPosts, featuredProjects, categories, popularPosts] = await Promise.all([
 			getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
 			getFeaturedProjects(platform.env.DB, false),
-			getAllCategories(platform.env.DB, true)
+			getAllCategories(platform.env.DB, true),
+			getPopularPosts(platform.env.DB, 5)
 		]);
 
 		return {
 			latestPosts,
 			featuredProjects: featuredProjects.slice(0, 3), // Only show 3 featured
-			categories
+			categories,
+			popularPosts
 		};
 	} catch (error) {
 		console.error('Failed to load homepage:', error);
 		return {
 			latestPosts: [],
 			featuredProjects: [],
-			categories: []
+			categories: [],
+			popularPosts: []
 		};
 	}
 };

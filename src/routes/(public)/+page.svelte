@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
+	import PopularPosts from '$lib/components/PopularPosts.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
 	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
 
@@ -127,30 +128,42 @@
 	{/if}
 </section>
 
-<!-- Categories Grid -->
-{#if data.categories.length > 0}
-	<section class="section">
-		<h2 class="section-title">Browse by Category</h2>
+<!-- Categories and Popular Posts Section -->
+<section class="section">
+	<div class="content-grid">
+		<!-- Categories Grid -->
+		{#if data.categories.length > 0}
+			<div class="categories-section">
+				<h2 class="section-title">Browse by Category</h2>
 
-		<div class="categories-grid">
-			{#each data.categories as category}
-				<a href="/blog/category/{category.slug}" class="category-card">
-					<div class="category-icon">
-						<Folder class="w-6 h-6" />
-					</div>
-					<div class="category-info">
-						<h3 class="category-name">{category.name}</h3>
-						<p class="category-count">
-							{category.post_count || 0}
-							{category.post_count === 1 ? 'post' : 'posts'}
-						</p>
-					</div>
-					<ArrowRight class="category-arrow w-5 h-5" />
-				</a>
-			{/each}
-		</div>
-	</section>
-{/if}
+				<div class="categories-grid">
+					{#each data.categories as category}
+						<a href="/blog/category/{category.slug}" class="category-card">
+							<div class="category-icon">
+								<Folder class="w-6 h-6" />
+							</div>
+							<div class="category-info">
+								<h3 class="category-name">{category.name}</h3>
+								<p class="category-count">
+									{category.post_count || 0}
+									{category.post_count === 1 ? 'post' : 'posts'}
+								</p>
+							</div>
+							<ArrowRight class="category-arrow w-5 h-5" />
+						</a>
+					{/each}
+				</div>
+			</div>
+		{/if}
+
+		<!-- Popular Posts Widget -->
+		{#if data.popularPosts && data.popularPosts.length > 0}
+			<div class="popular-section">
+				<PopularPosts posts={data.popularPosts} />
+			</div>
+		{/if}
+	</div>
+</section>
 
 <style>
 	/* Hero Section */
@@ -387,6 +400,27 @@
 		color: var(--text-muted);
 		margin: 0;
 		line-height: 1.6;
+	}
+
+	/* Content Grid - Two Column Layout */
+	.content-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	@media (min-width: 1024px) {
+		.content-grid {
+			grid-template-columns: 1fr 350px;
+		}
+	}
+
+	.categories-section {
+		min-width: 0;
+	}
+
+	.popular-section {
+		min-width: 0;
 	}
 
 	/* Categories Grid */

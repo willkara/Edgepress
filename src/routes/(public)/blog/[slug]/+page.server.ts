@@ -1,4 +1,4 @@
-import { getPostBySlugCached, getPostTags } from '$lib/server/db/posts';
+import { getPostBySlugCached, getPostTags, getRelatedPosts } from '$lib/server/db/posts';
 import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -8,6 +8,7 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 		return {
 			post: null,
 			tags: [],
+			relatedPosts: [],
 			envMissing: true
 		};
 	}
@@ -22,11 +23,15 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 		// Set cache headers for public blog post
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		const tags = await getPostTags(platform.env.DB, post.id);
+		const [tags, relatedPosts] = await Promise.all([
+			getPostTags(platform.env.DB, post.id),
+			getRelatedPosts(platform.env.DB, post.id, 3)
+		]);
 
 		return {
 			post,
-			tags
+			tags,
+			relatedPosts
 		};
 	} catch (err) {
 		if (err instanceof Error && 'status' in err) {
