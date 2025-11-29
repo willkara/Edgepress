@@ -1,4 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import type { QueryBindingValue } from './logger';
+export type { QueryBindingValue };
 
 export interface InjectionPoint {
 	id: string;
@@ -135,7 +137,7 @@ export async function updateInjection(
 
 	// Build dynamic update query based on provided fields
 	const updates: string[] = [];
-	const values: any[] = [];
+	const values: QueryBindingValue[] = [];
 
 	if (input.name !== undefined) {
 		updates.push('name = ?');
