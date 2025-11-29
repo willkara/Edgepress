@@ -2,8 +2,14 @@
 	import type { PageData } from './$types';
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
 	let { data }: { data: PageData } = $props();
+
+	const breadcrumbItems = [
+		{ label: 'Home', href: '/' },
+		{ label: 'Projects' }
+	];
 
 	// Combine featured and non-featured projects if showAll is enabled
 	const projects = $derived(() => {
@@ -45,6 +51,8 @@
 </svelte:head>
 
 <div class="projects-page">
+	<Breadcrumbs items={breadcrumbItems} />
+
 	<!-- Hero Section -->
 	<section class="hero">
 		<h1 class="hero-title">{data.settings.pageTitle}</h1>

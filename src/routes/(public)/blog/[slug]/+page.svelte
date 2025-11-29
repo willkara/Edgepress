@@ -7,9 +7,18 @@
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 	import ViewCounter from '$lib/components/ViewCounter.svelte';
 	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const post = data.post; // post can be null here
+
+	// Build breadcrumbs
+	const breadcrumbItems = post ? [
+		{ label: 'Home', href: '/' },
+		{ label: 'Blog', href: '/blog' },
+		...(post.category_name ? [{ label: post.category_name, href: `/blog/category/${post.category_slug}` }] : []),
+		{ label: post.title }
+	] : [];
 
 	// Initialize these outside if they need to be accessed conditionally later,
 	// or only declare inside if branch if strictly used there.
@@ -87,6 +96,8 @@
 					</svg>
 					Back to home
 				</a>
+
+				<Breadcrumbs items={breadcrumbItems} />
 
 				<div class="article-meta flex flex-wrap items-center gap-x-2 gap-y-1">
 					<span>By {post.author_name} on {formatDateStandard(post.published_at)}</span>

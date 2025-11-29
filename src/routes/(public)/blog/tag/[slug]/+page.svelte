@@ -3,8 +3,15 @@
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
 	import { ArrowLeft, Tag } from 'lucide-svelte';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 
 	let { data }: { data: PageData } = $props();
+
+	const breadcrumbItems = [
+		{ label: 'Home', href: '/' },
+		{ label: 'Blog', href: '/blog' },
+		{ label: `#${data.tag.name}` }
+	];
 </script>
 
 <svelte:head>
@@ -18,6 +25,8 @@
 		<ArrowLeft class="w-4 h-4" />
 		Back to home
 	</a>
+
+	<Breadcrumbs items={breadcrumbItems} />
 
 	<!-- Tag Header -->
 	<div class="tag-header">
