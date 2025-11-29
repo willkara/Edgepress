@@ -1,4 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import type { QueryBindingValue } from './logger';
 import { generateSlug, calculateReadingTime } from '$lib/utils/slug';
 
 export interface AdminPost {
@@ -172,7 +173,7 @@ export async function updatePost(
 	input: UpdatePostInput
 ): Promise<AdminPost> {
 	const updates: string[] = [];
-	const bindings: any[] = [];
+	const bindings: QueryBindingValue[] = [];
 
 	if (input.title !== undefined) {
 		updates.push('title = ?');
@@ -282,7 +283,7 @@ export async function listPosts(
 	const offset = filters.offset || 0;
 
 	const conditions: string[] = [];
-	const bindings: any[] = [];
+	const bindings: QueryBindingValue[] = [];
 
 	// Status filter
 	if (filters.status && filters.status !== 'all') {
@@ -407,7 +408,7 @@ export async function updatePostTags(
 		const values = tagIds.map(() => '(?, ?)').join(', ');
 		const insertQuery = `INSERT INTO post_tags (post_id, tag_id) VALUES ${values}`;
 
-		const bindings: any[] = [];
+		const bindings: QueryBindingValue[] = [];
 		for (const tagId of tagIds) {
 			bindings.push(postId, tagId);
 		}
@@ -428,7 +429,7 @@ export async function isSlugAvailable(
 	excludePostId?: string
 ): Promise<boolean> {
 	let query = 'SELECT COUNT(*) as count FROM posts WHERE slug = ?';
-	const bindings: any[] = [slug];
+	const bindings: QueryBindingValue[] = [slug];
 
 	if (excludePostId) {
 		query += ' AND id != ?';

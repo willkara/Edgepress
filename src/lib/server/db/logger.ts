@@ -5,11 +5,13 @@
 
 import type { D1Database, D1Result, D1Response } from '@cloudflare/workers-types';
 
+export type QueryBindingValue = string | number | boolean | null | undefined;
+
 export interface QueryMetrics {
 	query: string;
 	duration: number;
 	timestamp: string;
-	params?: any[];
+	params?: QueryBindingValue[];
 }
 
 /**
@@ -24,7 +26,7 @@ const SLOW_QUERY_THRESHOLD_MS = 100;
 export async function trackQuery<T>(
 	queryName: string,
 	queryFn: () => Promise<T>,
-	params?: any[]
+	params?: QueryBindingValue[]
 ): Promise<T> {
 	const startTime = performance.now();
 
@@ -57,7 +59,7 @@ export async function trackQuery<T>(
 export async function trackedAll<T>(
 	db: D1Database,
 	query: string,
-	params: any[] = [],
+	params: QueryBindingValue[] = [],
 	queryName?: string
 ): Promise<D1Result<T>> {
 	return trackQuery(
@@ -76,7 +78,7 @@ export async function trackedAll<T>(
 export async function trackedFirst<T>(
 	db: D1Database,
 	query: string,
-	params: any[] = [],
+	params: QueryBindingValue[] = [],
 	queryName?: string
 ): Promise<T | null> {
 	return trackQuery(
@@ -95,7 +97,7 @@ export async function trackedFirst<T>(
 export async function trackedRun(
 	db: D1Database,
 	query: string,
-	params: any[] = [],
+	params: QueryBindingValue[] = [],
 	queryName?: string
 ): Promise<D1Response> {
 	return trackQuery(
@@ -122,7 +124,7 @@ export class RequestMetrics {
 	/**
 	 * Add a query to the metrics
 	 */
-	addQuery(queryName: string, duration: number, params?: any[]): void {
+	addQuery(queryName: string, duration: number, params?: QueryBindingValue[]): void {
 		this.queries.push({
 			query: queryName,
 			duration,
@@ -202,7 +204,7 @@ export class RequestMetrics {
 /**
  * Create a request metrics instance and attach to platform context
  */
-export function initRequestMetrics(platform: any): RequestMetrics {
+export function initRequestMetrics(platform: Record<string, unknown>): RequestMetrics {
 	const metrics = new RequestMetrics();
 	platform.metrics = metrics;
 	return metrics;
@@ -211,6 +213,7 @@ export function initRequestMetrics(platform: any): RequestMetrics {
 /**
  * Get request metrics from platform context
  */
-export function getRequestMetrics(platform: any): RequestMetrics | undefined {
-	return platform?.metrics;
+export function getRequestMetrics(platform: Record<string, unknown>): RequestMetrics | undefined {
+	const metrics = platform?.metrics;
+	return metrics instanceof RequestMetrics ? metrics : undefined;
 }

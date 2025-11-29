@@ -6,12 +6,13 @@ import type { CreateInjectionInput } from '$lib/server/db/injections';
 /**
  * Validation helpers
  */
-const VALID_LOCATIONS = ['head', 'body_start', 'body_end', 'post_before', 'post_after'];
+type InjectionLocation = 'head' | 'body_start' | 'body_end' | 'post_before' | 'post_after';
+const VALID_LOCATIONS: InjectionLocation[] = ['head', 'body_start', 'body_end', 'post_before', 'post_after'];
 const NAME_PATTERN = /^[a-zA-Z0-9-_]+$/;
 const MAX_CONTENT_LENGTH = 50000; // 50KB
 
-function validateName(name: string): void {
-	if (!name || name.trim().length === 0) {
+function validateName(name: unknown): asserts name is string {
+	if (typeof name !== 'string' || name.trim().length === 0) {
 		throw error(400, 'Name is required');
 	}
 	if (name.length > 100) {
@@ -22,17 +23,14 @@ function validateName(name: string): void {
 	}
 }
 
-function validateLocation(location: string): void {
-	if (!location) {
-		throw error(400, 'Location is required');
-	}
-	if (!VALID_LOCATIONS.includes(location)) {
+function validateLocation(location: unknown): asserts location is InjectionLocation {
+	if (typeof location !== 'string' || !VALID_LOCATIONS.includes(location as InjectionLocation)) {
 		throw error(400, `Invalid location. Must be one of: ${VALID_LOCATIONS.join(', ')}`);
 	}
 }
 
-function validateContent(content: string): void {
-	if (content === undefined || content === null) {
+function validateContent(content: unknown): asserts content is string {
+	if (typeof content !== 'string' || content.length === 0) {
 		throw error(400, 'Content is required');
 	}
 	if (content.length > MAX_CONTENT_LENGTH) {
@@ -40,8 +38,11 @@ function validateContent(content: string): void {
 	}
 }
 
-function validateIsActive(isActive: any): void {
-	if (isActive !== undefined && isActive !== 0 && isActive !== 1) {
+function validateIsActive(isActive: unknown): asserts isActive is number | undefined {
+	if (isActive !== undefined && typeof isActive !== 'number') {
+		throw error(400, 'is_active must be 0 or 1');
+	}
+	if (typeof isActive === 'number' && isActive !== 0 && isActive !== 1) {
 		throw error(400, 'is_active must be 0 or 1');
 	}
 }

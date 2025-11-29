@@ -1,5 +1,10 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	return String(error);
+}
+
 /**
  * Format a date string (ISO 8601) to a human-readable string relative to now.
  * Example: "2 days ago", "about 1 hour ago"
@@ -12,8 +17,8 @@ export function formatDateRelative(dateString: string): string {
 	try {
 		const date = parseISO(dateString);
 		return formatDistanceToNow(date, { addSuffix: true });
-	} catch (e) {
-		console.error('Error formatting relative date:', e);
+	} catch (error) {
+		console.error('Error formatting relative date:', getErrorMessage(error));
 		return dateString;
 	}
 }
@@ -29,8 +34,8 @@ export function formatDateStandard(dateString: string): string {
 	try {
 		const date = parseISO(dateString);
 		return format(date, 'MMM dd, yyyy');
-	} catch (e) {
-		console.error('Error formatting standard date:', e);
+	} catch (error) {
+		console.error('Error formatting standard date:', getErrorMessage(error));
 		return dateString;
 	}
 }
@@ -49,8 +54,8 @@ export function formatDateFull(dateString: string): string {
 		// but date-fns format is often sufficient.
 		// Let's stick to a clear, readable format.
 		return format(date, 'PPpp'); // Oct 29, 2023, 9:46 AM
-	} catch (e) {
-		console.error('Error formatting full date:', e);
+	} catch (error) {
+		console.error('Error formatting full date:', getErrorMessage(error));
 		return dateString;
 	}
 }

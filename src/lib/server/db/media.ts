@@ -1,4 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import type { QueryBindingValue } from './logger';
 
 export interface Media {
 	id: string;
@@ -245,7 +246,7 @@ export async function updateMedia(
 	}
 ): Promise<Media | null> {
 	const updates: string[] = [];
-	const values: any[] = [];
+	const values: QueryBindingValue[] = [];
 
 	if (data.alt_text !== undefined) {
 		updates.push('alt_text = ?');

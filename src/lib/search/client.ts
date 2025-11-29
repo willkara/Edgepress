@@ -1,5 +1,10 @@
 import type { SearchIndexItem, SearchResult } from '$lib/types/search';
 
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	return String(error);
+}
+
 function isSearchIndexItems(value: unknown): value is SearchIndexItem[] {
 	return Array.isArray(value);
 }
@@ -30,8 +35,8 @@ export async function fetchSearchIndex(): Promise<SearchIndexItem[]> {
 			}
 			return [];
 		})
-		.catch((err) => {
-			console.error('Failed to fetch search index', err);
+		.catch((error) => {
+			console.error('Failed to fetch search index', getErrorMessage(error));
 			return [];
 		})
 		.finally(() => {
@@ -114,7 +119,7 @@ export async function remoteSearch(query: string, limit = 20): Promise<SearchRes
 		}
 		return [];
 	} catch (error) {
-		console.error('Remote search error', error);
+		console.error('Remote search error', getErrorMessage(error));
 		return [];
 	}
 }

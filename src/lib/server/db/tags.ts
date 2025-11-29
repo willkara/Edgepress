@@ -1,4 +1,5 @@
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
+import type { QueryBindingValue } from './logger';
 import { generateSlug } from '$lib/utils/slug';
 
 export interface Tag {
@@ -138,7 +139,7 @@ export async function createTag(db: D1Database, input: CreateTagInput): Promise<
  */
 export async function updateTag(db: D1Database, id: string, input: UpdateTagInput): Promise<Tag> {
 	const updates: string[] = [];
-	const bindings: any[] = [];
+	const bindings: QueryBindingValue[] = [];
 
 	if (input.name !== undefined) {
 		updates.push('name = ?');
@@ -223,7 +224,7 @@ export async function isSlugAvailable(
 	excludeTagId?: string
 ): Promise<boolean> {
 	let query = 'SELECT COUNT(*) as count FROM tags WHERE slug = ?';
-	const bindings: any[] = [slug];
+	const bindings: QueryBindingValue[] = [slug];
 
 	if (excludeTagId) {
 		query += ' AND id != ?';

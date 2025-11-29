@@ -1,4 +1,5 @@
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
+import type { QueryBindingValue } from './logger';
 import { generateSlug } from '$lib/utils/slug';
 
 export interface Category {
@@ -148,7 +149,7 @@ export async function updateCategory(
 	input: UpdateCategoryInput
 ): Promise<Category> {
 	const updates: string[] = [];
-	const bindings: any[] = [];
+	const bindings: QueryBindingValue[] = [];
 
 	if (input.name !== undefined) {
 		updates.push('name = ?');
@@ -233,7 +234,7 @@ export async function isSlugAvailable(
 	excludeCategoryId?: string
 ): Promise<boolean> {
 	let query = 'SELECT COUNT(*) as count FROM categories WHERE slug = ?';
-	const bindings: any[] = [slug];
+	const bindings: QueryBindingValue[] = [slug];
 
 	if (excludeCategoryId) {
 		query += ' AND id != ?';
