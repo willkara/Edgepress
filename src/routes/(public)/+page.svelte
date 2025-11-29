@@ -42,7 +42,7 @@
 				<div class="post-meta">
 					{formatDateRelative(post.published_at)}
 					{#if post.category_name}
-						· {post.category_name}
+						· <a href="/blog/category/{post.category_slug}" class="category-link">{post.category_name}</a>
 					{/if}
 					{#if post.reading_time}
 						· {post.reading_time} min read
@@ -62,3 +62,15 @@
 		</SpotlightCard>
 	{/each}
 {/if}
+
+<style>
+	.category-link {
+		color: var(--text-subtle);
+		text-decoration: none;
+		transition: color 150ms;
+	}
+
+	.category-link:hover {
+		color: var(--accent);
+	}
+</style>

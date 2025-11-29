@@ -112,6 +112,64 @@ export async function getPublishedPostsCount(db: D1Database): Promise<number> {
 }
 
 /**
+ * Get published posts by category slug with pagination
+ */
+export async function getPostsByCategory(
+	db: D1Database,
+	categorySlug: string,
+	limit = 20,
+	offset = 0
+): Promise<Post[]> {
+	const query = `
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		INNER JOIN categories c ON p.category_id = c.id
+		WHERE c.slug = ? AND p.status = 'published' AND p.published_at <= ?
+		ORDER BY p.published_at DESC
+		LIMIT ? OFFSET ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db.prepare(query).bind(categorySlug, now, limit, offset).all<Post>();
+	return result.results || [];
+}
+
+/**
+ * Get published posts by tag slug with pagination
+ */
+export async function getPostsByTag(
+	db: D1Database,
+	tagSlug: string,
+	limit = 20,
+	offset = 0
+): Promise<Post[]> {
+	const query = `
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		INNER JOIN post_tags pt ON p.id = pt.post_id
+		INNER JOIN tags t ON pt.tag_id = t.id
+		WHERE t.slug = ? AND p.status = 'published' AND p.published_at <= ?
+		ORDER BY p.published_at DESC
+		LIMIT ? OFFSET ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db.prepare(query).bind(tagSlug, now, limit, offset).all<Post>();
+	return result.results || [];
+}
+
+/**
  * Get published posts with caching
  * TTL: 300 seconds (5 minutes) - balances freshness with performance
  */

@@ -91,7 +91,7 @@
 				<div class="article-meta flex flex-wrap items-center gap-x-2 gap-y-1">
 					<span>By {post.author_name} on {formatDateStandard(post.published_at)}</span>
 					{#if post.category_name}
-						<span>· {post.category_name}</span>
+						<span>· <a href="/blog/category/{post.category_slug}" class="category-link">{post.category_name}</a></span>
 					{/if}
 					{#if post.reading_time}
 						<span>· {post.reading_time} min read</span>
@@ -103,6 +103,16 @@
 
 				{#if post.excerpt}
 					<p class="text-lg text-muted-foreground mb-6">{post.excerpt}</p>
+				{/if}
+
+				{#if data.tags && data.tags.length > 0}
+					<div class="article-tags">
+						{#each data.tags as tag}
+							<a href="/blog/tag/{tag.slug}" class="tag">
+								{tag.name}
+							</a>
+						{/each}
+					</div>
 				{/if}
 			</div>
 
@@ -124,3 +134,39 @@
 		<p>Post not found. Please check the URL.</p>
 	</div>
 {/if}
+
+<style>
+	.category-link {
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: color 150ms;
+	}
+
+	.category-link:hover {
+		color: var(--accent);
+	}
+
+	.article-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.tag {
+		font-size: 0.75rem;
+		padding: 0.25rem 0.75rem;
+		border-radius: 999px;
+		background: var(--tag-bg);
+		border: 1px solid rgba(148, 163, 184, 0.4);
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: all 150ms;
+	}
+
+	.tag:hover {
+		background: var(--accent-soft);
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+</style>
