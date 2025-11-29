@@ -1,0 +1,126 @@
+<script lang="ts">
+	import { formatDateStandard } from '$lib/utils/date';
+	import DOMPurify from 'isomorphic-dompurify';
+	import type { PageData } from './$types';
+	import ReadingProgressBar from '$lib/components/ReadingProgressBar.svelte';
+	import { extractToc, type TocItem } from '$lib/utils/toc';
+	import TableOfContents from '$lib/components/TableOfContents.svelte';
+	import ViewCounter from '$lib/components/ViewCounter.svelte';
+	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
+
+	let { data }: { data: PageData } = $props();
+	const post = data.post; // post can be null here
+
+	// Initialize these outside if they need to be accessed conditionally later,
+	// or only declare inside if branch if strictly used there.
+	let toc = $state<TocItem[]>([]);
+	let sanitizedContent = $state('');
+	let activeHeadingId = $state(''); // Declare here to be available for conditional rendering
+
+	let observer: IntersectionObserver | undefined; // Make observer optional
+
+	// Effect runs only if post is available, and disconnects if it disappears
+	$effect(() => {
+		if (post) {
+			const { toc: extractedToc, html: modifiedHtml } = extractToc(post.content_html);
+			toc = extractedToc;
+			sanitizedContent = DOMPurify.sanitize(modifiedHtml);
+
+			observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						activeHeadingId = entry.target.id;
+					}
+				});
+			}, {
+				rootMargin: '-50% 0px -50% 0px',
+				threshold: 0
+			});
+
+			const articleBody = document.querySelector('.article-body');
+			if (articleBody) {
+				articleBody.querySelectorAll('h2, h3').forEach(heading => {
+					observer?.observe(heading);
+				});
+			}
+		}
+
+		return () => {
+			observer?.disconnect();
+			observer = undefined; // Clear observer on cleanup
+		};
+	});
+</script>
+
+<svelte:head>
+	<title>{post?.title || 'EdgePress'} - EdgePress</title>
+	<meta name="description" content={post?.excerpt || post?.title || 'A serverless blog platform powered by Cloudflare'} />
+	<!-- Open Graph / Social Media Meta Tags -->
+	<meta property="og:title" content={post?.title || 'EdgePress'} />
+	<meta property="og:description" content={post?.excerpt || post?.title || 'A serverless blog platform powered by Cloudflare'} />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content={`https://yourdomain.com/blog/${post?.slug || ''}`} />
+	{#if post?.hero_image_id}
+		<meta property="og:image" content={`https://imagedelivery.net/YOUR_CF_ACCOUNT_HASH/${post.hero_image_id}/public`} />
+	{/if}
+</svelte:head>
+
+{#if post}
+	<ReadingProgressBar />
+
+	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8">
+		<!-- Main Article Content -->
+		<div class="flex-1 min-w-0 max-w-prose mx-auto">
+			<div class="mb-8">
+				<a href="/" class="article-back">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-4 w-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="m15 18-6-6 6-6" />
+					</svg>
+					Back to home
+				</a>
+
+				<div class="article-meta flex flex-wrap items-center gap-x-2 gap-y-1">
+					<span>By {post.author_name} on {formatDateStandard(post.published_at)}</span>
+					{#if post.category_name}
+						<span>· {post.category_name}</span>
+					{/if}
+					{#if post.reading_time}
+						<span>· {post.reading_time} min read</span>
+					{/if}
+					<span>·</span>
+					<ViewCounter slug={post.slug} initialViews={post.view_count || 0} />
+				</div>
+				<h1 class="article-title">{post.title}</h1>
+
+				{#if post.excerpt}
+					<p class="text-lg text-muted-foreground mb-6">{post.excerpt}</p>
+				{/if}
+			</div>
+
+			<div class="article-body">
+				{@html sanitizedContent}
+			</div>
+		</div>
+
+		<!-- Table of Contents Sidebar -->
+		{#if toc.length > 0}
+			<TableOfContents toc={toc} activeHeadingId={activeHeadingId} />
+		{/if}
+	</div>
+
+	<MobileArticleNav title={post.title} toc={toc} activeHeadingId={activeHeadingId} />
+{:else}
+	<!-- Fallback for when post is null -->
+	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8 text-center text-lg text-muted-foreground">
+		<p>Post not found. Please check the URL.</p>
+	</div>
+{/if}

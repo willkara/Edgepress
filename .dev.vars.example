@@ -1,0 +1,15 @@
+# EdgePress Local Development Environment Variables
+# Copy this file to .dev.vars and fill in your actual values
+# DO NOT commit .dev.vars to version control!
+
+# JWT Secret for authentication (generate with: openssl rand -base64 32)
+JWT_SECRET=your-jwt-secret-at-least-32-characters-long
+
+# Cloudflare Images API Token (create in Cloudflare Dashboard > My Profile > API Tokens)
+CF_IMAGES_TOKEN=your-cloudflare-images-api-token
+
+# Cloudflare Account ID (get from: wrangler whoami)
+CF_ACCOUNT_ID=your-cloudflare-account-id
+
+# Cloudflare Images Delivery Hash (found in Cloudflare Dashboard > Images)
+CF_IMAGES_HASH=your-images-delivery-hash

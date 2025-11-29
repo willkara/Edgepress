@@ -1,0 +1,45 @@
+name = "edgepress"
+compatibility_date = "2025-11-17"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+# Production D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "edgepress-db-v2"
+database_id = "00d41bc7-4dc1-45a2-8d1e-710704e65c7d"
+
+# Production KV Namespaces
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "0f8c7c1c598e4836b27bd44c8277ead5"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "5cccf14b5ee24a188aa6ea272a69bf1f"
+
+# Environment variables
+[vars]
+CF_ACCOUNT_ID = "669daa4955e836aa1b5765242447e624"
+CF_IMAGES_HASH = "85W-49Me6nqxR-nYayH9pA"
+
+# Development environment (commented out for Pages deployment - use wrangler CLI flags for local dev)
+# [env.development]
+#
+# [[env.development.d1_databases]]
+# binding = "DB"
+# database_name = "edgepress-db-dev"
+# database_id = "b397dd5c-ba28-4027-acc3-ea634fca128f"
+#
+# [[env.development.kv_namespaces]]
+# binding = "SESSIONS"
+# id = "0f8c7c1c598e4836b27bd44c8277ead5"
+# preview_id = "f168ee2bda774f9f95931e0b2dba99c2"
+#
+# [[env.development.kv_namespaces]]
+# binding = "CACHE"
+# id = "5cccf14b5ee24a188aa6ea272a69bf1f"
+# preview_id = "7273f34e191a4f25a99e5c153c332e97"
+
+# Secrets (set with: wrangler secret put <NAME>)
+# - CF_IMAGES_TOKEN (from Cloudflare Images API token)
+# - JWT_SECRET (generate with: openssl rand -base64 32)
