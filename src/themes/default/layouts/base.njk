@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+	<link rel="icon" href="/favicon.png" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    {# NOTE: app.css is injected by SvelteKit's %sveltekit.head% usually,
+       but here we are taking over.
+       Actually, standard SvelteKit layout injection works if we render this INSIDE the +layout.svelte slot.
+       But we want to template the *layout* too.
+    #}
+
+    {# For now, since we are rendering this string INSIDE a Svelte component (ThemeRenderer) which is INSIDE +layout.svelte (potentially),
+       we might only need the inner HTML content.
+
+       HOWEVER, the plan says: "Extract the outer shell ... into base.njk".
+       If we want to replace +layout.svelte's HTML structure, we should include the sidebar and main wrapper here.
+    #}
+</head>
+<body>
+    <div class="min-h-screen flex flex-col lg:flex-row">
+        <!-- Mobile Header -->
+        {# component 'MobilePublicNav', { user: user } #}
+        {{ component('MobilePublicNav', { user: user }) | safe }}
+
+        <!-- Desktop Sidebar -->
+        <div class="hidden lg:block w-[260px] shrink-0 h-screen sticky top-0">
+             {# component 'PublicSidebar', { user: user } #}
+             {# Wait, PublicSidebar is a complex component. We need to add it to registry. #}
+             {{ component('PublicSidebar', { user: user }) | safe }}
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 min-w-0">
+            <div class="container max-w-5xl mx-auto px-4 py-8 lg:px-8 lg:py-10">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

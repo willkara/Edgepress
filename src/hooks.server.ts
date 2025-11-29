@@ -185,7 +185,6 @@ export const handleError: HandleServerError = ({ error, event }) => {
 	const requestId = event.locals.requestId ?? crypto.randomUUID();
 
 	// Cloudflare provides request metadata in the 'cf' property
-	// @ts-expect-error - cf property exists in Cloudflare Workers runtime
 	const cf = (event.request as Request & { cf?: Record<string, string> }).cf;
 
 	// Log error with full context for debugging

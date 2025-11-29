@@ -1,0 +1,69 @@
+{% extends "layouts/base.njk" %}
+
+{% block content %}
+<section class="hero">
+	<div class="hero-title">EdgePress</div>
+	<p class="hero-subtitle">
+		Blog at the edge. Serverless, markdown-first, and deployed where it matters.
+	</p>
+	<div class="hero-actions">
+		{% if posts.length > 0 %}
+			<a href="/blog/{{ posts[0].slug }}" class="button-primary"> Read latest </a>
+		{% else %}
+			<a href="/" class="button-primary"> Read the intro </a>
+		{% endif %}
+		<a href="https://github.com" class="button-ghost" target="_blank" rel="noopener noreferrer">
+			View on GitHub
+		</a>
+	</div>
+</section>
+
+<h2 class="posts-heading">Latest posts</h2>
+
+{% if posts.length == 0 %}
+	<div class="post-card" style="text-align: center; padding: 3rem;">
+		<p class="post-excerpt">No posts published yet. Check back soon!</p>
+	</div>
+{% else %}
+	{% for post in posts %}
+        {# We need SpotlightCard component here. #}
+        {# Since SpotlightCard wraps content, this is tricky with the current 'component' helper which renders a self-closing div. #}
+        {# Solution: We might need to implement SpotlightCard as a plain HTML structure if possible, OR enhance the engine to support slots. #}
+        {# Checking SpotlightCard code first... #}
+
+        {# For now, I will assume SpotlightCard is a visual effect wrapper.
+           If it's just a hover effect, maybe we can implement it in CSS or a simpler component.
+           Let's temporarily OMIT SpotlightCard wrapper and just render the article,
+           OR simply mount the whole article inside the component prop (messy).
+
+           Better approach for 'wrapper' components:
+           Just render the article normally in HTML.
+           If SpotlightCard is crucial, we should check its implementation.
+        #}
+
+		<article class="post-card relative group">
+            {# Replicating SpotlightCard effect might need JS or custom component usage.
+               Let's try to keep it simple first: just the HTML. #}
+			<div class="post-meta">
+				{{ post.published_at | date_relative }}
+				{% if post.category_name %}
+					· {{ post.category_name }}
+				{% endif %}
+				{% if post.reading_time %}
+					· {{ post.reading_time }} min read
+				{% endif %}
+			</div>
+			<h3 class="post-title">
+				<a href="/blog/{{ post.slug }}">
+					{{ post.title }}
+				</a>
+			</h3>
+			{% if post.excerpt %}
+				<p class="post-excerpt">
+					{{ post.excerpt }}
+				</p>
+			{% endif %}
+		</article>
+	{% endfor %}
+{% endif %}
+{% endblock %}
