@@ -53,33 +53,36 @@ export const PUT: RequestHandler = async ({ params, request, platform, locals })
 		throw error(500, 'Database not available');
 	}
 
-	try {
-		const body = await request.json();
+        try {
+                const parsedBody = (await request.json()) as unknown;
+                if (!parsedBody || typeof parsedBody !== 'object') {
+                        throw error(400, 'Invalid request body');
+                }
 
-		// Validate name if provided
-		if (body.name !== undefined) {
-			if (typeof body.name !== 'string') {
-				throw error(400, 'Category name must be a string');
-			}
+                const { name, slug } = parsedBody as Record<string, unknown>;
 
-			if (body.name.trim().length === 0) {
-				throw error(400, 'Category name cannot be empty');
-			}
+                if (name !== undefined) {
+                        if (typeof name !== 'string') {
+                                throw error(400, 'Category name must be a string');
+                        }
 
-			if (body.name.length > 100) {
-				throw error(400, 'Category name is too long (max 100 characters)');
-			}
-		}
+                        if (name.trim().length === 0) {
+                                throw error(400, 'Category name cannot be empty');
+                        }
 
-		// Validate slug if provided
-		if (body.slug !== undefined && typeof body.slug !== 'string') {
-			throw error(400, 'Category slug must be a string');
-		}
+                        if (name.length > 100) {
+                                throw error(400, 'Category name is too long (max 100 characters)');
+                        }
+                }
 
-		const category = await updateCategory(platform.env.DB, params.id, {
-			name: body.name?.trim(),
-			slug: body.slug?.trim()
-		});
+                if (slug !== undefined && typeof slug !== 'string') {
+                        throw error(400, 'Category slug must be a string');
+                }
+
+                const category = await updateCategory(platform.env.DB, params.id, {
+                        name: typeof name === 'string' ? name.trim() : undefined,
+                        slug: typeof slug === 'string' ? slug.trim() : undefined
+                });
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {

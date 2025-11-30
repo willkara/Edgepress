@@ -12,15 +12,23 @@
 	let saving = $state(false);
 
 	// Settings editing
-	let editingSettings = $state(false);
-	let settingsForm = $state({
-		pageTitle: settings.pageTitle,
-		pageSubtitle: settings.pageSubtitle,
-		showAll: settings.showAll
-	});
+        let editingSettings = $state(false);
+        let settingsForm = $state({
+                pageTitle: '',
+                pageSubtitle: '',
+                showAll: false
+        });
+
+        $effect(() => {
+                settingsForm = {
+                        pageTitle: settings.pageTitle,
+                        pageSubtitle: settings.pageSubtitle,
+                        showAll: settings.showAll
+                };
+        });
 
 	// Drag and drop state
-	let draggedItem: any = null;
+        let draggedItem = $state<any>(null);
 
 	function handleDragStart(event: DragEvent, project: any) {
 		draggedItem = project;
@@ -313,14 +321,16 @@
 		{:else}
 			<div class="featured-list">
 				{#each featuredProjects as project (project.id)}
-					<div
-						class="featured-item"
-						class:hidden={project.is_featured === 0}
-						draggable="true"
-						ondragstart={(e) => handleDragStart(e, project)}
-						ondragover={handleDragOver}
-						ondrop={(e) => handleDrop(e, project)}
-					>
+                                        <div
+                                                class="featured-item"
+                                                class:hidden={project.is_featured === 0}
+                                                draggable="true"
+                                                role="listitem"
+                                                aria-grabbed={draggedItem?.id === project.id ? 'true' : 'false'}
+                                                ondragstart={(e) => handleDragStart(e, project)}
+                                                ondragover={handleDragOver}
+                                                ondrop={(e) => handleDrop(e, project)}
+                                        >
 						<div class="drag-handle">
 							<GripVertical class="w-5 h-5 text-gray-400" />
 						</div>

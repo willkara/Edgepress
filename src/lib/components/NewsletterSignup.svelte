@@ -83,11 +83,15 @@
 
 		{#if message}
 			<div class="message" class:success={status === 'success'} class:error={status === 'error'}>
-				{#if status === 'success'}
-					<CheckCircle class="message-icon" />
-				{:else if status === 'error'}
-					<AlertCircle class="message-icon" />
-				{/if}
+                                {#if status === 'success'}
+                                        <span class="message-icon" aria-hidden="true">
+                                                <CheckCircle />
+                                        </span>
+                                {:else if status === 'error'}
+                                        <span class="message-icon" aria-hidden="true">
+                                                <AlertCircle />
+                                        </span>
+                                {/if}
 				<span>{message}</span>
 			</div>
 		{/if}
@@ -239,11 +243,17 @@
 		color: rgb(248, 113, 113);
 	}
 
-	.message-icon {
-		width: 1.125rem;
-		height: 1.125rem;
-		flex-shrink: 0;
-	}
+        .message-icon {
+                display: inline-flex;
+                width: 1.125rem;
+                height: 1.125rem;
+                flex-shrink: 0;
+        }
+
+        .message-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.newsletter-privacy {
 		font-size: 0.8125rem;

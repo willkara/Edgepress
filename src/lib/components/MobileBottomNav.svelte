@@ -15,11 +15,13 @@
 <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
 	{#each navItems as item}
 		{@const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/')}
-		<a href={item.href} class="nav-item" class:active={isActive} aria-current={isActive ? 'page' : undefined}>
-			<item.icon class="nav-icon" />
-			<span class="nav-label">{item.label}</span>
-		</a>
-	{/each}
+                <a href={item.href} class="nav-item" class:active={isActive} aria-current={isActive ? 'page' : undefined}>
+                        <span class="nav-icon" aria-hidden="true">
+                                <item.icon />
+                        </span>
+                        <span class="nav-label">{item.label}</span>
+                </a>
+        {/each}
 </nav>
 
 <style>
@@ -78,11 +80,17 @@
 		border-radius: 0 0 4px 4px;
 	}
 
-	.nav-icon {
-		width: 1.375rem;
-		height: 1.375rem;
-		flex-shrink: 0;
-	}
+        .nav-icon {
+                display: inline-flex;
+                width: 1.375rem;
+                height: 1.375rem;
+                flex-shrink: 0;
+        }
+
+        .nav-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.nav-label {
 		font-size: 0.6875rem;

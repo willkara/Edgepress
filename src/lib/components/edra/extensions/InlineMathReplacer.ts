@@ -7,7 +7,7 @@ export const InlineMathReplacer = InlineMath.extend({
 		return [
 			new InputRule({
 				find: /\$\$([^$]+)\$\$/,
-				handler: ({ state, range, match, commands }: any) => {
+                                handler: ({ match, commands }: any) => {
 					const latex = match[1];
 					// Insert the inline math node with the LaTeX content
 					commands.insertInlineMath({

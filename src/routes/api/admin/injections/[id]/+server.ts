@@ -89,30 +89,34 @@ export const PUT: RequestHandler = async ({ params, request, platform, locals })
 		throw error(500, 'Database not available');
 	}
 
-	try {
-		const body = await request.json();
-		const input: UpdateInjectionInput = {};
+        try {
+                const parsedBody = (await request.json()) as unknown;
+                if (!parsedBody || typeof parsedBody !== 'object') {
+                        throw error(400, 'Invalid request body');
+                }
 
-		// Validate and build update object (partial updates supported)
-		if (body.name !== undefined) {
-			validateName(body.name);
-			input.name = body.name.trim();
-		}
+                const { name, location, content, is_active } = parsedBody as Record<string, unknown>;
+                const input: UpdateInjectionInput = {};
 
-		if (body.location !== undefined) {
-			validateLocation(body.location);
-			input.location = body.location;
-		}
+                if (name !== undefined) {
+                        validateName(name);
+                        input.name = name.trim();
+                }
 
-		if (body.content !== undefined) {
-			validateContent(body.content);
-			input.content = body.content;
-		}
+                if (location !== undefined) {
+                        validateLocation(location);
+                        input.location = location;
+                }
 
-		if (body.is_active !== undefined) {
-			validateIsActive(body.is_active);
-			input.is_active = body.is_active;
-		}
+                if (content !== undefined) {
+                        validateContent(content);
+                        input.content = content;
+                }
+
+                if (is_active !== undefined) {
+                        validateIsActive(is_active);
+                        input.is_active = is_active;
+                }
 
 		const injection = await updateInjection(platform.env.DB, params.id, input);
 		return json(injection);

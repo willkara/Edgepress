@@ -1,6 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { error } from '@sveltejs/kit';
-import { postSchema, postTagSchema, type Post, type PostTag } from '$lib/types/posts';
+import { postSchema, postTagSchema, type PostTag } from '$lib/types/posts';
 import type { PageServerLoad } from './$types';
 import { z } from 'zod';
 
