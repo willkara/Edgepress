@@ -60,12 +60,7 @@
 
 <div class="cloudflare-image {className}" class:loaded class:error>
 	{#if blurhash && !loaded}
-		<img
-			src={blurhashToDataUrl(blurhash)}
-			alt=""
-			class="placeholder"
-			aria-hidden="true"
-		/>
+		<img src={blurhashToDataUrl(blurhash)} alt="" class="placeholder" aria-hidden="true" />
 	{/if}
 
 	<img

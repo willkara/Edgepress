@@ -44,7 +44,12 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
  * PUT /api/admin/media/[id]
  * Update media metadata (alt_text, filename)
  */
-export const PUT: RequestHandler = async ({ platform, locals, params, request }): Promise<Response> => {
+export const PUT: RequestHandler = async ({
+	platform,
+	locals,
+	params,
+	request
+}): Promise<Response> => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}

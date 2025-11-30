@@ -1,0 +1,379 @@
+
+> edgepress@0.0.1 lint
+> svelte-kit sync && eslint .
+
+
+/app/src/app.d.ts
+  29:37  error  'Ai' is not defined  no-undef
+
+/app/src/lib/components/Breadcrumbs.svelte
+  12:8  error  'schemaData' is assigned a value but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u  @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/CloudflareImage.svelte
+  35:29  error  'hash' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/ContinueReadingBanner.svelte
+  31:12  error  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  47:12  error  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/CopyCodeButton.svelte
+  2:11  error  'Check' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u            @typescript-eslint/no-unused-vars
+  2:18  error  'Copy' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u             @typescript-eslint/no-unused-vars
+  5:6   error  'copied' is assigned a value but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u  @typescript-eslint/no-unused-vars
+  8:11  error  'copyCode' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u         @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/NewsletterSignup.svelte
+  36:12  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/ProjectCard.svelte
+  54:81  error  Using target="_blank" without rel="noopener noreferrer" is a security risk  svelte/no-target-blank
+  57:81  error  Using target="_blank" without rel="noopener noreferrer" is a security risk  svelte/no-target-blank
+
+/app/src/lib/components/ReadingProgressBar.svelte
+  56:13  error  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  65:13  error  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/lib/components/TableOfContents.svelte
+  17:12  error  'e' is defined but never used                                            @typescript-eslint/no-unused-vars
+  42:12  error  'e' is defined but never used                                            @typescript-eslint/no-unused-vars
+  98:45  error  'index' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/app/src/lib/search/client.ts
+  10:37  error  Expected { after 'if' condition  curly
+
+/app/src/lib/server/db/logger.ts
+   37:17  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  218:3   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+/app/src/lib/server/db/media.ts
+  199:12  error  Unsafe call of a(n) `any` typed value  @typescript-eslint/no-unsafe-call
+  199:12  error  Unsafe call of a(n) `any` typed value  @typescript-eslint/no-unsafe-call
+  201:31  error  Unsafe call of a(n) `any` typed value  @typescript-eslint/no-unsafe-call
+
+/app/src/lib/server/db/projects.ts
+  48:34  error  Unsafe call of a(n) `any` typed value  @typescript-eslint/no-unsafe-call
+
+/app/src/lib/utils/date.ts
+  4:30  error  Expected { after 'if' condition  curly
+
+/app/src/routes/(admin)/admin/categories/+page.server.ts
+  15:45  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  20:16  error    Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/admin/injections/+page.server.ts
+  15:45  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  17:16  error    Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/admin/media/+page.server.ts
+  14:49  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  15:32  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(admin)/admin/posts/+page.server.ts
+  18:8   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  21:49  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  22:48  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  23:53  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  28:34  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(admin)/admin/posts/+page.svelte
+  45:12  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  66:12  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/routes/(admin)/admin/posts/[id]/edit/+page.server.ts
+  14:8   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  17:34  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  22:38  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  24:9   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  24:34  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  24:34  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  25:5   warning  Unsafe member access .prepare on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  26:5   warning  Unsafe member access .all on an `error` typed value                                                        @typescript-eslint/no-unsafe-member-access
+  28:9   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  28:28  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  28:28  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  29:5   warning  Unsafe member access .prepare on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  30:5   warning  Unsafe member access .all on an `error` typed value                                                        @typescript-eslint/no-unsafe-member-access
+  35:33  warning  Unsafe member access .results on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  35:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  36:21  warning  Unsafe member access .results on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  36:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  38:16  error    Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/admin/posts/[id]/edit/+page.svelte
+  306:8  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+
+/app/src/routes/(admin)/admin/posts/new/+page.server.ts
+  11:8   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  15:9   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  15:34  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  15:34  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  16:5   warning  Unsafe member access .prepare on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  17:5   warning  Unsafe member access .all on an `error` typed value                                                        @typescript-eslint/no-unsafe-member-access
+  20:9   warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+  20:28  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  20:28  error    Unsafe call of a(n) `error` type typed value                                                               @typescript-eslint/no-unsafe-call
+  21:5   warning  Unsafe member access .prepare on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  22:5   warning  Unsafe member access .all on an `error` typed value                                                        @typescript-eslint/no-unsafe-member-access
+  25:33  warning  Unsafe member access .results on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  25:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  26:21  warning  Unsafe member access .results on an `error` typed value                                                    @typescript-eslint/no-unsafe-member-access
+  26:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+/app/src/routes/(admin)/admin/posts/new/+page.svelte
+  262:8  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+
+/app/src/routes/(admin)/admin/projects/+page.server.ts
+  17:24  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  18:30  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  19:15  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  20:15  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  21:15  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  28:26  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  29:32  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  33:16  error    Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/admin/settings/+page.server.ts
+  19:49  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  19:66  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  21:16  error    Unexpected any. Specify a different type                                                   @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/admin/tags/+page.server.ts
+  15:33  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  20:16  error    Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+
+/app/src/routes/(admin)/login/+page.svelte
+  29:12  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/routes/(public)/+page.server.ts
+  23:57  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  23:74  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  24:53  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  25:50  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  26:49  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(public)/+page.svelte
+   5:9   error  'SkeletonCard' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u        @typescript-eslint/no-unused-vars
+   7:41  error  'ExternalLink' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u        @typescript-eslint/no-unused-vars
+  13:15  error  'isLoading' is assigned a value but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u  @typescript-eslint/no-unused-vars
+
+/app/src/routes/(public)/blog/+page.server.ts
+  15:25  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  16:25  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(public)/blog/+page.svelte
+  46:26  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/app/src/routes/(public)/blog/[slug]/+page.server.ts
+  19:25  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  20:25  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  33:37  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  34:41  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(public)/blog/[slug]/+page.svelte
+  143:5  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+
+/app/src/routes/(public)/blog/category/[slug]/+page.server.ts
+  17:61  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  26:59  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  33:16  error    Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  34:11  warning  Unsafe member access .status on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+
+/app/src/routes/(public)/blog/preview/[token]/+page.server.ts
+  34:16  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  59:61  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  76:51  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(public)/blog/preview/[token]/+page.svelte
+    8:9  error  'ViewCounter' is defined but never used. Allowed unused vars must match /^_|^\$\$(Props|Events|Slots|Generic)/u  @typescript-eslint/no-unused-vars
+  147:5  error  `{@html}` can lead to XSS attack                                                                                 svelte/no-at-html-tags
+
+/app/src/routes/(public)/blog/tag/[slug]/+page.server.ts
+  17:51  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  26:54  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/(public)/projects/+page.server.ts
+   39:27  error    This assertion is unnecessary since it does not change the type of the expression                          @typescript-eslint/no-unnecessary-type-assertion
+   41:15  warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+   42:15  warning  Unsafe assignment of an error typed value                                                                  @typescript-eslint/no-unsafe-assignment
+   44:78  warning  Missing return type on function                                                                            @typescript-eslint/explicit-function-return-type
+   52:77  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+   52:81  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`                  @typescript-eslint/no-unsafe-argument
+   53:71  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+   55:73  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+   57:52  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+   60:52  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+   63:52  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  102:67  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  102:71  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`                  @typescript-eslint/no-unsafe-argument
+  103:61  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  122:54  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  123:60  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+/app/src/routes/+layout.server.ts
+  17:50  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/+layout.svelte
+  29:3  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+  35:2  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+  57:2  error  `{@html}` can lead to XSS attack  svelte/no-at-html-tags
+
+/app/src/routes/api/admin/categories/+server.ts
+  19:45  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  65:55  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  73:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/categories/[id]/+server.ts
+   24:42  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+   82:55  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+   90:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  127:48  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  130:24  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  135:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/injections/+server.ts
+   64:45  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+  102:36  warning  Prefer using nullish coalescing operator (`??`) instead of a ternary expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+  105:43  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`                           @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/injections/[id]/+server.ts
+   61:44  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  121:43  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  148:25  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/media/+server.ts
+  18:8   warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  26:33  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/media/[id]/+server.ts
+  18:8   warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  21:36  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  27:37  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  56:8   warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  59:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  61:35  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  62:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  62:19  warning  Unsafe member access .alt_text on an `any` value                                  @typescript-eslint/no-unsafe-member-access
+  63:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  63:19  warning  Unsafe member access .filename on an `any` value                                  @typescript-eslint/no-unsafe-member-access
+  94:8   warning  Unsafe assignment of an error typed value                                         @typescript-eslint/no-unsafe-assignment
+  99:36  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/media/upload/+server.ts
+  56:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  58:17  warning  Unsafe member access .success on an `any` value                                   @typescript-eslint/no-unsafe-member-access
+  58:38  warning  Unsafe member access .result on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+  62:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  62:30  warning  Unsafe member access .result on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+  63:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  63:31  warning  Unsafe member access .result on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+  64:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  64:26  warning  Unsafe member access .result on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+  65:9   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  65:27  warning  Unsafe member access .result on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+  70:35  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  72:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  75:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  76:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  84:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  87:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  88:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+  89:4   warning  Unsafe assignment of an `any` value                                               @typescript-eslint/no-unsafe-assignment
+
+/app/src/routes/api/admin/posts/+server.ts
+   21:8   warning  Unsafe assignment of an error typed value                                                  @typescript-eslint/no-unsafe-assignment
+   32:34  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+   61:8   warning  Unsafe assignment of an error typed value                                                  @typescript-eslint/no-unsafe-assignment
+   64:9   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   67:13  warning  Unsafe member access .title on an `any` value                                              @typescript-eslint/no-unsafe-member-access
+   67:28  warning  Unsafe member access .content_md on an `any` value                                         @typescript-eslint/no-unsafe-member-access
+   67:48  warning  Unsafe member access .content_html on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+   72:33  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+   74:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   74:16  warning  Unsafe member access .title on an `any` value                                              @typescript-eslint/no-unsafe-member-access
+   75:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   75:15  warning  Unsafe member access .slug on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+   76:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   76:21  warning  Unsafe member access .content_md on an `any` value                                         @typescript-eslint/no-unsafe-member-access
+   77:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   77:23  warning  Unsafe member access .content_html on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+   78:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   78:18  warning  Unsafe member access .excerpt on an `any` value                                            @typescript-eslint/no-unsafe-member-access
+   79:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   79:24  warning  Unsafe member access .hero_image_id on an `any` value                                      @typescript-eslint/no-unsafe-member-access
+   80:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   80:22  warning  Unsafe member access .category_id on an `any` value                                        @typescript-eslint/no-unsafe-member-access
+   81:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   81:17  warning  Unsafe member access .status on an `any` value                                             @typescript-eslint/no-unsafe-member-access
+   82:4   warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+   82:23  warning  Unsafe member access .published_at on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+   86:23  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+   86:36  warning  Unsafe argument of type `any` assigned to a parameter of type `string`                     @typescript-eslint/no-unsafe-argument
+   86:41  warning  Unsafe member access .content_html on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+   86:55  warning  Unsafe argument of type `any` assigned to a parameter of type `string | null`              @typescript-eslint/no-unsafe-argument
+   86:60  warning  Unsafe member access .hero_image_id on an `any` value                                      @typescript-eslint/no-unsafe-member-access
+   91:47  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+   93:47  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+   94:47  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  100:56  warning  Unsafe argument of type error typed assigned to a parameter of type `Ai<AiModels>`         @typescript-eslint/no-unsafe-argument
+  104:41  warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+  104:57  warning  Unsafe member access .content_md on an `any` value                                         @typescript-eslint/no-unsafe-member-access
+  105:41  warning  Unsafe assignment of an `any` value                                                        @typescript-eslint/no-unsafe-assignment
+  105:55  warning  Unsafe member access .excerpt on an `any` value                                            @typescript-eslint/no-unsafe-member-access
+
+/app/src/routes/api/admin/posts/[id]/+server.ts
+  100:56  warning  Unsafe argument of type error typed assigned to a parameter of type `Ai<AiModels>`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/posts/[id]/publish/+server.ts
+  19:8   warning  Unsafe assignment of an error typed value                                                  @typescript-eslint/no-unsafe-assignment
+  22:34  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`           @typescript-eslint/no-unsafe-argument
+  24:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  25:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+  26:26  warning  Unsafe argument of type error typed assigned to a parameter of type `KVNamespace<string>`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/posts/summarize/+server.ts
+  10:8   warning  Unsafe assignment of an `any` value        @typescript-eslint/no-unsafe-assignment
+  22:23  warning  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+
+/app/src/routes/api/admin/projects/featured/+server.ts
+  35:25  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+  42:46  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/projects/featured/[id]/+server.ts
+  21:31  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/projects/featured/[id]/toggle/+server.ts
+  21:30  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/projects/reorder/+server.ts
+  44:48  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/admin/projects/settings/+server.ts
+  43:29  warning  Unsafe argument of type error typed assigned to a parameter of type `D1Database`  @typescript-eslint/no-unsafe-argument
+
+/app/src/routes/api/auth/login/+server.ts
+   72:9   warning  Unsafe assignment of an `any` value                                                                        @typescript-eslint/no-unsafe-assignment
+  175:55  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+/app/src/routes/api/newsletter/subscribe/+server.ts
+   6:9   warning  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+  20:9   warning  Unsafe assignment of an error typed value                @typescript-eslint/no-unsafe-assignment
+  23:9   warning  Unsafe assignment of an error typed value                @typescript-eslint/no-unsafe-assignment
+  23:26  error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  23:26  error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  23:26  error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  24:5   warning  Unsafe member access .prepare on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+  25:5   warning  Unsafe member access .bind on an `error` typed value     @typescript-eslint/no-unsafe-member-access
+  26:5   warning  Unsafe member access .first on an `error` typed value    @typescript-eslint/no-unsafe-member-access
+  33:9   error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  33:9   error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  33:9   error    Unsafe call of a(n) `error` type typed value             @typescript-eslint/no-unsafe-call
+  34:5   warning  Unsafe member access .prepare on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+  37:5   warning  Unsafe member access .bind on an `error` typed value     @typescript-eslint/no-unsafe-member-access
+  38:5   warning  Unsafe member access .run on an `error` typed value      @typescript-eslint/no-unsafe-member-access
+
+/app/src/routes/api/search/+server.ts
+  30:15  warning  Unsafe assignment of an error typed value                                           @typescript-eslint/no-unsafe-assignment
+  37:51  warning  Unsafe argument of type error typed assigned to a parameter of type `Ai<AiModels>`  @typescript-eslint/no-unsafe-argument
+
+✖ 254 problems (60 errors, 194 warnings)
+  3 errors and 0 warnings potentially fixable with the `--fix` option.

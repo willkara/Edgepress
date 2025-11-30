@@ -25,6 +25,7 @@ Performance is not an afterthought—it's a core feature that shapes every desig
 Accessibility is not a checkbox—it's a fundamental requirement that makes the product better for everyone.
 
 #### WCAG 2.1 AA Compliance
+
 - Semantic HTML with proper heading hierarchy
 - ARIA labels and landmarks for screen readers
 - Keyboard navigation support for all interactive elements
@@ -32,11 +33,13 @@ Accessibility is not a checkbox—it's a fundamental requirement that makes the 
 - Color contrast ratios meeting 4.5:1 minimum
 
 #### Motion Sensitivity
+
 - Respect `prefers-reduced-motion` media query
 - Disable animations for users who request it
 - Provide alternatives to motion-based feedback
 
 #### Keyboard Navigation
+
 - Tab order follows visual flow
 - Skip to content link for keyboard users
 - Table of contents navigable via keyboard
@@ -51,6 +54,7 @@ Accessibility is not a checkbox—it's a fundamental requirement that makes the 
 Design for mobile first, then progressively enhance for larger screens.
 
 #### Breakpoint Strategy
+
 ```css
 /* Mobile: 0-767px (default) */
 /* Tablet: 768px-1023px */
@@ -58,6 +62,7 @@ Design for mobile first, then progressively enhance for larger screens.
 ```
 
 #### Touch-Optimized
+
 - Minimum touch target size: 44x44px
 - Pull-to-refresh gesture on mobile
 - Bottom navigation bar for easy thumb access
@@ -65,6 +70,7 @@ Design for mobile first, then progressively enhance for larger screens.
 - Proper spacing to prevent mis-taps
 
 #### Responsive Components
+
 - Bottom navigation on mobile, sidebar on desktop
 - Collapsible Table of Contents on mobile
 - Fluid typography scaling with viewport
@@ -79,16 +85,19 @@ Design for mobile first, then progressively enhance for larger screens.
 Show the right information at the right time. Don't overwhelm users.
 
 #### Layered Information Architecture
+
 - **Primary**: Essential content and navigation
 - **Secondary**: Related posts, tags, metadata
 - **Tertiary**: Newsletter signup, reactions
 
 #### Collapsible UI Elements
+
 - Table of Contents can be collapsed to save screen space
 - Preview links hidden until generated
 - Advanced options tucked away in admin panels
 
 #### Contextual Features
+
 - Continue reading banner only shows for in-progress articles (10-90%)
 - Time remaining appears after 5% scroll progress
 - Preview mode banner only on preview pages
@@ -102,6 +111,7 @@ Show the right information at the right time. Don't overwhelm users.
 Every action should have clear, immediate feedback. Users should never wonder "did that work?"
 
 #### Visual Feedback Patterns
+
 - **Hover states**: Subtle color changes on interactive elements
 - **Active states**: Pressed button appearance
 - **Loading states**: Skeleton loaders, spinners, progress bars
@@ -109,6 +119,7 @@ Every action should have clear, immediate feedback. Users should never wonder "d
 - **Error states**: Red highlights, error messages, validation feedback
 
 #### Micro-interactions
+
 - Button hover effects (translateY, brightness)
 - Smooth scroll to headings
 - Copy button shows "Copied!" confirmation
@@ -116,6 +127,7 @@ Every action should have clear, immediate feedback. Users should never wonder "d
 - Reading progress bar fills smoothly
 
 #### Affordance Indicators
+
 - Underlined links in body text
 - Pointer cursor on clickable elements
 - Hover states reveal interactivity
@@ -132,12 +144,14 @@ Every action should have clear, immediate feedback. Users should never wonder "d
 EdgePress prioritizes long-form content consumption with features designed for readers:
 
 #### Enhanced Reading Progress
+
 - **Visual progress bar**: Fixed at top, shows scroll position
 - **Time estimate**: Shows minutes remaining based on 225 WPM
 - **Position persistence**: Saves scroll position to resume later
 - **Continue reading banner**: Prompts readers to pick up where they left off
 
 #### Table of Contents
+
 - **Sticky positioning**: Stays visible while scrolling
 - **Active indicator**: Highlights current section
 - **Progress bar**: Shows position through article
@@ -145,6 +159,7 @@ EdgePress prioritizes long-form content consumption with features designed for r
 - **Collapsible**: Can be hidden to focus on content
 
 #### Content Discovery
+
 - **Related posts**: Algorithm-based suggestions
 - **Popular posts**: View count-based recommendations
 - **Category/tag browsing**: Organized content taxonomy
@@ -157,18 +172,21 @@ EdgePress prioritizes long-form content consumption with features designed for r
 The admin experience focuses on speed and simplicity for authors:
 
 #### Post Editor
+
 - **WYSIWYG editor**: Rich text editing with markdown support
 - **Live preview**: Toggle between edit and preview modes
 - **Auto-save**: Draft saved automatically (when implemented)
 - **Preview links**: Share drafts before publishing
 
 #### Draft Preview System
+
 - **Secure tokens**: Cryptographically secure 64-character tokens
 - **Expiry dates**: 7-day expiration prevents stale links
 - **Regeneration**: Create new tokens as needed
 - **Copy to clipboard**: One-click sharing
 
 #### Media Management
+
 - **Cloudflare Images**: Automatic optimization and variants
 - **Blurhash LQIP**: Low-quality image placeholders
 - **Lazy loading**: Images load as they enter viewport
@@ -182,6 +200,7 @@ The admin experience focuses on speed and simplicity for authors:
 EdgePress uses a sophisticated dark theme optimized for reading:
 
 #### Semantic Color Scale
+
 ```
 --bg-page:      Dark background for main content
 --bg-elevated:  Slightly lighter for cards/panels
@@ -199,6 +218,7 @@ EdgePress uses a sophisticated dark theme optimized for reading:
 ```
 
 #### Gradient Accents
+
 - Linear gradients for primary actions (buttons, links)
 - Radial gradients for ambient backgrounds (animated orbs)
 - Subtle gradients in progress bars
@@ -206,12 +226,14 @@ EdgePress uses a sophisticated dark theme optimized for reading:
 ### Typography
 
 #### Font Stack
+
 ```css
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
-             'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+font-family:
+	-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
 ```
 
 #### Type Scale
+
 - **Display**: 2.5rem+ for hero headlines
 - **H1**: 2rem for page titles
 - **H2**: 1.5rem for section headers
@@ -220,6 +242,7 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
 - **Small**: 0.875rem for metadata
 
 #### Reading Optimization
+
 - Line height: 1.6-1.8 for body text
 - Max width: 65-75 characters per line
 - Adequate spacing between paragraphs
@@ -242,16 +265,19 @@ Based on 0.25rem (4px) increments:
 ### Animation Principles
 
 #### Duration
+
 - **Fast**: 150ms for micro-interactions (hover, focus)
 - **Medium**: 200-300ms for UI transitions
 - **Slow**: 400-600ms for page transitions
 
 #### Easing
+
 - `ease`: Default for most animations
 - `ease-in-out`: For symmetrical motions
 - `cubic-bezier()`: Custom curves for specific effects
 
 #### Motion Guidelines
+
 - Animations should feel purposeful, not decorative
 - Use motion to guide attention and provide feedback
 - Always respect `prefers-reduced-motion`
@@ -266,17 +292,20 @@ Based on 0.25rem (4px) increments:
 **Purpose**: Reduce perceived loading time by showing content placeholders
 
 **Implementation**:
+
 - Match the shape/layout of actual content
 - Shimmer animation suggests loading activity
 - Fade out smoothly when real content appears
 - Show during navigation transitions
 
 **When to Use**:
+
 - Page navigation loading states
 - Initial page load (before data arrives)
 - Infinite scroll pagination
 
 **When NOT to Use**:
+
 - Quick operations (<200ms)
 - Background updates
 - Already-loaded content
@@ -288,6 +317,7 @@ Based on 0.25rem (4px) increments:
 **Purpose**: Provide native-app-like refresh gesture on mobile
 
 **Implementation**:
+
 - Touch-only (disabled on desktop)
 - 80px threshold to trigger
 - Resistance effect (distance / 2)
@@ -295,6 +325,7 @@ Based on 0.25rem (4px) increments:
 - Calls `invalidateAll()` to refresh data
 
 **Best Practices**:
+
 - Only enable when scrolled to top
 - Prevent during active scroll
 - Show loading state after trigger
@@ -307,12 +338,14 @@ Based on 0.25rem (4px) increments:
 **Purpose**: Help readers resume long-form content
 
 **Implementation**:
+
 - Saves scroll position to localStorage (10-95% range)
 - Shows banner for meaningful progress (10-90%)
 - Smooth scroll to saved position
 - Dismissible with localStorage cleanup
 
 **Smart Behavior**:
+
 - Only appears for partially-read articles
 - Hides for very start (<10%) or near end (>90%)
 - Clears automatically when article is finished
@@ -340,17 +373,20 @@ Based on 0.25rem (4px) increments:
 ### Performance Optimizations
 
 #### Code Splitting
+
 - Route-based splitting (automatic)
 - Dynamic imports for heavy components
 - Lazy load editor on admin pages
 
 #### Caching Strategy
+
 - **Cloudflare KV**: Edge-cached post data
 - **Cache headers**: Public pages (60s), admin (no-cache)
 - **localStorage**: Reading progress, UI preferences
 - **Browser cache**: Static assets with versioning
 
 #### Image Optimization
+
 - Cloudflare Images with responsive variants
 - Blurhash LQIP (low-quality image placeholders)
 - Lazy loading with Intersection Observer
@@ -363,6 +399,7 @@ Based on 0.25rem (4px) increments:
 Every feature should meet these requirements:
 
 ### Keyboard Navigation
+
 - [ ] All interactive elements reachable via Tab
 - [ ] Logical tab order (follows visual flow)
 - [ ] Focus indicators visible (2px outline)
@@ -370,6 +407,7 @@ Every feature should meet these requirements:
 - [ ] Enter/Space activates buttons
 
 ### Screen Readers
+
 - [ ] Semantic HTML elements (`<nav>`, `<main>`, `<article>`)
 - [ ] ARIA labels on icon-only buttons
 - [ ] ARIA landmarks for page sections
@@ -377,6 +415,7 @@ Every feature should meet these requirements:
 - [ ] Proper heading hierarchy (no skipped levels)
 
 ### Visual Accessibility
+
 - [ ] Color contrast ≥ 4.5:1 for body text
 - [ ] Color contrast ≥ 3:1 for UI elements
 - [ ] No information conveyed by color alone
@@ -384,6 +423,7 @@ Every feature should meet these requirements:
 - [ ] Proper line height (1.5+ for paragraphs)
 
 ### Motion Accessibility
+
 - [ ] Respects `prefers-reduced-motion`
 - [ ] Animations can be disabled
 - [ ] No auto-playing videos
@@ -394,22 +434,26 @@ Every feature should meet these requirements:
 ## Mobile Design Considerations
 
 ### Touch Targets
+
 - Minimum size: 44x44px (48x48px preferred)
 - Adequate spacing between targets (8px minimum)
 - Larger targets for primary actions
 
 ### Thumb Zones
+
 - Bottom navigation for frequently-used actions
 - Important controls within easy thumb reach
 - Dangerous actions (delete) require confirmation
 
 ### Performance on Mobile
+
 - Minimize JavaScript execution
 - Use CSS transforms for animations (GPU-accelerated)
 - Lazy load images and heavy components
 - Reduce network requests
 
 ### Mobile-Specific Features
+
 - Pull-to-refresh gesture
 - Bottom navigation bar
 - Safe area insets for notched displays
@@ -422,18 +466,21 @@ Every feature should meet these requirements:
 Start with a solid HTML foundation, then layer on enhancements:
 
 ### Level 1: HTML Only
+
 - Semantic markup with proper structure
 - Server-rendered content (no client JS required)
 - Forms work with standard POST requests
 - Links navigate with full page loads
 
 ### Level 2: CSS
+
 - Visual design and layout
 - Responsive design with media queries
 - Hover states and transitions
 - Print styles
 
 ### Level 3: JavaScript
+
 - Enhanced interactions (smooth scroll, etc.)
 - Client-side routing (SvelteKit)
 - Progressive loading (skeleton states)
@@ -453,6 +500,7 @@ Start with a solid HTML foundation, then layer on enhancements:
 - **Dismissible**: Let users clear error messages
 
 Example:
+
 ```
 ❌ Failed to save post
 The server is temporarily unavailable.
@@ -512,6 +560,7 @@ Your changes are saved locally and will sync when reconnected.
 Before shipping a new feature, verify:
 
 ### Functionality
+
 - [ ] Works on mobile, tablet, desktop
 - [ ] Works with keyboard only
 - [ ] Works with screen reader
@@ -519,6 +568,7 @@ Before shipping a new feature, verify:
 - [ ] Works on slow connections
 
 ### Performance
+
 - [ ] No layout shifts (CLS < 0.1)
 - [ ] Fast interaction (FID < 100ms)
 - [ ] Quick loading (LCP < 2.5s)
@@ -526,6 +576,7 @@ Before shipping a new feature, verify:
 - [ ] Minimal JavaScript bundle size
 
 ### Accessibility
+
 - [ ] WCAG 2.1 AA compliant
 - [ ] Keyboard navigable
 - [ ] Screen reader friendly
@@ -533,6 +584,7 @@ Before shipping a new feature, verify:
 - [ ] Respects motion preferences
 
 ### User Experience
+
 - [ ] Clear visual hierarchy
 - [ ] Obvious affordances
 - [ ] Immediate feedback

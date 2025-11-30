@@ -4,13 +4,13 @@ import type { Ai, D1Database, KVNamespace, VectorizeIndex } from '@cloudflare/wo
 type EnvKeys = Array<string>;
 
 export interface RequiredEnv {
-        DB: D1Database;
-        CACHE: KVNamespace;
-        SESSIONS: KVNamespace;
-        AI?: Ai;
-        VECTORIZE?: VectorizeIndex;
-        JWT_SECRET: string;
-        // Add other bindings as needed
+	DB: D1Database;
+	CACHE: KVNamespace;
+	SESSIONS: KVNamespace;
+	AI?: Ai;
+	VECTORIZE?: VectorizeIndex;
+	JWT_SECRET: string;
+	// Add other bindings as needed
 }
 
 /**

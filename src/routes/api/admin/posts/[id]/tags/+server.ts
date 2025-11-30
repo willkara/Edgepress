@@ -51,7 +51,12 @@ export const PUT: RequestHandler = async (event): Promise<Response> => {
 		const tags = await getPostTags(db, params.id);
 		return json(tags);
 	} catch (err) {
-		if (err && typeof err === 'object' && 'status' in err && (err as { status?: number }).status === 400) {
+		if (
+			err &&
+			typeof err === 'object' &&
+			'status' in err &&
+			(err as { status?: number }).status === 400
+		) {
 			throw err;
 		}
 		console.error('Failed to update post tags:', err);

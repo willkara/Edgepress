@@ -38,34 +38,34 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 		throw error(500, 'Database not available');
 	}
 
-        try {
-                const parsedBody = (await request.json()) as unknown;
-                if (!parsedBody || typeof parsedBody !== 'object') {
-                        throw error(400, 'Invalid request body');
-                }
+	try {
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-                const { name, slug } = parsedBody as Record<string, unknown>;
+		const { name, slug } = parsedBody as Record<string, unknown>;
 
-                if (typeof name !== 'string') {
-                        throw error(400, 'Category name is required');
-                }
+		if (typeof name !== 'string') {
+			throw error(400, 'Category name is required');
+		}
 
-                if (name.trim().length === 0) {
-                        throw error(400, 'Category name cannot be empty');
-                }
+		if (name.trim().length === 0) {
+			throw error(400, 'Category name cannot be empty');
+		}
 
-                if (name.length > 100) {
-                        throw error(400, 'Category name is too long (max 100 characters)');
-                }
+		if (name.length > 100) {
+			throw error(400, 'Category name is too long (max 100 characters)');
+		}
 
-                if (slug !== undefined && typeof slug !== 'string') {
-                        throw error(400, 'Category slug must be a string');
-                }
+		if (slug !== undefined && typeof slug !== 'string') {
+			throw error(400, 'Category slug must be a string');
+		}
 
-                const category = await createCategory(platform.env.DB, {
-                        name: name.trim(),
-                        slug: slug?.trim() ?? undefined
-                });
+		const category = await createCategory(platform.env.DB, {
+			name: name.trim(),
+			slug: slug?.trim() ?? undefined
+		});
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {

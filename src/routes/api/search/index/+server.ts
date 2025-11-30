@@ -18,10 +18,7 @@ export const GET: RequestHandler = async (event) => {
 
 	try {
 		// Slightly longer TTL than typical API reads since the index changes infrequently
-		setCacheHeaders(
-			setHeaders,
-			'public, max-age=300, s-maxage=900, stale-while-revalidate=1800'
-		);
+		setCacheHeaders(setHeaders, 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
 
 		const items = useCache
 			? await getSearchIndexCached(env.DB, env.CACHE)

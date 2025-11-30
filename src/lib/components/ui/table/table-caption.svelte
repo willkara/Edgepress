@@ -8,19 +8,14 @@
 		children?: Snippet;
 	}
 
-	let {
-		ref = $bindable(null),
-		class: className,
-		children,
-		...restProps
-	}: Props = $props();
+	let { ref = $bindable(null), class: className, children, ...restProps }: Props = $props();
 </script>
 
 <caption
 	bind:this={ref}
 	data-slot="table-caption"
 	class={cn('text-muted-foreground mt-4 text-sm', className)}
-	{...(restProps as any)}
+	{...restProps as any}
 >
 	{@render children?.()}
 </caption>

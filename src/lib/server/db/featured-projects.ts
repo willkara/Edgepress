@@ -35,8 +35,8 @@ const FEATURED_PROJECTS_CACHE_KEY = 'featured-projects';
  * Get all featured projects with their post details, ordered by display_order
  */
 export async function getFeaturedProjects(
-        db: D1Database,
-        includeUnfeatured = false
+	db: D1Database,
+	includeUnfeatured = false
 ): Promise<FeaturedProjectWithPost[]> {
 	const whereClause = includeUnfeatured ? '' : 'WHERE fp.is_featured = 1';
 
@@ -83,32 +83,29 @@ export async function getFeaturedProjects(
 		})
 	);
 
-        return projectsWithTags;
+	return projectsWithTags;
 }
 
 /**
  * Get featured projects with KV caching to reduce D1 reads on public pages
  */
 export async function getFeaturedProjectsCached(
-        db: D1Database,
-        cache: KVNamespace,
-        includeUnfeatured = false
+	db: D1Database,
+	cache: KVNamespace,
+	includeUnfeatured = false
 ): Promise<FeaturedProjectWithPost[]> {
-        const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
-        const cacheKey = getCacheKey(
-                FEATURED_PROJECTS_CACHE_KEY,
-                includeUnfeatured ? 'all' : 'featured'
-        );
+	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
+	const cacheKey = getCacheKey(FEATURED_PROJECTS_CACHE_KEY, includeUnfeatured ? 'all' : 'featured');
 
-        const cached = await getCached<FeaturedProjectWithPost[]>(cache, cacheKey);
-        if (cached) {
-                return cached;
-        }
+	const cached = await getCached<FeaturedProjectWithPost[]>(cache, cacheKey);
+	if (cached) {
+		return cached;
+	}
 
-        const projects = await getFeaturedProjects(db, includeUnfeatured);
-        await setCached(cache, cacheKey, projects, 600);
+	const projects = await getFeaturedProjects(db, includeUnfeatured);
+	await setCached(cache, cacheKey, projects, 600);
 
-        return projects;
+	return projects;
 }
 
 /**
@@ -125,7 +122,10 @@ export async function addFeaturedProject(
 		VALUES (?, ?, ?, 1)
 	`;
 
-	await db.prepare(query).bind(postId, displayOrder, customDescription || null).run();
+	await db
+		.prepare(query)
+		.bind(postId, displayOrder, customDescription || null)
+		.run();
 }
 
 /**

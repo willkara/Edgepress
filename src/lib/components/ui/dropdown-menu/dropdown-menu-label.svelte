@@ -9,13 +9,7 @@
 		children?: Snippet;
 	}
 
-	let {
-		ref = $bindable(null),
-		class: className,
-		inset,
-		children,
-		...restProps
-	}: Props = $props();
+	let { ref = $bindable(null), class: className, inset, children, ...restProps }: Props = $props();
 </script>
 
 <div

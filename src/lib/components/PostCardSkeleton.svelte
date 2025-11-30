@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Skeleton } from "$lib/components/ui/skeleton";
+	import { Skeleton } from '$lib/components/ui/skeleton';
 </script>
 
 <div class="rounded-lg border border-border/40 bg-card/50 p-6 mb-4">

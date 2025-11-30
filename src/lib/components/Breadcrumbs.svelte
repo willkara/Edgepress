@@ -22,6 +22,7 @@
 </script>
 
 <svelte:head>
+	<!-- prettier-ignore -->
 	<script type="application/ld+json">
 		{JSON.stringify(schemaData)}
 	</script>
@@ -40,11 +41,11 @@
 						{item.label}
 					</span>
 				{/if}
-                                {#if index < items.length - 1}
-                                        <span class="breadcrumb-separator" aria-hidden="true">
-                                                <ChevronRight />
-                                        </span>
-                                {/if}
+				{#if index < items.length - 1}
+					<span class="breadcrumb-separator" aria-hidden="true">
+						<ChevronRight />
+					</span>
+				{/if}
 			</li>
 		{/each}
 	</ol>
@@ -95,27 +96,27 @@
 		font-weight: 500;
 	}
 
-        .breadcrumb-separator {
-                display: inline-flex;
-                width: 1rem;
-                height: 1rem;
-                color: var(--text-subtle);
-                flex-shrink: 0;
-        }
+	.breadcrumb-separator {
+		display: inline-flex;
+		width: 1rem;
+		height: 1rem;
+		color: var(--text-subtle);
+		flex-shrink: 0;
+	}
 
-        .breadcrumb-separator :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.breadcrumb-separator :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	@media (max-width: 640px) {
 		.breadcrumb-item {
 			font-size: 0.8125rem;
 		}
 
-                .breadcrumb-separator {
-                        width: 0.875rem;
-                        height: 0.875rem;
-                }
+		.breadcrumb-separator {
+			width: 0.875rem;
+			height: 0.875rem;
+		}
 	}
 </style>

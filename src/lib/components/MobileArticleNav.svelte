@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { List, ChevronLeft, Share2, ArrowUp } from 'lucide-svelte';
-	import { Button } from "$lib/components/ui/button";
-	import * as Sheet from "$lib/components/ui/sheet";
+	import { Button } from '$lib/components/ui/button';
+	import * as Sheet from '$lib/components/ui/sheet';
 	import type { TocItem } from '$lib/utils/toc';
 
-	let { toc, activeHeadingId, title }: { toc: TocItem[]; activeHeadingId: string; title: string } = $props();
+	let { toc, activeHeadingId, title }: { toc: TocItem[]; activeHeadingId: string; title: string } =
+		$props();
 
 	let open = $state(false);
 	let showBar = $state(true);
@@ -27,10 +28,12 @@
 
 	function handleShare() {
 		if (navigator.share) {
-			navigator.share({
-				title: title,
-				url: window.location.href
-			}).catch(console.error);
+			navigator
+				.share({
+					title: title,
+					url: window.location.href
+				})
+				.catch(console.error);
 		} else {
 			// Fallback: Copy to clipboard
 			navigator.clipboard.writeText(window.location.href);
@@ -80,7 +83,7 @@
 						{#each toc as item (item.id)}
 							<a
 								href={`#${item.id}`}
-								onclick={() => open = false}
+								onclick={() => (open = false)}
 								class="block py-2 text-sm transition-colors hover:text-accent-strong"
 								class:pl-4={item.level === 3}
 								class:font-medium={item.level === 2}

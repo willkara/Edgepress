@@ -8,21 +8,21 @@ import type { RequestHandler } from './$types';
 function generateSecureToken(): string {
 	const array = new Uint8Array(32);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export const POST: RequestHandler = async ({ params, platform, locals }) => {
-        if (!locals.user) {
-                throw error(401, 'Unauthorized');
-        }
+	if (!locals.user) {
+		throw error(401, 'Unauthorized');
+	}
 
-        const env = platform?.env as { DB?: D1Database } | undefined;
+	const env = platform?.env as { DB?: D1Database } | undefined;
 
-        if (!env?.DB) {
-                throw error(500, 'Database not available');
-        }
+	if (!env?.DB) {
+		throw error(500, 'Database not available');
+	}
 
-        const postId = params.id;
+	const postId = params.id;
 
 	try {
 		// Generate new preview token
@@ -40,8 +40,8 @@ export const POST: RequestHandler = async ({ params, platform, locals }) => {
 			WHERE id = ?
 		`;
 
-                const db = env.DB;
-                await db.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
+		const db = env.DB;
+		await db.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
 
 		return json({
 			preview_token: previewToken,
