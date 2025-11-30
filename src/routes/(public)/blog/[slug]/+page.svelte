@@ -9,6 +9,9 @@
 	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import RelatedPosts from '$lib/components/RelatedPosts.svelte';
+	import CopyCodeButton from '$lib/components/CopyCodeButton.svelte';
+	import NewsletterSignup from '$lib/components/NewsletterSignup.svelte';
+	import PostReactions from '$lib/components/PostReactions.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const post = data.post; // post can be null here
@@ -133,12 +136,24 @@
 
 			<div class="article-body">
 				{@html sanitizedContent}
+				<CopyCodeButton />
 			</div>
+
+			<!-- Post Reactions -->
+			<PostReactions
+				postId={post.id}
+				initialLikes={post.like_count || 0}
+				initialHearts={post.heart_count || 0}
+				initialBookmarks={post.bookmark_count || 0}
+			/>
 
 			<!-- Related Posts -->
 			{#if data.relatedPosts && data.relatedPosts.length > 0}
 				<RelatedPosts posts={data.relatedPosts} />
 			{/if}
+
+			<!-- Newsletter Signup -->
+			<NewsletterSignup />
 		</div>
 
 		<!-- Table of Contents Sidebar -->

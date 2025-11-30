@@ -12,6 +12,9 @@ export interface Post {
 	updated_at: string;
 	reading_time: number | null;
 	view_count: number;
+	like_count?: number;
+	heart_count?: number;
+	bookmark_count?: number;
 	author_name: string;
 	category_name: string | null;
 	category_slug: string | null;
