@@ -20,10 +20,7 @@
 	let error = $state('');
 	let showPreview = $state(false);
 	let previewHtml = $state('');
-	let previewToken = $state(data.post.preview_token || '');
-	let previewExpiresAt = $state(data.post.preview_expires_at || '');
-	let generatingPreview = $state(false);
-	let previewCopied = $state(false);
+	let generatingSummary = $state(false);
 
 	// Auto-generate slug from title if slug is manually cleared
 	$effect(() => {
@@ -137,59 +134,40 @@
 		}
 	}
 
-	async function generatePreviewLink() {
-		generatingPreview = true;
+	async function generateAISummary() {
+		if (!editor) {
+			error = 'Editor not initialized';
+			return;
+		}
+
+		const contentMd = getMarkdownSafe(editor);
+
+		if (!contentMd || !contentMd.trim()) {
+			error = 'Please write some content first before generating a summary';
+			return;
+		}
+
+		generatingSummary = true;
 		error = '';
 
 		try {
-			const response = await fetch(`/api/admin/posts/${data.post.id}/preview`, {
+			const response = await fetch('/api/admin/posts/summarize', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' }
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ content: contentMd })
 			});
 
 			if (response.ok) {
-				const result = await response.json();
-				previewToken = result.preview_token;
-				previewExpiresAt = result.preview_expires_at;
+				const data = await response.json();
+				excerpt = data.summary;
 			} else {
 				const errorData = await response.json();
-				error = errorData.message || 'Failed to generate preview link';
+				error = errorData.message || 'Failed to generate summary';
 			}
 		} catch (err: any) {
-			error = err.message || 'Failed to generate preview link';
+			error = err.message || 'Failed to generate summary';
 		} finally {
-			generatingPreview = false;
-		}
-	}
-
-	async function copyPreviewLink() {
-		const previewUrl = `${window.location.origin}/blog/preview/${previewToken}`;
-
-		try {
-			await navigator.clipboard.writeText(previewUrl);
-			previewCopied = true;
-			setTimeout(() => {
-				previewCopied = false;
-			}, 2000);
-		} catch (err) {
-			error = 'Failed to copy to clipboard';
-		}
-	}
-
-	function formatExpiryDate(isoDate: string): string {
-		const date = new Date(isoDate);
-		const now = new Date();
-		const diffMs = date.getTime() - now.getTime();
-		const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-		if (diffDays < 0) {
-			return 'Expired';
-		} else if (diffDays === 0) {
-			return 'Expires today';
-		} else if (diffDays === 1) {
-			return 'Expires tomorrow';
-		} else {
-			return `Expires in ${diffDays} days`;
+			generatingSummary = false;
 		}
 	}
 </script>
@@ -273,10 +251,20 @@
 			</div>
 
 			<div class="form-group">
-				<label for="excerpt">
-					Excerpt
-					<span class="hint">Optional short summary</span>
-				</label>
+				<div class="excerpt-header">
+					<label for="excerpt">
+						Excerpt
+						<span class="hint">Optional short summary</span>
+					</label>
+					<button
+						type="button"
+						onclick={generateAISummary}
+						disabled={generatingSummary}
+						class="btn-ai"
+					>
+						{generatingSummary ? 'Generating...' : '✨ Generate AI Summary'}
+					</button>
+				</div>
 				<textarea
 					id="excerpt"
 					bind:value={excerpt}
@@ -431,6 +419,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+	}
+
+	.excerpt-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
 	}
 
 	label {
@@ -642,6 +637,29 @@
 	}
 
 	.btn-secondary:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.btn-ai {
+		padding: 0.5rem 1rem;
+		background: linear-gradient(to right, #a78bfa, #c084fc);
+		color: #0f172a;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.15s;
+		white-space: nowrap;
+	}
+
+	.btn-ai:hover:not(:disabled) {
+		filter: brightness(1.1);
+		transform: translateY(-1px);
+	}
+
+	.btn-ai:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
 	}

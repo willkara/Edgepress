@@ -25,6 +25,7 @@ declare global {
 				DB: D1Database;
 				SESSIONS: KVNamespace;
 				CACHE: KVNamespace;
+				AI: Ai;
 				CF_IMAGES_TOKEN: string;
 				CF_ACCOUNT_ID: string;
 				CF_IMAGES_HASH: string;

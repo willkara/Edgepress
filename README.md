@@ -12,6 +12,10 @@ This is the **design foundation** for EdgePress. The scaffold includes:
 - ✅ **TypeScript** with Cloudflare binding types
 - ✅ **Clean, readable component architecture**
 
+## 🏗 Architecture
+
+For a detailed guide on how EdgePress uses Cloudflare's infrastructure (Pages, D1, KV, Images) with diagrams, please see the [Architecture Guide](ARCHITECTURE.md).
+
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
