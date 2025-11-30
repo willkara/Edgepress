@@ -3,6 +3,7 @@ import { error } from '@sveltejs/kit';
 import { getFeaturedProjects } from '$lib/server/db/featured-projects';
 import { getSetting } from '$lib/server/db/settings';
 import { getPublishedPosts } from '$lib/server/db/posts';
+import { featuredProjectSchema, projectPostSchema, type ProjectPost } from '$lib/types/projects';
 
 export const load: PageServerLoad = async ({ platform }) => {
 	if (!platform?.env?.DB) {
@@ -10,21 +11,24 @@ export const load: PageServerLoad = async ({ platform }) => {
 	}
 
 	try {
-		const [featuredProjects, pageTitle, pageSubtitle, showAllSetting] = await Promise.all([
-			getFeaturedProjects(platform.env.DB, false), // Only get featured (visible) projects
-			getSetting(platform.env.DB, 'projects_page_title'),
-			getSetting(platform.env.DB, 'projects_page_subtitle'),
-			getSetting(platform.env.DB, 'projects_page_show_all')
-		]);
+                const [featuredProjectsRaw, pageTitle, pageSubtitle, showAllSetting] = await Promise.all([
+                        getFeaturedProjects(platform.env.DB, false), // Only get featured (visible) projects
+                        getSetting(platform.env.DB, 'projects_page_title'),
+                        getSetting(platform.env.DB, 'projects_page_subtitle'),
+                        getSetting(platform.env.DB, 'projects_page_show_all')
+                ]);
 
-		const showAll = showAllSetting === '1';
+                const featuredProjects = featuredProjectSchema.array().parse(featuredProjectsRaw);
+                const showAll = showAllSetting === '1';
 
-		// If showAll is enabled, also fetch all posts with "Projects" category
-		let allProjectPosts: any[] = [];
-		if (showAll) {
-			const allPosts = await getPublishedPosts(platform.env.DB, 100, 0);
-			allProjectPosts = allPosts.filter((post) => post.category_slug === 'projects');
-		}
+                // If showAll is enabled, also fetch all posts with "Projects" category
+                let allProjectPosts: ProjectPost[] = [];
+                if (showAll) {
+                        const allPosts = projectPostSchema
+                                .array()
+                                .parse(await getPublishedPosts(platform.env.DB, 100, 0));
+                        allProjectPosts = allPosts.filter((post) => post.category_slug === 'projects');
+                }
 
 		return {
 			featuredProjects,
