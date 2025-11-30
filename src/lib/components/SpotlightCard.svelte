@@ -20,14 +20,14 @@
 
 	function handleMouseLeave() {
 		isHovering = false;
+		isPressed = false;
 	}
 
-	// Mobile Touch Logic
 	let isPressed = $state(false);
-	function handleTouchStart() {
+	function handleMouseDown() {
 		isPressed = true;
 	}
-	function handleTouchEnd() {
+	function handleMouseUp() {
 		isPressed = false;
 	}
 
@@ -48,8 +48,8 @@
 	onmousemove={handleMouseMove}
 	onmouseenter={handleMouseEnter}
 	onmouseleave={handleMouseLeave}
-	ontouchstart={handleTouchStart}
-	ontouchend={handleTouchEnd}
+	onmousedown={handleMouseDown}
+	onmouseup={handleMouseUp}
 >
 	<div
 		class="spotlight-effect pointer-events-none absolute -inset-px rounded-lg opacity-0 transition duration-300"
