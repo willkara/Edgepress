@@ -143,21 +143,23 @@
 
 				<div class="categories-grid">
 					{#each data.categories as category}
-						<a href="/blog/category/{category.slug}" class="category-card">
-							<div class="category-icon">
-								<Folder class="w-6 h-6" />
-							</div>
-							<div class="category-info">
-								<h3 class="category-name">{category.name}</h3>
-								<p class="category-count">
-									{category.post_count || 0}
-									{category.post_count === 1 ? 'post' : 'posts'}
-								</p>
-							</div>
-							<ArrowRight class="category-arrow w-5 h-5" />
-						</a>
-					{/each}
-				</div>
+                                                <a href="/blog/category/{category.slug}" class="category-card">
+                                                        <div class="category-icon">
+                                                                <Folder class="w-6 h-6" />
+                                                        </div>
+                                                        <div class="category-info">
+                                                                <h3 class="category-name">{category.name}</h3>
+                                                                <p class="category-count">
+                                                                        {category.post_count || 0}
+                                                                        {category.post_count === 1 ? 'post' : 'posts'}
+                                                                </p>
+                                                        </div>
+                                                        <span class="category-arrow" aria-hidden="true">
+                                                                <ArrowRight />
+                                                        </span>
+                                                </a>
+                                        {/each}
+                                </div>
 			</div>
 		{/if}
 
@@ -483,11 +485,19 @@
 		margin: 0;
 	}
 
-	.category-arrow {
-		color: var(--text-subtle);
-		flex-shrink: 0;
-		transition: transform 150ms;
-	}
+        .category-arrow {
+                display: inline-flex;
+                color: var(--text-subtle);
+                flex-shrink: 0;
+                transition: transform 150ms;
+                width: 1.25rem;
+                height: 1.25rem;
+        }
+
+        .category-arrow :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.category-card:hover .category-arrow {
 		transform: translateX(4px);

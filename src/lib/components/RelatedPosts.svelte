@@ -39,10 +39,12 @@
 								</p>
 							{/if}
 
-							<div class="read-more">
-								<span>Read article</span>
-								<ArrowRight class="arrow-icon" />
-							</div>
+                                                        <div class="read-more">
+                                                                <span>Read article</span>
+                                                                <span class="arrow-icon" aria-hidden="true">
+                                                                        <ArrowRight />
+                                                                </span>
+                                                        </div>
 						</div>
 					</a>
 				</SpotlightCard>
@@ -122,17 +124,18 @@
 		color: var(--accent);
 	}
 
-	.post-excerpt {
-		font-size: 0.9rem;
-		color: var(--text-muted);
-		margin: 0 0 1rem;
-		line-height: 1.6;
-		flex: 1;
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
+        .post-excerpt {
+                font-size: 0.9rem;
+                color: var(--text-muted);
+                margin: 0 0 1rem;
+                line-height: 1.6;
+                flex: 1;
+                display: -webkit-box;
+                line-clamp: 3;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+        }
 
 	.read-more {
 		display: flex;
@@ -144,11 +147,17 @@
 		margin-top: auto;
 	}
 
-	.arrow-icon {
-		width: 1rem;
-		height: 1rem;
-		transition: transform 150ms;
-	}
+        .arrow-icon {
+                display: inline-flex;
+                width: 1rem;
+                height: 1rem;
+                transition: transform 150ms;
+        }
+
+        .arrow-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.post-card:hover .arrow-icon {
 		transform: translateX(4px);

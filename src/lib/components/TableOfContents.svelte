@@ -93,11 +93,11 @@
 		{/if}
 	</div>
 
-	{#if !isCollapsed}
-		<nav class="toc-nav" role="navigation">
-			{#each toc as item, index (item.id)}
-				<a
-					href={`#${item.id}`}
+        {#if !isCollapsed}
+                <nav class="toc-nav">
+                        {#each toc as item, index (item.id)}
+                                <a
+                                        href={`#${item.id}`}
 					class="toc-link"
 					class:level-2={item.level === 2}
 					class:level-3={item.level === 3}
