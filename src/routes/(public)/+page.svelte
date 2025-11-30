@@ -2,10 +2,14 @@
 	import type { PageData } from './$types';
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
 	import PopularPosts from '$lib/components/PopularPosts.svelte';
+	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
 	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
+	import { navigating } from '$app/stores';
 
 	let { data }: { data: PageData } = $props();
+
+	$: isLoading = !!$navigating;
 </script>
 
 <svelte:head>

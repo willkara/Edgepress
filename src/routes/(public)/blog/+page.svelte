@@ -4,8 +4,12 @@
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
 	import { ArrowLeft } from 'lucide-svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
+	import { navigating } from '$app/stores';
 
 	let { data }: { data: PageData } = $props();
+
+	$: isLoading = !!$navigating;
 
 	const breadcrumbItems = [
 		{ label: 'Home', href: '/' },
@@ -36,7 +40,13 @@
 	</div>
 
 	<!-- Posts List -->
-	{#if data.posts.length === 0}
+	{#if isLoading}
+		<div class="posts-list">
+			{#each Array(5) as _, i}
+				<SkeletonCard />
+			{/each}
+		</div>
+	{:else if data.posts.length === 0}
 		<div class="empty-state">
 			<p>No posts published yet. Check back soon!</p>
 		</div>

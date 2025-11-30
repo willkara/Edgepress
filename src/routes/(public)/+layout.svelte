@@ -6,6 +6,7 @@
 	import ScrollToTop from '$lib/components/ScrollToTop.svelte';
 	import SkipToContent from '$lib/components/SkipToContent.svelte';
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
+	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import type { LayoutData } from './$types';
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
@@ -16,6 +17,7 @@
 <PageTransition />
 <ScrollToTop />
 <MobileBottomNav />
+<PullToRefresh />
 
 <div class="min-h-screen flex flex-col lg:flex-row">
 	<!-- Mobile Header (visible only on small screens) -->
