@@ -1,0 +1,35 @@
+{% extends "default.njk" %}
+
+{% block body %}
+{# Home / Index Template #}
+
+<section class="hero">
+	<div class="hero-title">EdgePress</div>
+	<p class="hero-subtitle">
+		Blog at the edge. Serverless, markdown-first, and deployed where it matters.
+	</p>
+	<div class="hero-actions">
+		{% if posts.length > 0 %}
+			<a href="/blog/{{ posts[0].slug }}" class="button-primary"> Read latest </a>
+		{% else %}
+			<a href="/" class="button-primary"> Read the intro </a>
+		{% endif %}
+		<a href="https://github.com" class="button-ghost" target="_blank" rel="noopener noreferrer">
+			View on GitHub
+		</a>
+	</div>
+</section>
+
+<h2 class="posts-heading">Latest posts</h2>
+
+{% if posts.length == 0 %}
+	<div class="post-card" style="text-align: center; padding: 3rem;">
+		<p class="post-excerpt">No posts published yet. Check back soon!</p>
+	</div>
+{% else %}
+	{% for post in posts %}
+        {% include "partials/post-card.njk" %}
+	{% endfor %}
+{% endif %}
+
+{% endblock %}

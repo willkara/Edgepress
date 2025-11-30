@@ -50,6 +50,7 @@
 		"@tiptap/starter-kit": "^3.11.1",
 		"@tiptap/suggestion": "^3.11.1",
 		"@types/marked": "^6.0.0",
+		"@types/nunjucks": "^3.2.6",
 		"bcryptjs": "^2.4.3",
 		"date-fns": "^4.1.0",
 		"dompurify": "^3.2.2",
@@ -61,6 +62,7 @@
 		"lucide-svelte": "^0.555.0",
 		"marked": "^15.0.12",
 		"marked-highlight": "^2.2.1",
+		"nunjucks": "^3.2.4",
 		"svelte-tiptap": "^3.0.1",
 		"tiptap-extension-auto-joiner": "^0.1.3"
 	},

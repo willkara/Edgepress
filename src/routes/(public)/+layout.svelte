@@ -1,24 +1,14 @@
 <script lang="ts">
-	import PublicSidebar from '$lib/components/PublicSidebar.svelte';
-	import MobilePublicNav from '$lib/components/MobilePublicNav.svelte';
 	import type { LayoutData } from './$types';
 
+    // The layout is now handled by the Theme Engine templates (base.njk)
+    // This file just acts as a data provider/pass-through for children.
 	let { children, data }: { children: any; data: LayoutData } = $props();
 </script>
 
-<div class="min-h-screen flex flex-col lg:flex-row">
-	<!-- Mobile Header (visible only on small screens) -->
-	<MobilePublicNav user={data.user} />
-
-	<!-- Desktop Sidebar (hidden on small screens, fixed on large) -->
-	<div class="hidden lg:block w-[260px] shrink-0 h-screen sticky top-0">
-		<PublicSidebar user={data.user} />
-	</div>
-
-	<!-- Main Content Area -->
-	<main class="flex-1 min-w-0">
-		<div class="container max-w-5xl mx-auto px-4 py-8 lg:px-8 lg:py-10">
-			{@render children()}
-		</div>
-	</main>
-</div>
+<!--
+    We just render the children.
+    The child pages (+page.svelte) will invoke ThemeRenderer.
+    ThemeRenderer renders 'base.njk' which contains the sidebar and flex structure.
+-->
+{@render children()}

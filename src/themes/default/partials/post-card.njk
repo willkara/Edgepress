@@ -1,0 +1,21 @@
+<article class="post-card relative group">
+    <div class="post-meta">
+        {{ post.published_at | date_relative }}
+        {% if post.category_name %}
+            · {{ post.category_name }}
+        {% endif %}
+        {% if post.reading_time %}
+            · {{ post.reading_time }} min read
+        {% endif %}
+    </div>
+    <h3 class="post-title">
+        <a href="/blog/{{ post.slug }}">
+            {{ post.title }}
+        </a>
+    </h3>
+    {% if post.excerpt %}
+        <p class="post-excerpt">
+            {{ post.excerpt }}
+        </p>
+    {% endif %}
+</article>
