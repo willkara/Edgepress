@@ -9,7 +9,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	$: isLoading = !!$navigating;
+	let isLoading = $derived(!!$navigating);
 
 	const breadcrumbItems = [
 		{ label: 'Home', href: '/' },
