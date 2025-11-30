@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getPostById, updatePost, deletePost } from '$lib/server/db/admin-posts';
 import { syncPostMedia } from '$lib/server/db/media';
+import { deletePostVector, upsertPostVector } from '$lib/server/vectorize/post-index';
 
 const isHttpError = (err: unknown): err is { status: number } =>
         typeof err === 'object' && err !== null && 'status' in err && typeof (err as { status?: unknown }).status === 'number';
@@ -65,7 +66,7 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
                         excerpt: string;
                         hero_image_id: string | null;
                         category_id: string | null;
-                        status: string;
+                        status: 'draft' | 'published';
                         published_at: string | null;
                 };
 
@@ -84,7 +85,7 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 		// Sync media relationships
 		await syncPostMedia(db, params.id, body.content_html, body.hero_image_id ?? null);
 
-		// Invalidate post caches
+                // Invalidate post caches
                 if (env.CACHE) {
                         const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
                         // Invalidate landing page and default list
@@ -93,7 +94,25 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
                         await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
                 }
 
-		return json(post);
+                // Best-effort vector index update for semantic search.
+                if (platform?.env?.AI && platform.env.VECTORIZE) {
+                        try {
+                                await upsertPostVector(platform.env.AI, platform.env.VECTORIZE, {
+                                        id: post.id,
+                                        title: post.title,
+                                        slug: post.slug,
+                                        contentMd: body.content_md,
+                                        excerpt: body.excerpt,
+                                        status: post.status,
+                                        publishedAt: post.published_at,
+                                        categoryId: post.category_id
+                                });
+                        } catch (vectorError) {
+                                console.error('Failed to index post in Vectorize:', vectorError);
+                        }
+                }
+
+                return json(post);
         } catch (err: unknown) {
                 console.error('Failed to update post:', err);
 
@@ -133,15 +152,24 @@ export const DELETE: RequestHandler = async ({ platform, locals, params }): Prom
                         throw error(404, 'Post not found');
                 }
 
-		await deletePost(db, params.id);
+                await deletePost(db, params.id);
 
-		// Invalidate post caches
+                // Invalidate post caches
                 if (env.CACHE) {
                         const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
                         // Invalidate landing page and default list
                         await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
                         await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
                         await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+                }
+
+                // Best-effort vector deletion to keep the index in sync.
+                if (platform?.env?.VECTORIZE) {
+                        try {
+                                await deletePostVector(platform.env.VECTORIZE, params.id);
+                        } catch (vectorError) {
+                                console.error('Failed to delete Vectorize entry for post:', vectorError);
+                        }
                 }
 
                 return json({ success: true });
