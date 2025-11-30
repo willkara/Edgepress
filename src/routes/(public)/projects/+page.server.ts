@@ -6,6 +6,7 @@ import { getFeaturedProjects, getFeaturedProjectsCached } from '$lib/server/db/f
 import { withRequestLogging } from '$lib/server/db/logger';
 import { getSetting } from '$lib/server/db/settings';
 import { getPublishedPosts, getPublishedPostsCached } from '$lib/server/db/posts';
+import { featuredProjectSchema, projectPostSchema, type ProjectPost } from '$lib/types/projects';
 
 const DEFAULT_PROJECTS_PAGE_SUBTITLE = "Explore the things I've built and the problems I've solved.";
 
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ platform, setHeaders, locals }) => 
                 withRequestLogging(requestId, `projects:${operation}`, fn);
 
         try {
-                const [featuredProjects, pageTitle, pageSubtitle, showAllSetting] = await Promise.all([
+                const [featuredProjectsRaw, pageTitle, pageSubtitle, showAllSetting] = await Promise.all([
                         logDbCall('featured-projects', async () =>
                                 cache
                                         ? getFeaturedProjectsCached(db, cache, false)
@@ -42,17 +43,20 @@ export const load: PageServerLoad = async ({ platform, setHeaders, locals }) => 
                         )
                 ]);
 
+                const featuredProjects = featuredProjectSchema.array().parse(featuredProjectsRaw);
                 const showAll = showAllSetting === '1';
 
                 // If showAll is enabled, also fetch all posts with "Projects" category
-                let allProjectPosts: any[] = [];
+                let allProjectPosts: ProjectPost[] = [];
                 if (showAll) {
-                        const allPosts = await logDbCall('projects-category-posts', () =>
+                        const allPostsRaw = await logDbCall('projects-category-posts', () =>
                                 cache
                                         ? getPublishedPostsCached(db, cache, 100, 0)
                                         : getPublishedPosts(db, 100, 0)
                         );
-                        allProjectPosts = allPosts.filter((post) => post.category_slug === 'projects');
+
+                        const parsedPosts = projectPostSchema.array().parse(allPostsRaw);
+                        allProjectPosts = parsedPosts.filter((post) => post.category_slug === 'projects');
                 }
 
 		return {
