@@ -22,7 +22,8 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 				.bind(postId, fingerprint)
 				.all<{ reaction_type: string }>();
 
-			userReactions = reactions.results?.map((r) => r.reaction_type) || [];
+                        userReactions =
+                                reactions.results?.map((r: { reaction_type: string }) => r.reaction_type) || [];
 		}
 
 		return json({ userReactions });

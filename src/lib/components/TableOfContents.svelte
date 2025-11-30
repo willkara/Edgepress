@@ -82,7 +82,7 @@
 				aria-expanded={!isCollapsed}
 				aria-label={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
 			>
-				<ChevronDown class="w-4 h-4" class:rotated={isCollapsed} />
+                                <ChevronDown class={`w-4 h-4 ${isCollapsed ? 'rotated' : ''}`} />
 			</button>
 		</div>
 

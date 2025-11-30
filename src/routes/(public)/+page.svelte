@@ -5,11 +5,12 @@
 	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
 	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
-	import { navigating } from '$app/stores';
+        import { navigating } from '$app/stores';
 
-	let { data }: { data: PageData } = $props();
+        let { data }: { data: PageData } = $props();
 
-	$: isLoading = !!$navigating;
+        const navigatingStore = $derived(navigating);
+        const isLoading = $derived(Boolean(navigatingStore));
 </script>
 
 <svelte:head>

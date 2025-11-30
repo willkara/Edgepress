@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { removeFeaturedProject, toggleFeaturedStatus } from '$lib/server/db/featured-projects';
+import { removeFeaturedProject } from '$lib/server/db/featured-projects';
 
 export const DELETE: RequestHandler = async ({ params, platform, locals }) => {
 	if (!locals.user) {
