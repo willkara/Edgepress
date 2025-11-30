@@ -61,6 +61,7 @@
 		"lucide-svelte": "^0.555.0",
 		"marked": "^15.0.12",
 		"marked-highlight": "^2.2.1",
+		"svelte-dnd-action": "^0.9.67",
 		"svelte-tiptap": "^3.0.1",
 		"tiptap-extension-auto-joiner": "^0.1.3"
 	},

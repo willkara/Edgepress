@@ -9,7 +9,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	$: isLoading = !!$navigating;
+	let isLoading = $derived(!!$navigating);
 </script>
 
 <svelte:head>
@@ -53,27 +53,28 @@
 		<div class="projects-grid">
 			{#each data.featuredProjects as project}
 				<SpotlightCard>
-					<a href="/blog/{project.post_slug}" class="project-card">
-						{#if project.post_hero_image_id}
+					<!-- Use ProjectCard component logic here eventually, but keep existing style for now -->
+					<a href="/projects" class="project-card">
+						{#if project.hero_image_id}
 							<div class="project-image">
 								<img
-									src="https://imagedelivery.net/YOUR_CF_ACCOUNT_HASH/{project.post_hero_image_id}/public"
-									alt={project.post_title}
+									src="/cdn-cgi/imagedelivery/{data.imageHash}/{project.hero_image_id}/public"
+									alt={project.title}
 									loading="lazy"
 								/>
 							</div>
 						{/if}
 
 						<div class="project-content">
-							<h3 class="project-title">{project.post_title}</h3>
+							<h3 class="project-title">{project.title}</h3>
 							<p class="project-excerpt">
-								{project.custom_description || project.post_excerpt}
+								{project.description}
 							</p>
 
-							{#if project.tags.length > 0}
+							{#if project.tech_stack && project.tech_stack.length > 0}
 								<div class="project-tags">
-									{#each project.tags.slice(0, 3) as tag}
-										<span class="tag">{tag}</span>
+									{#each project.tech_stack.slice(0, 3) as tech}
+										<span class="tag">{tech}</span>
 									{/each}
 								</div>
 							{/if}
