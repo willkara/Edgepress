@@ -1,4 +1,4 @@
-import type { D1Database } from '@cloudflare/workers-types';
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
 export interface FeaturedProject {
 	id: string;
@@ -27,11 +27,16 @@ export interface FeaturedProjectWithPost {
 }
 
 /**
+ * Cache key identifier for featured project queries
+ */
+const FEATURED_PROJECTS_CACHE_KEY = 'featured-projects';
+
+/**
  * Get all featured projects with their post details, ordered by display_order
  */
 export async function getFeaturedProjects(
-	db: D1Database,
-	includeUnfeatured = false
+        db: D1Database,
+        includeUnfeatured = false
 ): Promise<FeaturedProjectWithPost[]> {
 	const whereClause = includeUnfeatured ? '' : 'WHERE fp.is_featured = 1';
 
@@ -78,7 +83,32 @@ export async function getFeaturedProjects(
 		})
 	);
 
-	return projectsWithTags;
+        return projectsWithTags;
+}
+
+/**
+ * Get featured projects with KV caching to reduce D1 reads on public pages
+ */
+export async function getFeaturedProjectsCached(
+        db: D1Database,
+        cache: KVNamespace,
+        includeUnfeatured = false
+): Promise<FeaturedProjectWithPost[]> {
+        const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
+        const cacheKey = getCacheKey(
+                FEATURED_PROJECTS_CACHE_KEY,
+                includeUnfeatured ? 'all' : 'featured'
+        );
+
+        const cached = await getCached<FeaturedProjectWithPost[]>(cache, cacheKey);
+        if (cached) {
+                return cached;
+        }
+
+        const projects = await getFeaturedProjects(db, includeUnfeatured);
+        await setCached(cache, cacheKey, projects, 600);
+
+        return projects;
 }
 
 /**
