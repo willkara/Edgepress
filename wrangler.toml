@@ -17,6 +17,10 @@ id = "0f8c7c1c598e4836b27bd44c8277ead5"
 binding = "CACHE"
 id = "5cccf14b5ee24a188aa6ea272a69bf1f"
 
+# Cloudflare AI binding
+[ai]
+binding = "AI"
+
 # Environment variables
 [vars]
 CF_ACCOUNT_ID = "669daa4955e836aa1b5765242447e624"

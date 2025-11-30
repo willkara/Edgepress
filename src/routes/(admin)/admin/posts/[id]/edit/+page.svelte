@@ -20,6 +20,7 @@
 	let error = $state('');
 	let showPreview = $state(false);
 	let previewHtml = $state('');
+	let generatingSummary = $state(false);
 
 	// Auto-generate slug from title if slug is manually cleared
 	$effect(() => {
@@ -132,6 +133,43 @@
 			selectedTags = [...selectedTags, tagId];
 		}
 	}
+
+	async function generateAISummary() {
+		if (!editor) {
+			error = 'Editor not initialized';
+			return;
+		}
+
+		const contentMd = getMarkdownSafe(editor);
+
+		if (!contentMd || !contentMd.trim()) {
+			error = 'Please write some content first before generating a summary';
+			return;
+		}
+
+		generatingSummary = true;
+		error = '';
+
+		try {
+			const response = await fetch('/api/admin/posts/summarize', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ content: contentMd })
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				excerpt = data.summary;
+			} else {
+				const errorData = await response.json();
+				error = errorData.message || 'Failed to generate summary';
+			}
+		} catch (err: any) {
+			error = err.message || 'Failed to generate summary';
+		} finally {
+			generatingSummary = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -213,10 +251,20 @@
 			</div>
 
 			<div class="form-group">
-				<label for="excerpt">
-					Excerpt
-					<span class="hint">Optional short summary</span>
-				</label>
+				<div class="excerpt-header">
+					<label for="excerpt">
+						Excerpt
+						<span class="hint">Optional short summary</span>
+					</label>
+					<button
+						type="button"
+						onclick={generateAISummary}
+						disabled={generatingSummary}
+						class="btn-ai"
+					>
+						{generatingSummary ? 'Generating...' : '✨ Generate AI Summary'}
+					</button>
+				</div>
 				<textarea
 					id="excerpt"
 					bind:value={excerpt}
@@ -339,6 +387,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+	}
+
+	.excerpt-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
 	}
 
 	label {
@@ -464,6 +519,29 @@
 	}
 
 	.btn-secondary:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.btn-ai {
+		padding: 0.5rem 1rem;
+		background: linear-gradient(to right, #a78bfa, #c084fc);
+		color: #0f172a;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.15s;
+		white-space: nowrap;
+	}
+
+	.btn-ai:hover:not(:disabled) {
+		filter: brightness(1.1);
+		transform: translateY(-1px);
+	}
+
+	.btn-ai:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
 	}
