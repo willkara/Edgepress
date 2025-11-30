@@ -30,11 +30,16 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 			tag,
 			posts
 		};
-	} catch (err: any) {
-		if (err.status === 404) {
-			throw err;
-		}
-		console.error('Failed to load tag page:', err);
-		throw error(500, 'Failed to load tag page');
-	}
+        } catch (err: unknown) {
+                if (
+                        err &&
+                        typeof err === 'object' &&
+                        'status' in err &&
+                        (err as { status?: number }).status === 404
+                ) {
+                        throw err;
+                }
+                console.error('Failed to load tag page:', err);
+                throw error(500, 'Failed to load tag page');
+        }
 };

@@ -1,6 +1,6 @@
+import type { D1Database } from '@cloudflare/workers-types';
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAuth } from '$lib/server/auth';
 
 /**
  * Generate a cryptographically secure random token
@@ -11,17 +11,18 @@ function generateSecureToken(): string {
 	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-export const POST: RequestHandler = async ({ params, platform, request }) => {
-	const session = await requireAuth(request, platform);
-	if (!session) {
-		throw error(401, 'Unauthorized');
-	}
+export const POST: RequestHandler = async ({ params, platform, locals }) => {
+        if (!locals.user) {
+                throw error(401, 'Unauthorized');
+        }
 
-	if (!platform?.env?.DB) {
-		throw error(500, 'Database not available');
-	}
+        const env = platform?.env as { DB?: D1Database } | undefined;
 
-	const postId = params.id;
+        if (!env?.DB) {
+                throw error(500, 'Database not available');
+        }
+
+        const postId = params.id;
 
 	try {
 		// Generate new preview token
@@ -39,7 +40,8 @@ export const POST: RequestHandler = async ({ params, platform, request }) => {
 			WHERE id = ?
 		`;
 
-		await platform.env.DB.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
+                const db = env.DB;
+                await db.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
 
 		return json({
 			preview_token: previewToken,

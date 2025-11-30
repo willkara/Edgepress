@@ -52,22 +52,26 @@
 
 {#if showBanner && savedProgress}
 	<div class="continue-reading-banner">
-		<div class="banner-content">
-			<BookOpen class="banner-icon" />
-			<div class="banner-text">
-				<strong>Continue reading</strong>
-				<span>You're {Math.round(savedProgress)}% through this article</span>
-			</div>
-		</div>
+                <div class="banner-content">
+                        <span class="banner-icon" aria-hidden="true">
+                                <BookOpen />
+                        </span>
+                        <div class="banner-text">
+                                <strong>Continue reading</strong>
+                                <span>You're {Math.round(savedProgress)}% through this article</span>
+                        </div>
+                </div>
 		<div class="banner-actions">
 			<button class="resume-button" onclick={scrollToSavedPosition}>
 				Resume
 			</button>
-			<button class="dismiss-button" onclick={dismissBanner} aria-label="Dismiss">
-				<X class="w-4 h-4" />
-			</button>
-		</div>
-	</div>
+                        <button class="dismiss-button" onclick={dismissBanner} aria-label="Dismiss">
+                                <span class="dismiss-icon" aria-hidden="true">
+                                        <X />
+                                </span>
+                        </button>
+                </div>
+        </div>
 {/if}
 
 <style>
@@ -96,12 +100,18 @@
 		gap: 1rem;
 	}
 
-	.banner-icon {
-		width: 1.5rem;
-		height: 1.5rem;
-		color: var(--accent);
-		flex-shrink: 0;
-	}
+        .banner-icon {
+                display: inline-flex;
+                width: 1.5rem;
+                height: 1.5rem;
+                color: var(--accent);
+                flex-shrink: 0;
+        }
+
+        .banner-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.banner-text {
 		display: flex;
@@ -143,18 +153,29 @@
 		box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
 	}
 
-	.dismiss-button {
-		padding: 0.5rem;
-		background: transparent;
-		border: 1px solid var(--border-subtle);
-		border-radius: 0.5rem;
+        .dismiss-button {
+                padding: 0.5rem;
+                background: transparent;
+                border: 1px solid var(--border-subtle);
+                border-radius: 0.5rem;
 		color: var(--text-subtle);
 		cursor: pointer;
-		transition: all 150ms;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+                transition: all 150ms;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+        }
+
+        .dismiss-icon {
+                display: inline-flex;
+                width: 1rem;
+                height: 1rem;
+        }
+
+        .dismiss-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+        }
 
 	.dismiss-button:hover {
 		border-color: var(--accent);

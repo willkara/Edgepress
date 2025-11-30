@@ -15,8 +15,8 @@ export const isMac = browser
  * @param editor Editor - editor instance
  * @param maxSize number - max size of the image to be pasted in MB, default is 2MB
  */
-export function getHandlePaste(editor: Editor, maxSize: number = 2) {
-	return (view: EditorView, event: ClipboardEvent) => {
+export function getHandlePaste(_editor: Editor, maxSize: number = 2) {
+        return (_view: EditorView, event: ClipboardEvent) => {
 		const item = event.clipboardData?.items[0];
 
 		if (item?.type.indexOf('image') !== 0) {

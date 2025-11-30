@@ -110,41 +110,47 @@
 	<h4 class="reactions-title">Enjoying this post?</h4>
 
 	<div class="reactions-buttons">
-		<button
-			class="reaction-button"
-			class:active={userReactions.has('like')}
-			onclick={() => toggleReaction('like')}
-			disabled={isLoading}
-			aria-label={userReactions.has('like') ? 'Unlike post' : 'Like post'}
-		>
-			<ThumbsUp class="reaction-icon" />
-			<span class="reaction-count">{likes}</span>
-			<span class="reaction-label">Like</span>
-		</button>
+                <button
+                        class="reaction-button"
+                        class:active={userReactions.has('like')}
+                        onclick={() => toggleReaction('like')}
+                        disabled={isLoading}
+                        aria-label={userReactions.has('like') ? 'Unlike post' : 'Like post'}
+                >
+                        <span class="reaction-icon">
+                                <ThumbsUp />
+                        </span>
+                        <span class="reaction-count">{likes}</span>
+                        <span class="reaction-label">Like</span>
+                </button>
 
-		<button
-			class="reaction-button"
-			class:active={userReactions.has('heart')}
-			onclick={() => toggleReaction('heart')}
-			disabled={isLoading}
-			aria-label={userReactions.has('heart') ? 'Remove heart' : 'Heart post'}
-		>
-			<Heart class="reaction-icon" />
-			<span class="reaction-count">{hearts}</span>
-			<span class="reaction-label">Love</span>
-		</button>
+                <button
+                        class="reaction-button"
+                        class:active={userReactions.has('heart')}
+                        onclick={() => toggleReaction('heart')}
+                        disabled={isLoading}
+                        aria-label={userReactions.has('heart') ? 'Remove heart' : 'Heart post'}
+                >
+                        <span class="reaction-icon">
+                                <Heart />
+                        </span>
+                        <span class="reaction-count">{hearts}</span>
+                        <span class="reaction-label">Love</span>
+                </button>
 
-		<button
-			class="reaction-button"
-			class:active={userReactions.has('bookmark')}
-			onclick={() => toggleReaction('bookmark')}
-			disabled={isLoading}
-			aria-label={userReactions.has('bookmark') ? 'Remove bookmark' : 'Bookmark post'}
-		>
-			<Bookmark class="reaction-icon" />
-			<span class="reaction-count">{bookmarks}</span>
-			<span class="reaction-label">Save</span>
-		</button>
+                <button
+                        class="reaction-button"
+                        class:active={userReactions.has('bookmark')}
+                        onclick={() => toggleReaction('bookmark')}
+                        disabled={isLoading}
+                        aria-label={userReactions.has('bookmark') ? 'Remove bookmark' : 'Bookmark post'}
+                >
+                        <span class="reaction-icon">
+                                <Bookmark />
+                        </span>
+                        <span class="reaction-count">{bookmarks}</span>
+                        <span class="reaction-label">Save</span>
+                </button>
 	</div>
 </div>
 
@@ -208,16 +214,24 @@
 		border-color: var(--accent);
 	}
 
-	.reaction-button.active .reaction-icon {
-		color: var(--accent);
-		fill: var(--accent);
-	}
+        .reaction-button.active .reaction-icon {
+                color: var(--accent);
+                fill: var(--accent);
+        }
 
-	.reaction-icon {
-		width: 1.5rem;
-		height: 1.5rem;
-		transition: all 200ms;
-	}
+        .reaction-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 1.5rem;
+                height: 1.5rem;
+        }
+
+        .reaction-icon :global(svg) {
+                width: 100%;
+                height: 100%;
+                transition: all 200ms;
+        }
 
 	.reaction-count {
 		font-size: 1.125rem;
@@ -245,10 +259,10 @@
 			min-width: 75px;
 		}
 
-		.reaction-icon {
-			width: 1.25rem;
-			height: 1.25rem;
-		}
+                .reaction-icon {
+                        width: 1.25rem;
+                        height: 1.25rem;
+                }
 
 		.reaction-count {
 			font-size: 1rem;
