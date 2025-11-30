@@ -2,6 +2,8 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { getPostsByTag } from '$lib/server/db/posts';
 import { getTagBySlug } from '$lib/server/db/tags';
+import { postSchema } from '$lib/types/posts';
+import { tagSchema } from '$lib/types/taxonomy';
 
 export const load: PageServerLoad = async ({ params, platform }) => {
 	const { slug } = params;
@@ -12,14 +14,17 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	try {
 		// Get the tag to verify it exists
-		const tag = await getTagBySlug(platform.env.DB, slug);
+                const tagRaw = await getTagBySlug(platform.env.DB, slug);
 
-		if (!tag) {
-			throw error(404, `Tag "${slug}" not found`);
-		}
+                if (!tagRaw) {
+                        throw error(404, `Tag "${slug}" not found`);
+                }
 
-		// Get all posts with this tag
-		const posts = await getPostsByTag(platform.env.DB, slug, 100, 0);
+                const tag = tagSchema.parse(tagRaw);
+
+                // Get all posts with this tag
+                const postsRaw = await getPostsByTag(platform.env.DB, slug, 100, 0);
+                const posts = postSchema.array().parse(postsRaw);
 
 		return {
 			tag,

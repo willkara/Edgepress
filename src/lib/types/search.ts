@@ -1,12 +1,19 @@
-export interface SearchIndexItem {
-	slug: string;
-	title: string;
-	excerpt: string | null;
-	published_at: string;
-	reading_time: number | null;
-	tags: string[];
-}
+import { z } from 'zod';
 
-export interface SearchResult extends SearchIndexItem {
-	highlight?: string | null;
-}
+/** Schema describing a single search index entry. */
+export const searchIndexItemSchema = z.object({
+        slug: z.string(),
+        title: z.string(),
+        excerpt: z.string().nullable(),
+        published_at: z.string(),
+        reading_time: z.number().nullable(),
+        tags: z.array(z.string())
+});
+
+/** Schema describing a search result entry with optional highlight metadata. */
+export const searchResultSchema = searchIndexItemSchema.extend({
+        highlight: z.string().nullable().optional()
+});
+
+export type SearchIndexItem = z.infer<typeof searchIndexItemSchema>;
+export type SearchResult = z.infer<typeof searchResultSchema>;

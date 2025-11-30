@@ -1,12 +1,16 @@
+import type { D1Database } from '@cloudflare/workers-types';
 import { error } from '@sveltejs/kit';
+import { postSchema, postTagSchema, type Post, type PostTag } from '$lib/types/posts';
 import type { PageServerLoad } from './$types';
-import type { Post, PostTag } from '$lib/server/db/posts';
+import { z } from 'zod';
 
-interface PreviewPost extends Post {
-	preview_token: string | null;
-	preview_expires_at: string | null;
-	status: string;
-}
+const previewPostSchema = postSchema.extend({
+        preview_token: z.string().nullable(),
+        preview_expires_at: z.string().nullable(),
+        status: z.string()
+});
+
+type PreviewPost = z.infer<typeof previewPostSchema>;
 
 /**
  * Get a post by preview token (includes unpublished posts)
@@ -52,7 +56,8 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 	}
 
 	try {
-		const post = await getPostByPreviewToken(platform.env.DB, params.token);
+                const postRaw = await getPostByPreviewToken(platform.env.DB, params.token);
+                const post = postRaw ? previewPostSchema.parse(postRaw) : null;
 
 		if (!post) {
 			throw error(404, 'Preview not found');
@@ -68,7 +73,8 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 			}
 		}
 
-		const tags = await getPostTags(platform.env.DB, post.id);
+                const tagsRaw = await getPostTags(platform.env.DB, post.id);
+                const tags = postTagSchema.array().parse(tagsRaw);
 
 		return {
 			post,
