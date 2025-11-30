@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { listPosts, createPost } from '$lib/server/db/admin-posts';
 import { syncPostMedia } from '$lib/server/db/media';
 import { invalidateCache, getCacheKey } from '$lib/server/cache/cache';
+import { upsertPostVector } from '$lib/server/vectorize/post-index';
 
 /**
  * GET /api/admin/posts
@@ -84,17 +85,35 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		// Sync media relationships
 		await syncPostMedia(db, post.id, body.content_html, body.hero_image_id ?? null);
 
-		// Invalidate public caches (best-effort)
-		if (platform.env.CACHE) {
-			// Landing page uses limit 10
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 10, 0));
-			// Default list uses limit 20
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
-			await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
-		}
+                // Invalidate public caches (best-effort)
+                if (platform.env.CACHE) {
+                        // Landing page uses limit 10
+                        await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 10, 0));
+                        // Default list uses limit 20
+                        await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
+                        await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
+                }
 
-		return json(post, { status: 201 });
-	} catch (err) {
+                // Best-effort vector index update for semantic search.
+                if (platform.env.AI && platform.env.VECTORIZE) {
+                        try {
+                                await upsertPostVector(platform.env.AI, platform.env.VECTORIZE, {
+                                        id: post.id,
+                                        title: post.title,
+                                        slug: post.slug,
+                                        contentMd: body.content_md,
+                                        excerpt: body.excerpt,
+                                        status: post.status,
+                                        publishedAt: post.published_at,
+                                        categoryId: post.category_id
+                                });
+                        } catch (vectorError) {
+                                console.error('Failed to index post in Vectorize:', vectorError);
+                        }
+                }
+
+                return json(post, { status: 201 });
+        } catch (err) {
 		console.error('Failed to create post:', err);
 
 		const message = err instanceof Error ? err.message : '';
