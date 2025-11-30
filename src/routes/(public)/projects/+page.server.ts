@@ -1,43 +1,85 @@
 import type { PageServerLoad } from './$types';
+import type { D1Database } from '@cloudflare/workers-types';
 import { error } from '@sveltejs/kit';
-import { getFeaturedProjects } from '$lib/server/db/featured-projects';
+import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
 import { getSetting } from '$lib/server/db/settings';
-import { getPublishedPosts } from '$lib/server/db/posts';
+import { getProjects, type Project } from '$lib/server/db/projects';
+import { getPostBySlug } from '$lib/server/db/posts';
 
-export const load: PageServerLoad = async ({ platform }) => {
-	if (!platform?.env?.DB) {
-		throw error(500, 'Database not available');
-	}
+interface ProjectWithPostLink extends Project {
+        post_slug?: string;
+        post_title?: string;
+        post_published_at?: string;
+}
 
-	try {
-		const [featuredProjects, pageTitle, pageSubtitle, showAllSetting] = await Promise.all([
-			getFeaturedProjects(platform.env.DB, false), // Only get featured (visible) projects
-			getSetting(platform.env.DB, 'projects_page_title'),
-			getSetting(platform.env.DB, 'projects_page_subtitle'),
-			getSetting(platform.env.DB, 'projects_page_show_all')
-		]);
+export const load: PageServerLoad = async ({ platform, setHeaders }) => {
+        if (!platform?.env?.DB) {
+                throw error(500, 'Database not available');
+        }
 
-		const showAll = showAllSetting === '1';
+        try {
+                setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		// If showAll is enabled, also fetch all posts with "Projects" category
-		let allProjectPosts: any[] = [];
-		if (showAll) {
-			const allPosts = await getPublishedPosts(platform.env.DB, 100, 0);
-			allProjectPosts = allPosts.filter((post) => post.category_slug === 'projects');
-		}
+                const [projects, pageTitle, pageSubtitle] = await Promise.all([
+                        getProjects(platform.env.DB),
+                        getSetting(platform.env.DB, 'projects_page_title'),
+                        getSetting(platform.env.DB, 'projects_page_subtitle')
+                ]);
 
-		return {
-			featuredProjects,
-			allProjectPosts: showAll ? allProjectPosts : [],
-			showAll,
-			settings: {
-				pageTitle: pageTitle || 'My Projects',
-				pageSubtitle:
-					pageSubtitle || "Explore the things I've built and the problems I've solved."
-			}
-		};
-	} catch (err: any) {
-		console.error('Failed to load projects page:', err);
-		throw error(500, 'Failed to load projects page');
-	}
+                const projectsWithPosts = await enrichProjectsWithPosts(platform.env.DB, projects);
+
+                return {
+                        projects: projectsWithPosts,
+                        settings: {
+                                pageTitle: pageTitle || 'My Projects',
+                                pageSubtitle:
+                                        pageSubtitle || "Explore the things I've built and the problems I've solved."
+                        }
+                };
+        } catch (err) {
+                console.error('Failed to load projects page:', err);
+                throw error(500, 'Failed to load projects page');
+        }
 };
+
+async function enrichProjectsWithPosts(
+        db: D1Database,
+        projects: Project[]
+): Promise<ProjectWithPostLink[]> {
+        const postLookups = await Promise.all(projects.map((project) => getProjectPost(db, project.slug)));
+
+        const postMap = new Map(
+                postLookups
+                        .filter((post): post is NonNullable<typeof post> => Boolean(post))
+                        .map((post) => [post.slug, post])
+        );
+
+        return projects.map((project) => {
+                const post = postMap.get(project.slug);
+
+                if (!post) {
+                        return project;
+                }
+
+                return {
+                        ...project,
+                        post_slug: post.slug,
+                        post_title: post.title,
+                        post_published_at: post.published_at
+                };
+        });
+}
+
+async function getProjectPost(db: D1Database, slug: string) {
+        const post = await getPostBySlug(db, slug);
+
+        if (!post) {
+                return null;
+        }
+
+        return {
+                slug: post.slug,
+                title: post.title,
+                published_at: post.published_at
+        };
+}
