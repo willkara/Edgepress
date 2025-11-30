@@ -1,34 +1,42 @@
-import { getPublishedPostsCached, getPublishedPostsCount } from '$lib/server/db/posts';
+import { getPublishedPostsCached, getPopularPosts } from '$lib/server/db/posts';
+import { getFeaturedProjects } from '$lib/server/db/featured-projects';
+import { getAllCategories } from '$lib/server/db/categories';
 import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ platform, setHeaders }) => {
-	// If we're not running in the Cloudflare runtime (e.g., local dev without env),
-	// return a graceful empty state instead of throwing.
 	if (!platform?.env?.DB || !platform?.env?.CACHE) {
 		return {
-			posts: [],
-			totalCount: 0,
-			warning: 'Edge runtime not available; showing empty list.'
+			latestPosts: [],
+			featuredProjects: [],
+			categories: [],
+			popularPosts: []
 		};
 	}
 
 	try {
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		const posts = await getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 10, 0);
-		const totalCount = await getPublishedPostsCount(platform.env.DB);
+		const [latestPosts, featuredProjects, categories, popularPosts] = await Promise.all([
+			getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
+			getFeaturedProjects(platform.env.DB, false),
+			getAllCategories(platform.env.DB, true),
+			getPopularPosts(platform.env.DB, 5)
+		]);
 
 		return {
-			posts,
-			totalCount
+			latestPosts,
+			featuredProjects: featuredProjects.slice(0, 3), // Only show 3 featured
+			categories,
+			popularPosts
 		};
 	} catch (error) {
-		console.error('Failed to load published posts:', error);
+		console.error('Failed to load homepage:', error);
 		return {
-			posts: [],
-			totalCount: 0,
-			warning: 'Unable to load posts right now.'
+			latestPosts: [],
+			featuredProjects: [],
+			categories: [],
+			popularPosts: []
 		};
 	}
 };

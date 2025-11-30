@@ -2,12 +2,14 @@
 	import { page } from '$app/stores';
 	import UserMenu from '$lib/components/UserMenu.svelte';
 	import type { PublicUser } from '$lib/server/auth/types';
-	import { Home, Search, Github, BookOpen } from 'lucide-svelte';
+	import { Home, Search, Github, BookOpen, Folder } from 'lucide-svelte';
 
 	let { user }: { user: PublicUser | undefined } = $props();
 
 	const navItems = [
 		{ href: '/', label: 'Home', icon: Home },
+		{ href: '/blog', label: 'Blog', icon: BookOpen },
+		{ href: '/projects', label: 'Projects', icon: Folder },
 		{ href: '/search', label: 'Search', icon: Search },
 		{ href: 'https://github.com', label: 'GitHub', icon: Github, external: true }
 	];

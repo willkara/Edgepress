@@ -310,6 +310,38 @@
 				<input type="text" bind:value={heroImageId} placeholder="Image ID" />
 				<p class="hint">Enter Cloudflare Image ID</p>
 			</div>
+
+			<div class="sidebar-section">
+				<h3>Preview Link</h3>
+				<p class="hint mb-3">Share unpublished posts with a secure preview link</p>
+
+				{#if previewToken}
+					<div class="preview-link-container">
+						<div class="preview-link-url">
+							<code>/blog/preview/{previewToken.slice(0, 8)}...</code>
+						</div>
+
+						{#if previewExpiresAt}
+							<div class="preview-expiry">
+								{formatExpiryDate(previewExpiresAt)}
+							</div>
+						{/if}
+
+						<div class="preview-actions">
+							<button onclick={copyPreviewLink} class="btn-copy">
+								{previewCopied ? '✓ Copied!' : 'Copy Link'}
+							</button>
+							<button onclick={generatePreviewLink} disabled={generatingPreview} class="btn-regenerate">
+								Regenerate
+							</button>
+						</div>
+					</div>
+				{:else}
+					<button onclick={generatePreviewLink} disabled={generatingPreview} class="btn-generate">
+						{generatingPreview ? 'Generating...' : 'Generate Preview Link'}
+					</button>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
@@ -473,6 +505,92 @@
 	.empty-text {
 		font-size: 0.875rem;
 		color: var(--text-muted);
+	}
+
+	.mb-3 {
+		margin-bottom: 1rem;
+	}
+
+	.preview-link-container {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.preview-link-url {
+		padding: 0.75rem;
+		background: var(--bg-soft);
+		border: 1px solid var(--border-subtle);
+		border-radius: 0.5rem;
+	}
+
+	.preview-link-url code {
+		font-size: 0.75rem;
+		color: var(--text-main);
+		word-break: break-all;
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	}
+
+	.preview-expiry {
+		font-size: 0.75rem;
+		color: var(--text-muted);
+		padding-left: 0.25rem;
+	}
+
+	.preview-actions {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.btn-copy,
+	.btn-regenerate,
+	.btn-generate {
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--border-subtle);
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.15s;
+		flex: 1;
+	}
+
+	.btn-copy {
+		background: var(--accent);
+		color: #0f172a;
+		border-color: var(--accent);
+	}
+
+	.btn-copy:hover:not(:disabled) {
+		filter: brightness(1.1);
+	}
+
+	.btn-regenerate {
+		background: var(--bg-elevated);
+		color: var(--text-main);
+	}
+
+	.btn-regenerate:hover:not(:disabled) {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.btn-generate {
+		width: 100%;
+		background: var(--accent);
+		color: #0f172a;
+		border-color: var(--accent);
+	}
+
+	.btn-generate:hover:not(:disabled) {
+		filter: brightness(1.1);
+	}
+
+	.btn-copy:disabled,
+	.btn-regenerate:disabled,
+	.btn-generate:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.btn-primary {

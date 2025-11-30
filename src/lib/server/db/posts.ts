@@ -9,8 +9,12 @@ export interface Post {
 	excerpt: string | null;
 	hero_image_id: string | null;
 	published_at: string;
+	updated_at: string;
 	reading_time: number | null;
 	view_count: number;
+	like_count?: number;
+	heart_count?: number;
+	bookmark_count?: number;
 	author_name: string;
 	category_name: string | null;
 	category_slug: string | null;
@@ -42,7 +46,7 @@ export async function getPublishedPosts(db: D1Database, limit = 20, offset = 0):
 	const query = `
 		SELECT
 			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
-			p.hero_image_id, p.published_at, p.reading_time, p.view_count,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
 			u.display_name as author_name,
 			c.name as category_name, c.slug as category_slug
 		FROM posts p
@@ -65,7 +69,7 @@ export async function getPostBySlug(db: D1Database, slug: string): Promise<Post 
 	const query = `
 		SELECT
 			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
-			p.hero_image_id, p.published_at, p.reading_time, p.view_count,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
 			u.display_name as author_name,
 			c.name as category_name, c.slug as category_slug
 		FROM posts p
@@ -109,6 +113,64 @@ export async function getPublishedPostsCount(db: D1Database): Promise<number> {
 	const now = new Date().toISOString();
 	const result = await db.prepare(query).bind(now).first<{ count: number }>();
 	return result?.count || 0;
+}
+
+/**
+ * Get published posts by category slug with pagination
+ */
+export async function getPostsByCategory(
+	db: D1Database,
+	categorySlug: string,
+	limit = 20,
+	offset = 0
+): Promise<Post[]> {
+	const query = `
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		INNER JOIN categories c ON p.category_id = c.id
+		WHERE c.slug = ? AND p.status = 'published' AND p.published_at <= ?
+		ORDER BY p.published_at DESC
+		LIMIT ? OFFSET ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db.prepare(query).bind(categorySlug, now, limit, offset).all<Post>();
+	return result.results || [];
+}
+
+/**
+ * Get published posts by tag slug with pagination
+ */
+export async function getPostsByTag(
+	db: D1Database,
+	tagSlug: string,
+	limit = 20,
+	offset = 0
+): Promise<Post[]> {
+	const query = `
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		INNER JOIN post_tags pt ON p.id = pt.post_id
+		INNER JOIN tags t ON pt.tag_id = t.id
+		WHERE t.slug = ? AND p.status = 'published' AND p.published_at <= ?
+		ORDER BY p.published_at DESC
+		LIMIT ? OFFSET ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db.prepare(query).bind(tagSlug, now, limit, offset).all<Post>();
+	return result.results || [];
 }
 
 /**
@@ -308,4 +370,82 @@ export async function searchPostsCached(
 	const results = await searchPosts(db, normalized, limit);
 	await setCached(cache, cacheKey, results, 120); // short TTL to keep results fresh
 	return results;
+}
+
+/**
+ * Get related posts based on shared tags and category
+ * Returns posts that share tags with the current post, or posts in the same category
+ * Excludes the current post from results
+ */
+export async function getRelatedPosts(
+	db: D1Database,
+	postId: string,
+	limit = 3
+): Promise<Post[]> {
+	const query = `
+		WITH current_post AS (
+			SELECT category_id
+			FROM posts
+			WHERE id = ?
+		),
+		current_tags AS (
+			SELECT tag_id
+			FROM post_tags
+			WHERE post_id = ?
+		),
+		related_by_tags AS (
+			SELECT DISTINCT p.id, COUNT(DISTINCT pt.tag_id) as shared_tags
+			FROM posts p
+			INNER JOIN post_tags pt ON p.id = pt.post_id
+			INNER JOIN current_tags ct ON pt.tag_id = ct.tag_id
+			WHERE p.id != ? AND p.status = 'published' AND p.published_at <= ?
+			GROUP BY p.id
+		)
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug,
+			COALESCE(rt.shared_tags, 0) as shared_tags,
+			CASE WHEN p.category_id = (SELECT category_id FROM current_post) THEN 1 ELSE 0 END as same_category
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		LEFT JOIN related_by_tags rt ON p.id = rt.id
+		WHERE p.id != ? AND p.status = 'published' AND p.published_at <= ?
+		AND (rt.shared_tags > 0 OR p.category_id = (SELECT category_id FROM current_post))
+		ORDER BY shared_tags DESC, same_category DESC, p.published_at DESC
+		LIMIT ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db
+		.prepare(query)
+		.bind(postId, postId, postId, now, postId, now, limit)
+		.all<Post>();
+	return result.results || [];
+}
+
+/**
+ * Get popular posts ordered by view count
+ * Useful for displaying trending or most-read content
+ */
+export async function getPopularPosts(db: D1Database, limit = 5): Promise<Post[]> {
+	const query = `
+		SELECT
+			p.id, p.title, p.slug, p.content_md, p.content_html, p.excerpt,
+			p.hero_image_id, p.published_at, p.updated_at, p.reading_time, p.view_count,
+			u.display_name as author_name,
+			c.name as category_name, c.slug as category_slug
+		FROM posts p
+		LEFT JOIN users u ON p.author_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		WHERE p.status = 'published' AND p.published_at <= ? AND p.view_count > 0
+		ORDER BY p.view_count DESC, p.published_at DESC
+		LIMIT ?
+	`;
+
+	const now = new Date().toISOString();
+	const result = await db.prepare(query).bind(now, limit).all<Post>();
+	return result.results || [];
 }

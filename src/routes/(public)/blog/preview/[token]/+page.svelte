@@ -8,14 +8,11 @@
 	import ViewCounter from '$lib/components/ViewCounter.svelte';
 	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
-	import RelatedPosts from '$lib/components/RelatedPosts.svelte';
 	import CopyCodeButton from '$lib/components/CopyCodeButton.svelte';
-	import NewsletterSignup from '$lib/components/NewsletterSignup.svelte';
-	import PostReactions from '$lib/components/PostReactions.svelte';
-	import ContinueReadingBanner from '$lib/components/ContinueReadingBanner.svelte';
+	import { AlertCircle, Eye } from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
-	const post = data.post; // post can be null here
+	const post = data.post;
 
 	// Calculate word count from markdown content
 	const wordCount = post?.content_md ? post.content_md.split(/\s+/).filter(word => word.length > 0).length : 0;
@@ -24,19 +21,15 @@
 	const breadcrumbItems = post ? [
 		{ label: 'Home', href: '/' },
 		{ label: 'Blog', href: '/blog' },
-		...(post.category_name ? [{ label: post.category_name, href: `/blog/category/${post.category_slug}` }] : []),
-		{ label: post.title }
+		{ label: `Preview: ${post.title}` }
 	] : [];
 
-	// Initialize these outside if they need to be accessed conditionally later,
-	// or only declare inside if branch if strictly used there.
 	let toc = $state<TocItem[]>([]);
 	let sanitizedContent = $state('');
-	let activeHeadingId = $state(''); // Declare here to be available for conditional rendering
+	let activeHeadingId = $state('');
 
-	let observer: IntersectionObserver | undefined; // Make observer optional
+	let observer: IntersectionObserver | undefined;
 
-	// Effect runs only if post is available, and disconnects if it disappears
 	$effect(() => {
 		if (post) {
 			const { toc: extractedToc, html: modifiedHtml } = extractToc(post.content_html);
@@ -64,33 +57,45 @@
 
 		return () => {
 			observer?.disconnect();
-			observer = undefined; // Clear observer on cleanup
+			observer = undefined;
 		};
 	});
 </script>
 
 <svelte:head>
-	<title>{post?.title || 'EdgePress'} - EdgePress</title>
-	<meta name="description" content={post?.excerpt || post?.title || 'A serverless blog platform powered by Cloudflare'} />
-	<!-- Open Graph / Social Media Meta Tags -->
-	<meta property="og:title" content={post?.title || 'EdgePress'} />
-	<meta property="og:description" content={post?.excerpt || post?.title || 'A serverless blog platform powered by Cloudflare'} />
-	<meta property="og:type" content="article" />
-	<meta property="og:url" content={`https://yourdomain.com/blog/${post?.slug || ''}`} />
-	{#if post?.hero_image_id}
-		<meta property="og:image" content={`https://imagedelivery.net/YOUR_CF_ACCOUNT_HASH/${post.hero_image_id}/public`} />
-	{/if}
+	<title>Preview: {post?.title || 'Post'} - EdgePress</title>
+	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
 {#if post}
 	<ReadingProgressBar postSlug={post.slug} wordCount={wordCount} />
-	<ContinueReadingBanner postSlug={post.slug} />
+
+	<!-- Preview Banner -->
+	<div class="preview-banner">
+		<div class="preview-banner-content">
+			<Eye class="w-5 h-5" />
+			<div class="preview-banner-text">
+				<strong>Preview Mode</strong>
+				<span>
+					This is a preview of an unpublished post. Changes may not reflect the final version.
+					{#if post.preview_expires_at}
+						· Expires {formatDateStandard(post.preview_expires_at)}
+					{/if}
+				</span>
+			</div>
+		</div>
+		{#if post.status === 'draft'}
+			<div class="preview-status draft">Draft</div>
+		{:else if post.status === 'scheduled'}
+			<div class="preview-status scheduled">Scheduled</div>
+		{/if}
+	</div>
 
 	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8">
 		<!-- Main Article Content -->
 		<div class="flex-1 min-w-0 max-w-prose mx-auto">
 			<div class="mb-8">
-				<a href="/" class="article-back">
+				<a href="/blog" class="article-back">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						class="h-4 w-4"
@@ -103,24 +108,25 @@
 					>
 						<path d="m15 18-6-6 6-6" />
 					</svg>
-					Back to home
+					Back to blog
 				</a>
 
 				<Breadcrumbs items={breadcrumbItems} />
 
 				<div class="article-meta flex flex-wrap items-center gap-x-2 gap-y-1">
-					<span>By {post.author_name} on {formatDateStandard(post.published_at)}</span>
-					{#if post.updated_at && post.updated_at !== post.published_at}
+					<span>By {post.author_name}</span>
+					{#if post.status === 'published' && post.published_at}
+						<span>· Published {formatDateStandard(post.published_at)}</span>
+					{/if}
+					{#if post.updated_at}
 						<span>· Updated {formatDateStandard(post.updated_at)}</span>
 					{/if}
 					{#if post.category_name}
-						<span>· <a href="/blog/category/{post.category_slug}" class="category-link">{post.category_name}</a></span>
+						<span>· <span class="category-link">{post.category_name}</span></span>
 					{/if}
 					{#if post.reading_time}
 						<span>· {post.reading_time} min read</span>
 					{/if}
-					<span>·</span>
-					<ViewCounter slug={post.slug} initialViews={post.view_count || 0} />
 				</div>
 				<h1 class="article-title">{post.title}</h1>
 
@@ -131,9 +137,7 @@
 				{#if data.tags && data.tags.length > 0}
 					<div class="article-tags">
 						{#each data.tags as tag}
-							<a href="/blog/tag/{tag.slug}" class="tag">
-								{tag.name}
-							</a>
+							<span class="tag">{tag.name}</span>
 						{/each}
 					</div>
 				{/if}
@@ -144,21 +148,13 @@
 				<CopyCodeButton />
 			</div>
 
-			<!-- Post Reactions -->
-			<PostReactions
-				postId={post.id}
-				initialLikes={post.like_count || 0}
-				initialHearts={post.heart_count || 0}
-				initialBookmarks={post.bookmark_count || 0}
-			/>
-
-			<!-- Related Posts -->
-			{#if data.relatedPosts && data.relatedPosts.length > 0}
-				<RelatedPosts posts={data.relatedPosts} />
-			{/if}
-
-			<!-- Newsletter Signup -->
-			<NewsletterSignup />
+			<!-- Preview Notice -->
+			<div class="preview-notice">
+				<AlertCircle class="w-5 h-5" />
+				<p>
+					This is a preview. The post is not publicly visible and changes may occur before publication.
+				</p>
+			</div>
 		</div>
 
 		<!-- Table of Contents Sidebar -->
@@ -169,21 +165,107 @@
 
 	<MobileArticleNav title={post.title} toc={toc} activeHeadingId={activeHeadingId} />
 {:else}
-	<!-- Fallback for when post is null -->
 	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8 text-center text-lg text-muted-foreground">
-		<p>Post not found. Please check the URL.</p>
+		<p>Preview not found. Please check the URL.</p>
 	</div>
 {/if}
 
 <style>
-	.category-link {
-		color: var(--text-muted);
-		text-decoration: none;
-		transition: color 150ms;
+	.preview-banner {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+		border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+		padding: 1rem 1.5rem;
+		backdrop-filter: blur(12px);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
 	}
 
-	.category-link:hover {
-		color: var(--accent);
+	.preview-banner-content {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.preview-banner-content :global(svg) {
+		color: rgb(251, 191, 36);
+		flex-shrink: 0;
+	}
+
+	.preview-banner-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 0;
+	}
+
+	.preview-banner-text strong {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: var(--text-main);
+	}
+
+	.preview-banner-text span {
+		font-size: 0.8125rem;
+		color: var(--text-muted);
+	}
+
+	.preview-status {
+		padding: 0.375rem 0.75rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		flex-shrink: 0;
+	}
+
+	.preview-status.draft {
+		background: rgba(148, 163, 184, 0.2);
+		color: rgb(148, 163, 184);
+		border: 1px solid rgba(148, 163, 184, 0.4);
+	}
+
+	.preview-status.scheduled {
+		background: rgba(59, 130, 246, 0.2);
+		color: rgb(59, 130, 246);
+		border: 1px solid rgba(59, 130, 246, 0.4);
+	}
+
+	.preview-notice {
+		margin-top: 3rem;
+		padding: 1.25rem 1.5rem;
+		background: rgba(251, 191, 36, 0.1);
+		border: 1px solid rgba(251, 191, 36, 0.3);
+		border-radius: 0.75rem;
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.preview-notice :global(svg) {
+		color: rgb(251, 191, 36);
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+	}
+
+	.preview-notice p {
+		margin: 0;
+		font-size: 0.9375rem;
+		color: var(--text-muted);
+		line-height: 1.6;
+	}
+
+	.category-link {
+		color: var(--text-muted);
+		transition: color 150ms;
 	}
 
 	.article-tags {
@@ -200,13 +282,21 @@
 		background: var(--tag-bg);
 		border: 1px solid rgba(148, 163, 184, 0.4);
 		color: var(--text-muted);
-		text-decoration: none;
-		transition: all 150ms;
 	}
 
-	.tag:hover {
-		background: var(--accent-soft);
-		border-color: var(--accent);
-		color: var(--accent);
+	@media (max-width: 768px) {
+		.preview-banner {
+			padding: 0.875rem 1rem;
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.preview-banner-content {
+			width: 100%;
+		}
+
+		.preview-banner-text span {
+			font-size: 0.75rem;
+		}
 	}
 </style>

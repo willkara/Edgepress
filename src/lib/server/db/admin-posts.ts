@@ -17,6 +17,8 @@ export interface AdminPost {
 	created_at: string;
 	updated_at: string;
 	reading_time: number | null;
+	preview_token: string | null;
+	preview_expires_at: string | null;
 	author_name: string;
 	category_name: string | null;
 	category_slug: string | null;
