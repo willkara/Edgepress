@@ -1,0 +1,34 @@
+
+{# src/themes/default/default.njk #}
+{# Ghost-like Default Layout #}
+<div class="site-wrapper {{ body_class() }}">
+
+    {# Global Header / Nav #}
+    <header class="site-header">
+         <!-- Mobile Header -->
+        {{ component('MobilePublicNav', { user: user }) | safe }}
+
+        <!-- Desktop Sidebar -->
+        <div class="hidden lg:block w-[260px] shrink-0 h-screen sticky top-0">
+             {{ component('PublicSidebar', { user: user }) | safe }}
+        </div>
+    </header>
+
+    <div class="site-content flex-1 min-w-0">
+        <main id="site-main" class="site-main">
+            <div class="container max-w-5xl mx-auto px-4 py-8 lg:px-8 lg:py-10">
+                {# All the main content gets inserted here, index.hbs, post.hbs, etc #}
+                {% block body %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    {# Global Footer could go here #}
+    <footer class="site-footer">
+        <!-- ... -->
+    </footer>
+
+</div>
+
+{# Ghost outputs important scripts and data with this tag #}
+{{ ghost_foot() }}

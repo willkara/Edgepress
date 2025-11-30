@@ -3,12 +3,19 @@
 	import { Button } from "$lib/components/ui/button";
 	import * as Sheet from "$lib/components/ui/sheet";
 	import type { TocItem } from '$lib/utils/toc';
+    import { activeHeadingId, setupHeadingObserver } from '$lib/stores/activeHeading';
+    import { onMount } from 'svelte';
 
-	let { toc, activeHeadingId, title }: { toc: TocItem[]; activeHeadingId: string; title: string } = $props();
+	let { toc, title }: { toc: TocItem[]; title: string } = $props();
 
 	let open = $state(false);
 	let showBar = $state(true);
 	let lastScrollY = 0;
+
+    onMount(() => {
+        const cleanup = setupHeadingObserver();
+        return cleanup;
+    });
 
 	// Hide bar on scroll down, show on scroll up
 	function handleScroll() {
@@ -84,8 +91,8 @@
 								class="block py-2 text-sm transition-colors hover:text-accent-strong"
 								class:pl-4={item.level === 3}
 								class:font-medium={item.level === 2}
-								class:text-accent={activeHeadingId === item.id}
-								class:text-muted-foreground={activeHeadingId !== item.id}
+								class:text-accent={$activeHeadingId === item.id}
+								class:text-muted-foreground={$activeHeadingId !== item.id}
 								style="padding-left: {item.level === 3 ? '1rem' : '0'};"
 							>
 								{item.text}
