@@ -96,7 +96,6 @@
 		width: 100%;
 		height: 100%;
 	}
-
 	.nav-label {
 		font-size: 0.6875rem;
 		font-weight: 500;

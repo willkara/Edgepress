@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ platform, setHeaders, locals }) => 
 
 	setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-	const requestId = locals.requestId;
+	const requestId = locals.requestId as string | undefined;
 
 	const cache = platform.env.CACHE;
 	const db = platform.env.DB;

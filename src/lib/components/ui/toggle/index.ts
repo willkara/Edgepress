@@ -3,9 +3,4 @@ import Toggle from './toggle.svelte';
 
 const Root = Toggle;
 
-export {
-        Root,
-        Toggle,
-        TogglePrimitive,
-        Root as ToggleRoot
-};
+export { Root, Toggle, TogglePrimitive, Root as ToggleRoot };

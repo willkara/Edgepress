@@ -27,6 +27,7 @@
 	function handleMouseDown() {
 		isPressed = true;
 	}
+
 	function handleMouseUp() {
 		isPressed = false;
 	}

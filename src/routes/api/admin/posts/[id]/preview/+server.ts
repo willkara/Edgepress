@@ -1,4 +1,3 @@
-import type { D1Database } from '@cloudflare/workers-types';
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -16,9 +15,7 @@ export const POST: RequestHandler = async ({ params, platform, locals }) => {
 		throw error(401, 'Unauthorized');
 	}
 
-	const env = platform?.env as { DB?: D1Database } | undefined;
-
-	if (!env?.DB) {
+	if (!platform?.env?.DB) {
 		throw error(500, 'Database not available');
 	}
 
@@ -40,8 +37,7 @@ export const POST: RequestHandler = async ({ params, platform, locals }) => {
 			WHERE id = ?
 		`;
 
-		const db = env.DB;
-		await db.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
+		await platform.env.DB.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
 
 		return json({
 			preview_token: previewToken,

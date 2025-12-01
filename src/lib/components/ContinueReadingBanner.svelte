@@ -62,7 +62,7 @@
 			</div>
 		</div>
 		<div class="banner-actions">
-			<button class="resume-button" onclick={scrollToSavedPosition}> Resume </button>
+			<button class="resume-button" onclick={scrollToSavedPosition}>Resume</button>
 			<button class="dismiss-button" onclick={dismissBanner} aria-label="Dismiss">
 				<span class="dismiss-icon" aria-hidden="true">
 					<X />
