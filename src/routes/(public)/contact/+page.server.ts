@@ -6,31 +6,16 @@ import { env } from '$env/dynamic/private';
 
 // Validation schema
 const contactSchema = z.object({
-	name: z.string().trim().min(2, { message: 'Name must be at least 2 characters.' }),
-	email: z.string().trim().email({ message: 'Please enter a valid email address.' }),
-	subject: z.string().trim().min(5, { message: 'Subject must be at least 5 characters.' }),
-	message: z.string().trim().min(10, { message: 'Message must be at least 10 characters.' })
+	name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+	email: z.string().email({ message: 'Please enter a valid email address.' }),
+	subject: z.string().min(5, { message: 'Subject must be at least 5 characters.' }),
+	message: z.string().min(10, { message: 'Message must be at least 10 characters.' })
 });
-
-const escapeForHtml = (value: string): string =>
-	value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#039;');
-
-const sanitizeSubjectForHeader = (value: string): string => value.replace(/[\r\n]+/g, ' ').trim();
 
 export const actions: Actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
-		const data = {
-			name: formData.get('name')?.toString().trim() ?? '',
-			email: formData.get('email')?.toString().trim() ?? '',
-			subject: formData.get('subject')?.toString().trim() ?? '',
-			message: formData.get('message')?.toString().trim() ?? ''
-		};
+		const data = Object.fromEntries(formData);
 
 		// Validate input
 		const result = contactSchema.safeParse(data);
@@ -38,7 +23,6 @@ export const actions: Actions = {
 		if (!result.success) {
 			const errors = result.error.flatten().fieldErrors;
 			return fail(400, {
-				data,
 				error: true,
 				message: 'Please check your input.',
 				errors: {
@@ -51,10 +35,6 @@ export const actions: Actions = {
 		}
 
 		const { name, email, subject, message } = result.data;
-		const sanitizedSubject = sanitizeSubjectForHeader(subject);
-		const safeName = escapeForHtml(name);
-		const safeEmail = escapeForHtml(email);
-		const safeMessage = escapeForHtml(message).replace(/\n/g, '<br>');
 
 		// Check for API key
 		const apiKey = env.RESEND_API_KEY;
@@ -63,7 +43,6 @@ export const actions: Actions = {
 		if (!apiKey || !contactEmail) {
 			console.error('Missing RESEND_API_KEY or CONTACT_EMAIL environment variables.');
 			return fail(500, {
-				data: { name, email, subject, message },
 				error: true,
 				message: 'Server configuration error. Please contact the administrator directly.',
 				errors: {} as Record<string, string | undefined>
@@ -99,17 +78,17 @@ export const actions: Actions = {
 						<div class="content">
 							<div class="field">
 								<div class="label">From</div>
-								<div class="value">${safeName} &lt;<a href="mailto:${safeEmail}">${safeEmail}</a>&gt;</div>
+								<div class="value">${name} &lt;<a href="mailto:${email}">${email}</a>&gt;</div>
 							</div>
 
 							<div class="field">
 								<div class="label">Subject</div>
-								<div class="value">${sanitizedSubject}</div>
+								<div class="value">${subject}</div>
 							</div>
 
 							<div class="field">
 								<div class="label">Message</div>
-								<div class="message-box">${safeMessage}</div>
+								<div class="message-box">${message}</div>
 							</div>
 						</div>
 						<div class="footer">
@@ -123,7 +102,7 @@ export const actions: Actions = {
 			const { error } = await resend.emails.send({
 				from: 'EdgePress Contact <onboarding@resend.dev>', // Default Resend test domain, user will need to verify their own domain for production
 				to: [contactEmail],
-				subject: `[Contact Form] ${sanitizedSubject}`,
+				subject: `[Contact Form] ${subject}`,
 				html: htmlContent,
 				replyTo: email
 			});
@@ -131,7 +110,6 @@ export const actions: Actions = {
 			if (error) {
 				console.error('Resend API Error:', error);
 				return fail(500, {
-					data: { name, email, subject, message },
 					error: true,
 					message: 'Failed to send email via provider.',
 					errors: {} as Record<string, string | undefined>
@@ -142,7 +120,6 @@ export const actions: Actions = {
 		} catch (err) {
 			console.error('Unexpected error sending email:', err);
 			return fail(500, {
-				data: { name, email, subject, message },
 				error: true,
 				message: 'An unexpected error occurred while sending the email.',
 				errors: {} as Record<string, string | undefined>

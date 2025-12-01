@@ -12,23 +12,23 @@
 	let saving = $state(false);
 
 	// Settings editing
-        let editingSettings = $state(false);
-        let settingsForm = $state({
-                pageTitle: '',
-                pageSubtitle: '',
-                showAll: false
-        });
+	let editingSettings = $state(false);
+	let settingsForm = $state({
+		pageTitle: '',
+		pageSubtitle: '',
+		showAll: false
+	});
 
-        $effect(() => {
-                settingsForm = {
-                        pageTitle: settings.pageTitle,
-                        pageSubtitle: settings.pageSubtitle,
-                        showAll: settings.showAll
-                };
-        });
+	$effect(() => {
+		settingsForm = {
+			pageTitle: settings.pageTitle,
+			pageSubtitle: settings.pageSubtitle,
+			showAll: settings.showAll
+		};
+	});
 
 	// Drag and drop state
-        let draggedItem = $state<any>(null);
+	let draggedItem = $state<any>(null);
 
 	function handleDragStart(event: DragEvent, project: any) {
 		draggedItem = project;
@@ -321,16 +321,16 @@
 		{:else}
 			<div class="featured-list">
 				{#each featuredProjects as project (project.id)}
-                                        <div
-                                                class="featured-item"
-                                                class:hidden={project.is_featured === 0}
-                                                draggable="true"
-                                                role="listitem"
-                                                aria-grabbed={draggedItem?.id === project.id ? 'true' : 'false'}
-                                                ondragstart={(e) => handleDragStart(e, project)}
-                                                ondragover={handleDragOver}
-                                                ondrop={(e) => handleDrop(e, project)}
-                                        >
+					<div
+						class="featured-item"
+						class:hidden={project.is_featured === 0}
+						draggable="true"
+						role="listitem"
+						aria-grabbed={draggedItem?.id === project.id ? 'true' : 'false'}
+						ondragstart={(e) => handleDragStart(e, project)}
+						ondragover={handleDragOver}
+						ondrop={(e) => handleDrop(e, project)}
+					>
 						<div class="drag-handle">
 							<GripVertical class="w-5 h-5 text-gray-400" />
 						</div>
@@ -394,8 +394,7 @@
 		{#if unfeaturedPosts.length === 0}
 			<div class="empty-state">
 				<p>
-					All project posts are featured. Create new posts with the "Projects" category to add
-					more.
+					All project posts are featured. Create new posts with the "Projects" category to add more.
 				</p>
 			</div>
 		{:else}
@@ -409,7 +408,11 @@
 							{/if}
 							<span class="post-meta">Slug: <code>{post.slug}</code></span>
 						</div>
-						<button onclick={() => addToFeatured(post.id)} class="btn-icon btn-primary-icon" title="Add to featured">
+						<button
+							onclick={() => addToFeatured(post.id)}
+							class="btn-icon btn-primary-icon"
+							title="Add to featured"
+						>
 							<Plus class="w-4 h-4" />
 						</button>
 					</div>

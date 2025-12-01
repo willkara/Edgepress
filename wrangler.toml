@@ -24,7 +24,7 @@ binding = "AI"
 # Cloudflare Vectorize index
 [[vectorize]]
 binding = "VECTORIZE"
-index_name = "edgepress-posts"
+index_name = "edgepress-vector-index"
 
 # Environment variables
 [vars]

@@ -31,9 +31,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// Insert new subscriber
 		await db
-			.prepare(
-				'INSERT INTO newsletter_subscribers (email, subscribed_at, status) VALUES (?, ?, ?)'
-			)
+			.prepare('INSERT INTO newsletter_subscribers (email, subscribed_at, status) VALUES (?, ?, ?)')
 			.bind(email.toLowerCase(), new Date().toISOString(), 'pending')
 			.run();
 

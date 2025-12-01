@@ -25,16 +25,16 @@
 </script>
 
 {#if showButton}
-        <button
-                class="scroll-to-top"
-                onclick={scrollToTop}
-                aria-label="Scroll to top"
-                title="Scroll to top"
-        >
-                <span class="icon" aria-hidden="true">
-                        <ArrowUp />
-                </span>
-        </button>
+	<button
+		class="scroll-to-top"
+		onclick={scrollToTop}
+		aria-label="Scroll to top"
+		title="Scroll to top"
+	>
+		<span class="icon" aria-hidden="true">
+			<ArrowUp />
+		</span>
+	</button>
 {/if}
 
 <style>
@@ -72,16 +72,16 @@
 		outline-offset: 2px;
 	}
 
-        .icon {
-                display: inline-flex;
-                width: 1.25rem;
-                height: 1.25rem;
-        }
+	.icon {
+		display: inline-flex;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
 
-        .icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	@keyframes fadeIn {
 		from {
@@ -113,9 +113,9 @@
 			height: 2.75rem;
 		}
 
-                .icon {
-                        width: 1.125rem;
-                        height: 1.125rem;
-                }
+		.icon {
+			width: 1.125rem;
+			height: 1.125rem;
+		}
 	}
 </style>

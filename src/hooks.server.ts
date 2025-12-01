@@ -184,11 +184,12 @@ export const handleFetch: HandleFetch = async ({ request, fetch }) => {
 export const handleError: HandleServerError = ({ error, event }) => {
 	const requestId = event.locals.requestId ?? crypto.randomUUID();
 
-        // Cloudflare provides request metadata in the 'cf' property
-        const cf = (event.request as Request & { cf?: Record<string, string> }).cf;
+	// Cloudflare provides request metadata in the 'cf' property
+	const cf = (event.request as Request & { cf?: Record<string, string> }).cf;
 
 	// Log error with full context for debugging
-	const safeError = error instanceof Error ? { message: error.message, stack: error.stack } : String(error);
+	const safeError =
+		error instanceof Error ? { message: error.message, stack: error.stack } : String(error);
 
 	console.error('Request error', {
 		requestId,

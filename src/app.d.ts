@@ -22,15 +22,15 @@ declare global {
 		// interface PageState {}
 
 		interface Platform {
-                        env: {
-                                DB: D1Database;
-                                SESSIONS: KVNamespace;
-                                CACHE: KVNamespace;
-                                AI: Ai;
-                                VECTORIZE: VectorizeIndex;
-                                CF_IMAGES_TOKEN: string;
-                                CF_ACCOUNT_ID: string;
-                                CF_IMAGES_HASH: string;
+			env: {
+				DB: D1Database;
+				SESSIONS: KVNamespace;
+				CACHE: KVNamespace;
+				AI: Ai;
+				VECTORIZE: VectorizeIndex;
+				CF_IMAGES_TOKEN: string;
+				CF_ACCOUNT_ID: string;
+				CF_IMAGES_HASH: string;
 				JWT_SECRET: string;
 			};
 			context: ExecutionContext;

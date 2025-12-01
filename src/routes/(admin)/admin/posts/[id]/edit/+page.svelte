@@ -18,13 +18,13 @@
 	let heroImageId = $state(data.post.hero_image_id || '');
 	let saving = $state(false);
 	let error = $state('');
-        let showPreview = $state(false);
-        let previewHtml = $state('');
-        let generatingSummary = $state(false);
-        let previewToken = $state(data.post.preview_token || '');
-        let previewExpiresAt = $state(data.post.preview_expires_at || '');
-        let previewCopied = $state(false);
-        let generatingPreview = $state(false);
+	let showPreview = $state(false);
+	let previewHtml = $state('');
+	let generatingSummary = $state(false);
+	let previewToken = $state(data.post.preview_token || '');
+	let previewExpiresAt = $state(data.post.preview_expires_at || '');
+	let previewCopied = $state(false);
+	let generatingPreview = $state(false);
 
 	// Auto-generate slug from title if slug is manually cleared
 	$effect(() => {
@@ -44,11 +44,11 @@
 		slugEdited = true;
 	}
 
-        function togglePreview() {
-                if (showPreview) {
-                        showPreview = false;
-                } else {
-                        if (editor) {
+	function togglePreview() {
+		if (showPreview) {
+			showPreview = false;
+		} else {
+			if (editor) {
 				previewHtml = editor.getHTML();
 			}
 			showPreview = true;
@@ -67,63 +67,63 @@
 		if (serializer && typeof serializer.serialize === 'function') {
 			return serializer.serialize(ed.state.doc);
 		}
-                return null;
-        }
+		return null;
+	}
 
-        function formatExpiryDate(dateString: string | null): string {
-                if (!dateString) {
-                        return '';
-                }
+	function formatExpiryDate(dateString: string | null): string {
+		if (!dateString) {
+			return '';
+		}
 
-                const date = new Date(dateString);
-                return date.toLocaleString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit'
-                });
-        }
+		const date = new Date(dateString);
+		return date.toLocaleString(undefined, {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit'
+		});
+	}
 
-        async function generatePreviewLink() {
-                generatingPreview = true;
-                previewCopied = false;
+	async function generatePreviewLink() {
+		generatingPreview = true;
+		previewCopied = false;
 
-                try {
-                        const response = await fetch(`/api/admin/posts/${data.post.id}/preview`, {
-                                method: 'POST'
-                        });
+		try {
+			const response = await fetch(`/api/admin/posts/${data.post.id}/preview`, {
+				method: 'POST'
+			});
 
-                        if (!response.ok) {
-                                throw new Error('Failed to generate preview link');
-                        }
+			if (!response.ok) {
+				throw new Error('Failed to generate preview link');
+			}
 
-                        const body = await response.json();
-                        previewToken = body.preview_token;
-                        previewExpiresAt = body.preview_expires_at;
-                } catch (err: any) {
-                        error = err.message || 'Failed to generate preview link';
-                } finally {
-                        generatingPreview = false;
-                }
-        }
+			const body = await response.json();
+			previewToken = body.preview_token;
+			previewExpiresAt = body.preview_expires_at;
+		} catch (err: any) {
+			error = err.message || 'Failed to generate preview link';
+		} finally {
+			generatingPreview = false;
+		}
+	}
 
-        async function copyPreviewLink() {
-                if (!previewToken) {
-                        return;
-                }
+	async function copyPreviewLink() {
+		if (!previewToken) {
+			return;
+		}
 
-                const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                const url = `${origin}/blog/preview/${previewToken}`;
+		const origin = typeof window !== 'undefined' ? window.location.origin : '';
+		const url = `${origin}/blog/preview/${previewToken}`;
 
-                try {
-                        await navigator.clipboard.writeText(url);
-                        previewCopied = true;
-                        setTimeout(() => (previewCopied = false), 2000);
-                } catch (err: any) {
-                        error = err.message || 'Unable to copy preview link';
-                }
-        }
+		try {
+			await navigator.clipboard.writeText(url);
+			previewCopied = true;
+			setTimeout(() => (previewCopied = false), 2000);
+		} catch (err: any) {
+			error = err.message || 'Unable to copy preview link';
+		}
+	}
 
 	async function updatePost(status: 'draft' | 'published') {
 		if (!title.trim()) {
@@ -160,8 +160,7 @@
 					category_id: categoryId || null,
 					hero_image_id: heroImageId || null,
 					status,
-					published_at:
-						status === 'published' ? new Date().toISOString() : null
+					published_at: status === 'published' ? new Date().toISOString() : null
 				})
 			});
 
@@ -390,7 +389,11 @@
 							<button onclick={copyPreviewLink} class="btn-copy">
 								{previewCopied ? '✓ Copied!' : 'Copy Link'}
 							</button>
-							<button onclick={generatePreviewLink} disabled={generatingPreview} class="btn-regenerate">
+							<button
+								onclick={generatePreviewLink}
+								disabled={generatingPreview}
+								class="btn-regenerate"
+							>
 								Regenerate
 							</button>
 						</div>

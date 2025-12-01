@@ -1,625 +1,499 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { formatFileSize } from '$lib/utils/image-upload';
+        import { goto, invalidateAll } from '$app/navigation';
+        import type { PageData } from './$types';
+        import { Badge } from '$lib/components/ui/badge';
+        import { Button } from '$lib/components/ui/button';
+        import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
+        import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
+        import { Input } from '$lib/components/ui/input';
+        import { Progress } from '$lib/components/ui/progress';
+        import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '$lib/components/ui/sheet';
+        import { Toggle } from '$lib/components/ui/toggle';
+        import type { MediaWithUsage } from '$lib/server/db/media';
+        import { formatFileSize } from '$lib/utils/image-upload';
 
-	let { data }: { data: PageData } = $props();
+        type UploadStatus = 'queued' | 'uploading' | 'completed' | 'error';
 
-	let media = $state(data.media);
-	let filter = $state(data.filter);
-	let cfImagesHash = $state(data.cfImagesHash);
+        type UploadItem = {
+                id: string;
+                file: File;
+                status: UploadStatus;
+                progress: number;
+                error?: string;
+        };
 
-	// Modal state
-	let selectedMedia = $state<any>(null);
-	let showModal = $state(false);
-	let deleting = $state(false);
-	let error = $state('');
+        let { data }: { data: PageData } = $props();
 
-	function getImageUrl(cfImageId: string) {
-		return `https://imagedelivery.net/${cfImagesHash}/${cfImageId}/public`;
-	}
+        let media = $state<MediaWithUsage[]>(data.media);
+        let filter = $state<'all' | 'used' | 'orphaned'>(data.filter);
+        let cfImagesHash = $state(data.cfImagesHash);
 
-	function filterMedia(newFilter: 'all' | 'used' | 'orphaned') {
-		filter = newFilter;
-		goto(`?filter=${newFilter}`, { replaceState: true });
-	}
+        let uploadQueue = $state<UploadItem[]>([]);
+        let uploadOpen = $state(false);
+        let uploading = $state(false);
+        let dropActive = $state(false);
+        let autoAltFromFilename = $state(true);
 
-	function openModal(item: any) {
-		selectedMedia = item;
-		showModal = true;
-		error = '';
-	}
+        let selectedMedia = $state<MediaWithUsage | null>(null);
+        let detailsOpen = $state(false);
+        let deleting = $state(false);
+        let error = $state('');
 
-	function closeModal() {
-		showModal = false;
-		selectedMedia = null;
-		error = '';
-	}
+        $effect(() => {
+                if (!detailsOpen) {
+                        selectedMedia = null;
+                        error = '';
+                }
+        });
 
-	async function deleteImage() {
-		if (!selectedMedia || selectedMedia.usage_count > 0) {
-			error = 'Cannot delete image that is in use';
-			return;
-		}
+        const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+        });
 
-		if (!confirm(`Delete "${selectedMedia.filename}"? This action cannot be undone.`)) {
-			return;
-		}
+        const activeUploads = $derived(
+                uploadQueue.filter((item) => item.status === 'uploading' || item.status === 'queued')
+        );
 
-		deleting = true;
-		error = '';
+        function getImageUrl(cfImageId: string) {
+                return `https://imagedelivery.net/${cfImagesHash}/${cfImageId}/public`;
+        }
 
-		try {
-			const response = await fetch(`/api/admin/media/${selectedMedia.id}`, {
-				method: 'DELETE'
-			});
+        function filterMedia(newFilter: 'all' | 'used' | 'orphaned') {
+                filter = newFilter;
+                goto(`?filter=${newFilter}`, { replaceState: true });
+        }
 
-			if (response.ok) {
-				media = media.filter((m) => m.id !== selectedMedia.id);
-				closeModal();
-				await invalidateAll();
-			} else {
-				const errorData = await response.json();
-				error = errorData.message || 'Failed to delete image';
-			}
-		} catch (err: any) {
-			error = err.message || 'Failed to delete image';
-		} finally {
-			deleting = false;
-		}
-	}
+        function openDetails(item: MediaWithUsage) {
+                selectedMedia = item;
+                error = '';
+                detailsOpen = true;
+        }
 
-	function formatDate(dateString: string) {
-		return new Date(dateString).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
+        function closeDetails() {
+                detailsOpen = false;
+                selectedMedia = null;
+                error = '';
+        }
+
+        async function deleteImage() {
+                if (!selectedMedia || selectedMedia.usage_count > 0) {
+                        error = 'Cannot delete image that is in use';
+                        return;
+                }
+
+                if (!confirm(`Delete "${selectedMedia.filename}"? This action cannot be undone.`)) {
+                        return;
+                }
+
+                deleting = true;
+                error = '';
+
+                try {
+                        const response = await fetch(`/api/admin/media/${selectedMedia.id}`, {
+                                method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                                media = media.filter((m) => m.id !== selectedMedia?.id);
+                                closeDetails();
+                                await invalidateAll();
+                        } else {
+                                const errorData = await response.json();
+                                error = errorData.message || 'Failed to delete image';
+                        }
+                } catch (err: any) {
+                        error = err.message || 'Failed to delete image';
+                } finally {
+                        deleting = false;
+                }
+        }
+
+        function addFiles(files: FileList | File[]) {
+                const incoming = Array.from(files).filter((file) => file.type.startsWith('image/'));
+                const nextQueue = [...uploadQueue];
+
+                for (const file of incoming) {
+                        const duplicate = nextQueue.find((item) => `${item.file.name}-${item.file.size}` === `${file.name}-${file.size}`);
+
+                        if (!duplicate) {
+                                nextQueue.push({
+                                        id: crypto.randomUUID(),
+                                        file,
+                                        progress: 0,
+                                        status: 'queued'
+                                });
+                        }
+                }
+
+                uploadQueue = nextQueue;
+        }
+
+        function handleFileInput(event: Event) {
+                const target = event.target as HTMLInputElement;
+                if (target.files) {
+                        addFiles(target.files);
+                }
+        }
+
+        function handleDrop(event: DragEvent) {
+                event.preventDefault();
+                dropActive = false;
+                if (event.dataTransfer?.files) {
+                        addFiles(event.dataTransfer.files);
+                }
+        }
+
+        function handleDragOver(event: DragEvent) {
+                event.preventDefault();
+                dropActive = true;
+        }
+
+        function handleDragLeave(event: DragEvent) {
+                event.preventDefault();
+                dropActive = false;
+        }
+
+        async function uploadQueueItems() {
+                if (uploadQueue.length === 0) return;
+
+                uploading = true;
+
+                for (const item of uploadQueue) {
+                        if (item.status === 'completed') continue;
+
+                        item.status = 'uploading';
+                        item.progress = 10;
+                        uploadQueue = [...uploadQueue];
+
+                        try {
+                                const formData = new FormData();
+                                formData.append('files', item.file);
+                                formData.append('autoAltFromFilename', autoAltFromFilename ? 'true' : 'false');
+
+                                const response = await fetch('/api/admin/media/upload', {
+                                        method: 'POST',
+                                        body: formData
+                                });
+
+                                if (!response.ok) {
+                                        const errorData = await response.json();
+                                        throw new Error(errorData.message || 'Upload failed');
+                                }
+
+                                const result = await response.json();
+                                const uploadResult = result.uploads?.[0];
+
+                                if (!uploadResult) {
+                                        throw new Error('No upload result returned');
+                                }
+
+                                const newMedia: MediaWithUsage = {
+                                        id: uploadResult.mediaId,
+                                        cf_image_id: uploadResult.imageId,
+                                        filename: uploadResult.filename,
+                                        uploaded_by: 'you',
+                                        width: uploadResult.width ?? null,
+                                        height: uploadResult.height ?? null,
+                                        file_size: item.file.size,
+                                        mime_type: item.file.type,
+                                        alt_text: uploadResult.altText ?? null,
+                                        usage_count: 0,
+                                        created_at: new Date().toISOString(),
+                                        posts: []
+                                };
+
+                                media = [newMedia, ...media];
+
+                                item.status = 'completed';
+                                item.progress = 100;
+                        } catch (err: any) {
+                                item.status = 'error';
+                                item.error = err?.message || 'Upload failed';
+                        } finally {
+                                uploadQueue = [...uploadQueue];
+                        }
+                }
+
+                uploading = false;
+                await invalidateAll();
+        }
+
+        function clearCompleted() {
+                uploadQueue = uploadQueue.filter((item) => item.status !== 'completed');
+        }
 </script>
 
 <svelte:head>
-	<title>Media Library - EdgePress</title>
+        <title>Media Library - EdgePress</title>
 </svelte:head>
 
-<div class="container">
-	<header class="header">
-		<h1>Media Library</h1>
-		<div class="stats">
-			<span>{media.length} image{media.length !== 1 ? 's' : ''}</span>
-		</div>
-	</header>
+<div class="space-y-8">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="space-y-2">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Media</p>
+                        <div class="space-y-1">
+                                <h1 class="text-3xl font-semibold">Media Library</h1>
+                                <p class="text-muted-foreground">
+                                        Manage images uploaded through the editor or directly from this library.
+                                </p>
+                        </div>
+                </div>
 
-	<!-- Filter Tabs -->
-	<nav class="filter-tabs">
-		<button class="tab" class:active={filter === 'all'} onclick={() => filterMedia('all')}>
-			All
-		</button>
-		<button class="tab" class:active={filter === 'used'} onclick={() => filterMedia('used')}>
-			Used
-		</button>
-		<button
-			class="tab"
-			class:active={filter === 'orphaned'}
-			onclick={() => filterMedia('orphaned')}
-		>
-			Orphaned
-		</button>
-	</nav>
+                <div class="flex items-center gap-2">
+                        <Button variant="outline" onclick={() => invalidateAll()}>Refresh</Button>
+                        <Sheet bind:open={uploadOpen}>
+                                <Button onclick={() => (uploadOpen = true)}>Upload images</Button>
+                                <SheetContent side="right" class="w-full max-w-lg">
+                                        <SheetHeader class="space-y-2">
+                                                <SheetTitle>Upload to library</SheetTitle>
+                                                <SheetDescription>
+                                                        Add multiple photos at once. Images are stored in Cloudflare Images and referenced from D1.
+                                                </SheetDescription>
+                                        </SheetHeader>
 
-	<!-- Media Grid -->
-	{#if media.length === 0}
-		<div class="empty-state">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-				<circle cx="8.5" cy="8.5" r="1.5"></circle>
-				<polyline points="21 15 16 10 5 21"></polyline>
-			</svg>
-			<p>No images found</p>
-			<small>Upload images through the post editor</small>
-		</div>
-	{:else}
-		<div class="media-grid">
-			{#each media as item (item.id)}
-				<button class="media-item" onclick={() => openModal(item)}>
-					<div class="image-container">
-						<img src={getImageUrl(item.cf_image_id)} alt={item.alt_text || item.filename} />
-						{#if item.usage_count > 0}
-							<span class="usage-badge">{item.usage_count}</span>
-						{/if}
-					</div>
-					<div class="media-info">
-						<span class="filename" title={item.filename}>{item.filename}</span>
-						<span class="file-size">{item.file_size ? formatFileSize(item.file_size) : 'N/A'}</span>
-					</div>
-				</button>
-			{/each}
-		</div>
-	{/if}
+                                        <div
+                                                class={`mt-4 rounded-lg border border-dashed p-6 transition-colors ${dropActive ? 'border-primary/60 bg-primary/5' : 'border-muted'}`}
+                                                class:drop-active={dropActive}
+                                                role="button"
+                                                aria-label="Upload files"
+                                                tabindex="0"
+                                                ondragover={handleDragOver}
+                                                ondragleave={handleDragLeave}
+                                                ondrop={handleDrop}
+                                        >
+                                                <div class="flex flex-col items-start gap-3">
+                                                        <div>
+                                                                <p class="text-base font-semibold">Drag and drop</p>
+                                                                <p class="text-sm text-muted-foreground">PNG, JPG, or WebP. You can add multiple files.</p>
+                                                        </div>
+                                                        <div class="flex flex-wrap items-center gap-3">
+                                                                <Input type="file" accept="image/*" multiple onchange={handleFileInput} class="max-w-xs" />
+                                                                <Toggle bind:pressed={autoAltFromFilename} aria-label="Auto alt text">
+                                                                        Auto alt text
+                                                                </Toggle>
+                                                        </div>
+                                                </div>
+                                        </div>
+
+                                        {#if uploadQueue.length > 0}
+                                                <div class="mt-6 space-y-4">
+                                                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                                <div class="space-y-1">
+                                                                        <p class="text-sm text-muted-foreground">
+                                                                                {uploadQueue.length} item{uploadQueue.length === 1 ? '' : 's'} queued
+                                                                        </p>
+                                                                        {#if activeUploads.length > 0}
+                                                                                <p class="text-sm text-muted-foreground">Uploading…</p>
+                                                                        {/if}
+                                                                </div>
+                                                                <div class="flex flex-wrap items-center gap-2">
+                                                                        <Button variant="ghost" size="sm" onclick={clearCompleted}>
+                                                                                Clear completed
+                                                                        </Button>
+                                                                        <Button onclick={uploadQueueItems} disabled={uploading}>
+                                                                                Start upload
+                                                                        </Button>
+                                                                </div>
+                                                        </div>
+
+                                                        <div class="space-y-3">
+                                                                {#each uploadQueue as item (item.id)}
+                                                                        <Card class="border-muted/60">
+                                                                                <CardHeader class="flex flex-row items-start justify-between space-y-0">
+                                                                                        <div class="space-y-1">
+                                                                                                <p class="font-semibold leading-none">{item.file.name}</p>
+                                                                                                <p class="text-sm text-muted-foreground">{formatFileSize(item.file.size)}</p>
+                                                                                        </div>
+                                                                                        <Badge variant={item.status === 'error' ? 'destructive' : 'secondary'}>
+                                                                                                {item.status === 'queued'
+                                                                                                        ? 'Queued'
+                                                                                                        : item.status === 'uploading'
+                                                                                                                ? 'Uploading'
+                                                                                                                : item.status === 'completed'
+                                                                                                                        ? 'Done'
+                                                                                                                        : 'Error'}
+                                                                                        </Badge>
+                                                                                </CardHeader>
+                                                                                <CardContent class="space-y-2 pt-0">
+                                                                                        <Progress value={item.progress} />
+                                                                                        {#if item.error}
+                                                                                                <p class="text-sm text-destructive">{item.error}</p>
+                                                                                        {/if}
+                                                                                </CardContent>
+                                                                        </Card>
+                                                                {/each}
+                                                        </div>
+                                                </div>
+                                        {:else}
+                                                <div class="mt-6 rounded-lg border border-dashed border-muted px-4 py-6 text-center text-sm text-muted-foreground">
+                                                        Add files to start a batch upload.
+                                                </div>
+                                        {/if}
+
+                                        <SheetFooter class="mt-6">
+                                                <Button variant="outline" onclick={() => (uploadOpen = false)}>
+                                                        Close
+                                                </Button>
+                                        </SheetFooter>
+                                </SheetContent>
+                        </Sheet>
+                </div>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex flex-wrap items-center gap-2">
+                        <Button variant={filter === 'all' ? 'secondary' : 'ghost'} size="sm" onclick={() => filterMedia('all')}>
+                                All
+                        </Button>
+                        <Button variant={filter === 'used' ? 'secondary' : 'ghost'} size="sm" onclick={() => filterMedia('used')}>
+                                Used
+                        </Button>
+                        <Button
+                                variant={filter === 'orphaned' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                onclick={() => filterMedia('orphaned')}
+                        >
+                                Orphaned
+                        </Button>
+                </div>
+                <p class="text-sm text-muted-foreground">{media.length} image{media.length !== 1 ? 's' : ''}</p>
+        </div>
+
+        {#if media.length === 0}
+                <div class="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-muted px-6 py-12 text-center text-muted-foreground">
+                        <svg viewBox="0 0 24 24" class="size-12" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <div class="space-y-1">
+                                <p class="text-lg font-semibold text-foreground">No images found</p>
+                                <p class="text-sm">Upload images through the post editor or directly from this page.</p>
+                        </div>
+                </div>
+        {:else}
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {#each media as item (item.id)}
+                                <Card class="group cursor-pointer overflow-hidden" onclick={() => openDetails(item)}>
+                                        <div class="relative overflow-hidden border-b">
+                                                <img
+                                                        src={getImageUrl(item.cf_image_id)}
+                                                        alt={item.alt_text || item.filename}
+                                                        class="h-48 w-full object-cover transition duration-200 group-hover:scale-[1.01]"
+                                                />
+                                                {#if item.usage_count > 0}
+                                                        <Badge class="absolute right-3 top-3">{item.usage_count}</Badge>
+                                                {/if}
+                                        </div>
+                                        <CardContent class="space-y-1 p-4">
+                                                <p class="truncate text-sm font-semibold" title={item.filename}>{item.filename}</p>
+                                                <p class="text-xs text-muted-foreground">
+                                                        {item.file_size ? formatFileSize(item.file_size) : 'N/A'} · {dateFormatter.format(new Date(item.created_at))}
+                                                </p>
+                                        </CardContent>
+                                </Card>
+                        {/each}
+                </div>
+        {/if}
 </div>
 
-<!-- Modal -->
-{#if showModal && selectedMedia}
-	<div
-		class="modal-overlay"
-		role="button"
-		tabindex="0"
-		onclick={closeModal}
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				closeModal();
-			}
-			if (e.key === 'Escape') {
-				closeModal();
-			}
-		}}
-	>
-		<div
-			class="modal"
-			role="dialog"
-			aria-modal="true"
-			tabindex="-1"
-			onclick={(e) => e.stopPropagation()}
-			onkeydown={(e) => {
-				if (e.key === 'Escape') {
-					closeModal();
-				}
-			}}
-		>
-			<div class="modal-header">
-				<h2>Image Details</h2>
-				<button class="close-btn" aria-label="Close modal" onclick={closeModal}>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<line x1="18" y1="6" x2="6" y2="18"></line>
-						<line x1="6" y1="6" x2="18" y2="18"></line>
-					</svg>
-				</button>
-			</div>
+<Dialog bind:open={detailsOpen}>
+        <DialogContent class="max-w-3xl">
+                {#if selectedMedia}
+                        <DialogHeader class="space-y-2">
+                                <DialogTitle>Image Details</DialogTitle>
+                                <DialogDescription class="text-muted-foreground">
+                                        Inspect metadata, usage, and delete orphaned assets.
+                                </DialogDescription>
+                        </DialogHeader>
 
-			<div class="modal-body">
-				<div class="preview-image">
-					<img
-						src={getImageUrl(selectedMedia.cf_image_id)}
-						alt={selectedMedia.alt_text || selectedMedia.filename}
-					/>
-				</div>
+                        <div class="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+                                <div class="space-y-4">
+                                        <div class="overflow-hidden rounded-lg border">
+                                                <img
+                                                        src={getImageUrl(selectedMedia.cf_image_id)}
+                                                        alt={selectedMedia.alt_text || selectedMedia.filename}
+                                                        class="h-full w-full object-cover"
+                                                />
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 rounded-lg border p-4 text-sm">
+                                                <div class="space-y-1">
+                                                        <p class="text-muted-foreground">Filename</p>
+                                                        <p class="font-semibold text-foreground">{selectedMedia.filename}</p>
+                                                </div>
+                                                {#if selectedMedia.width && selectedMedia.height}
+                                                        <div class="space-y-1">
+                                                                <p class="text-muted-foreground">Dimensions</p>
+                                                                <p class="font-semibold text-foreground">
+                                                                        {selectedMedia.width} × {selectedMedia.height}px
+                                                                </p>
+                                                        </div>
+                                                {/if}
+                                                {#if selectedMedia.file_size}
+                                                        <div class="space-y-1">
+                                                                <p class="text-muted-foreground">Size</p>
+                                                                <p class="font-semibold text-foreground">{formatFileSize(selectedMedia.file_size)}</p>
+                                                        </div>
+                                                {/if}
+                                                {#if selectedMedia.alt_text}
+                                                        <div class="space-y-1">
+                                                                <p class="text-muted-foreground">Alt text</p>
+                                                                <p class="font-semibold text-foreground">{selectedMedia.alt_text}</p>
+                                                        </div>
+                                                {/if}
+                                                <div class="space-y-1">
+                                                        <p class="text-muted-foreground">Uploaded</p>
+                                                        <p class="font-semibold text-foreground">{dateFormatter.format(new Date(selectedMedia.created_at))}</p>
+                                                </div>
+                                        </div>
+                                </div>
 
-				<dl class="details-list">
-					<div class="detail-row">
-						<dt>Filename</dt>
-						<dd>{selectedMedia.filename}</dd>
-					</div>
+                                <div class="space-y-4">
+                                        <div class="rounded-lg border p-4">
+                                                <div class="flex items-center justify-between">
+                                                        <div>
+                                                                <p class="text-sm font-semibold text-foreground">Usage</p>
+                                                                <p class="text-sm text-muted-foreground">{selectedMedia.usage_count} post{selectedMedia.usage_count === 1 ? '' : 's'}</p>
+                                                        </div>
+                                                </div>
+                                                {#if selectedMedia.posts && selectedMedia.posts.length > 0}
+                                                        <ul class="mt-3 space-y-2 text-sm">
+                                                                {#each selectedMedia.posts as post}
+                                                                        <li class="flex items-center justify-between rounded-md border px-3 py-2">
+                                                                                <div class="space-y-1">
+                                                                                        <p class="font-medium text-foreground">{post.title}</p>
+                                                                                        <p class="text-xs text-muted-foreground uppercase tracking-wide">{post.usage_type}</p>
+                                                                                </div>
+                                                                                <a class="text-sm font-medium text-primary" href={`/admin/posts/${post.id}`}>
+                                                                                        View
+                                                                                </a>
+                                                                        </li>
+                                                                {/each}
+                                                        </ul>
+                                                {:else}
+                                                        <p class="mt-3 text-sm text-muted-foreground">This asset is not used in any posts.</p>
+                                                {/if}
+                                        </div>
 
-					{#if selectedMedia.width && selectedMedia.height}
-						<div class="detail-row">
-							<dt>Dimensions</dt>
-							<dd>{selectedMedia.width} × {selectedMedia.height}px</dd>
-						</div>
-					{/if}
-
-					{#if selectedMedia.file_size}
-						<div class="detail-row">
-							<dt>Size</dt>
-							<dd>{formatFileSize(selectedMedia.file_size)}</dd>
-						</div>
-					{/if}
-
-					<div class="detail-row">
-						<dt>Uploaded</dt>
-						<dd>{formatDate(selectedMedia.created_at)}</dd>
-					</div>
-
-					<div class="detail-row">
-						<dt>Usage</dt>
-						<dd>{selectedMedia.usage_count} post{selectedMedia.usage_count !== 1 ? 's' : ''}</dd>
-					</div>
-				</dl>
-
-				{#if selectedMedia.posts && selectedMedia.posts.length > 0}
-					<div class="usage-section">
-						<h3>Used in posts:</h3>
-						<ul class="usage-list">
-							{#each selectedMedia.posts as post}
-								<li>
-									<a href="/admin/posts/{post.id}">
-										{post.title}
-										<span class="usage-type">({post.usage_type})</span>
-									</a>
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{/if}
-
-				{#if error}
-					<div class="error-message">
-						{error}
-					</div>
-				{/if}
-			</div>
-
-			<div class="modal-footer">
-				{#if selectedMedia.usage_count === 0}
-					<button class="btn-danger" onclick={deleteImage} disabled={deleting}>
-						{deleting ? 'Deleting...' : 'Delete Image'}
-					</button>
-				{:else}
-					<p class="warning-text">
-						Cannot delete: image is used in {selectedMedia.usage_count} post{selectedMedia.usage_count !==
-						1
-							? 's'
-							: ''}
-					</p>
-				{/if}
-				<button class="btn-secondary" onclick={closeModal}>Close</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-<style>
-	.container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
-
-	.header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.header h1 {
-		font-size: 2rem;
-		font-weight: 700;
-		margin: 0;
-	}
-
-	.stats {
-		font-size: 0.875rem;
-		color: hsl(var(--muted-foreground));
-	}
-
-	.filter-tabs {
-		display: flex;
-		gap: 0.5rem;
-		margin-bottom: 2rem;
-		border-bottom: 1px solid hsl(var(--border));
-	}
-
-	.tab {
-		padding: 0.75rem 1.5rem;
-		background: none;
-		border: none;
-		border-bottom: 2px solid transparent;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: hsl(var(--muted-foreground));
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.tab:hover {
-		color: hsl(var(--foreground));
-	}
-
-	.tab.active {
-		color: hsl(var(--primary));
-		border-bottom-color: hsl(var(--primary));
-	}
-
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 4rem 2rem;
-		text-align: center;
-		color: hsl(var(--muted-foreground));
-	}
-
-	.empty-state svg {
-		width: 64px;
-		height: 64px;
-		margin-bottom: 1rem;
-		opacity: 0.5;
-	}
-
-	.empty-state p {
-		font-size: 1.125rem;
-		font-weight: 500;
-		margin-bottom: 0.5rem;
-	}
-
-	.empty-state small {
-		font-size: 0.875rem;
-	}
-
-	.media-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 1.5rem;
-	}
-
-	.media-item {
-		display: flex;
-		flex-direction: column;
-		background: hsl(var(--background));
-		border: 1px solid hsl(var(--border));
-		border-radius: 0.5rem;
-		overflow: hidden;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.media-item:hover {
-		border-color: hsl(var(--primary));
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	}
-
-	.image-container {
-		position: relative;
-		width: 100%;
-		padding-top: 75%;
-		background: hsl(var(--muted));
-		overflow: hidden;
-	}
-
-	.image-container img {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.usage-badge {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 24px;
-		height: 24px;
-		padding: 0 0.5rem;
-		background: hsl(var(--primary));
-		color: hsl(var(--primary-foreground));
-		border-radius: 12px;
-		font-size: 0.75rem;
-		font-weight: 600;
-	}
-
-	.media-info {
-		display: flex;
-		flex-direction: column;
-		padding: 0.75rem;
-		gap: 0.25rem;
-	}
-
-	.filename {
-		font-size: 0.875rem;
-		font-weight: 500;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.file-size {
-		font-size: 0.75rem;
-		color: hsl(var(--muted-foreground));
-	}
-
-	/* Modal */
-	.modal-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000;
-		padding: 1rem;
-	}
-
-	.modal {
-		background: hsl(var(--background));
-		border-radius: 0.5rem;
-		width: 100%;
-		max-width: 600px;
-		max-height: 90vh;
-		overflow: auto;
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-	}
-
-	.modal-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem;
-		border-bottom: 1px solid hsl(var(--border));
-	}
-
-	.modal-header h2 {
-		font-size: 1.25rem;
-		font-weight: 600;
-		margin: 0;
-	}
-
-	.close-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 32px;
-		height: 32px;
-		background: none;
-		border: none;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		color: hsl(var(--muted-foreground));
-		transition: all 0.2s;
-	}
-
-	.close-btn:hover {
-		background: hsl(var(--muted));
-		color: hsl(var(--foreground));
-	}
-
-	.close-btn svg {
-		width: 20px;
-		height: 20px;
-	}
-
-	.modal-body {
-		padding: 1.5rem;
-	}
-
-	.preview-image {
-		width: 100%;
-		max-height: 300px;
-		margin-bottom: 1.5rem;
-		background: hsl(var(--muted));
-		border-radius: 0.5rem;
-		overflow: hidden;
-	}
-
-	.preview-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-	}
-
-	.details-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		margin: 0 0 1.5rem;
-	}
-
-	.detail-row {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.875rem;
-	}
-
-	.detail-row dt {
-		font-weight: 500;
-		color: hsl(var(--muted-foreground));
-	}
-
-	.detail-row dd {
-		font-weight: 500;
-		margin: 0;
-	}
-
-	.usage-section {
-		margin-top: 1.5rem;
-	}
-
-	.usage-section h3 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-	}
-
-	.usage-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.usage-list li a {
-		display: inline-block;
-		padding: 0.5rem;
-		background: hsl(var(--muted));
-		border-radius: 0.25rem;
-		font-size: 0.875rem;
-		text-decoration: none;
-		color: hsl(var(--foreground));
-		transition: background 0.2s;
-	}
-
-	.usage-list li a:hover {
-		background: hsl(var(--muted) / 0.7);
-	}
-
-	.usage-type {
-		font-size: 0.75rem;
-		color: hsl(var(--muted-foreground));
-		margin-left: 0.5rem;
-	}
-
-	.modal-footer {
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 1.5rem;
-		border-top: 1px solid hsl(var(--border));
-	}
-
-	.btn-danger {
-		padding: 0.5rem 1rem;
-		background: hsl(var(--destructive));
-		color: hsl(var(--destructive-foreground));
-		border: none;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: opacity 0.2s;
-	}
-
-	.btn-danger:hover:not(:disabled) {
-		opacity: 0.9;
-	}
-
-	.btn-danger:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.btn-secondary {
-		padding: 0.5rem 1rem;
-		background: hsl(var(--muted));
-		color: hsl(var(--foreground));
-		border: none;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: opacity 0.2s;
-	}
-
-	.btn-secondary:hover {
-		opacity: 0.9;
-	}
-
-	.warning-text {
-		flex: 1;
-		font-size: 0.875rem;
-		color: hsl(var(--muted-foreground));
-		margin: 0;
-	}
-
-	.error-message {
-		padding: 0.75rem;
-		background: hsl(var(--destructive) / 0.1);
-		border: 1px solid hsl(var(--destructive));
-		border-radius: 0.375rem;
-		color: hsl(var(--destructive));
-		font-size: 0.875rem;
-		margin-top: 1rem;
-	}
-</style>
+                                        <div class="space-y-2 rounded-lg border bg-muted/40 p-4">
+                                                <p class="text-sm font-semibold text-foreground">Delete image</p>
+                                                <p class="text-sm text-muted-foreground">
+                                                        Deleting will remove the image from Cloudflare and D1. Items used by posts cannot be deleted.
+                                                </p>
+                                                {#if error}
+                                                        <p class="text-sm font-medium text-destructive">{error}</p>
+                                                {/if}
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                        <Button variant="destructive" onclick={deleteImage} disabled={deleting || selectedMedia.usage_count > 0}>
+                                                                {deleting ? 'Deleting…' : 'Delete'}
+                                                        </Button>
+                                                        <Button variant="outline" onclick={closeDetails}>Close</Button>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                {/if}
+        </DialogContent>
+</Dialog>

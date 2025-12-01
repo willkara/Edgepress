@@ -38,7 +38,7 @@
 			</DropdownMenu.Label>
 			<DropdownMenu.Separator />
 			<DropdownMenu.Group>
-				<DropdownMenu.Item onclick={() => window.location.href = '/admin'}>
+				<DropdownMenu.Item onclick={() => (window.location.href = '/admin')}>
 					<LayoutDashboard class="mr-2 h-4 w-4" />
 					<span>Admin Dashboard</span>
 				</DropdownMenu.Item>

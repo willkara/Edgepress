@@ -11,41 +11,41 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 		throw error(500, 'Database not available');
 	}
 
-        try {
-                const parsedBody = (await request.json()) as unknown;
-                if (!parsedBody || typeof parsedBody !== 'object') {
-                        throw error(400, 'Invalid request body');
-                }
+	try {
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-                const { orders } = parsedBody as Record<string, unknown>;
+		const { orders } = parsedBody as Record<string, unknown>;
 
-                if (!Array.isArray(orders)) {
-                        throw error(400, 'orders must be an array');
-                }
+		if (!Array.isArray(orders)) {
+			throw error(400, 'orders must be an array');
+		}
 
-                const updates = orders.map((entry) => {
-                        if (!entry || typeof entry !== 'object') {
-                                throw error(400, 'Each order must be an object');
-                        }
+		const updates = orders.map((entry) => {
+			if (!entry || typeof entry !== 'object') {
+				throw error(400, 'Each order must be an object');
+			}
 
-                        const { id, display_order } = entry as Record<string, unknown>;
+			const { id, display_order } = entry as Record<string, unknown>;
 
-                        if (typeof id !== 'string' || id.trim().length === 0) {
-                                throw error(400, 'Each order must include a valid id');
-                        }
+			if (typeof id !== 'string' || id.trim().length === 0) {
+				throw error(400, 'Each order must include a valid id');
+			}
 
-                        if (typeof display_order !== 'number') {
-                                throw error(400, 'Each order must include a numeric display_order');
-                        }
+			if (typeof display_order !== 'number') {
+				throw error(400, 'Each order must include a numeric display_order');
+			}
 
-                        return { id, display_order };
-                });
+			return { id, display_order };
+		});
 
-                await batchUpdateDisplayOrders(platform.env.DB, updates);
+		await batchUpdateDisplayOrders(platform.env.DB, updates);
 
-                return json({ success: true });
-        } catch (err) {
-                console.error('Failed to reorder projects:', err);
-                throw error(500, err instanceof Error ? err.message : 'Failed to reorder projects');
-        }
+		return json({ success: true });
+	} catch (err) {
+		console.error('Failed to reorder projects:', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to reorder projects');
+	}
 };

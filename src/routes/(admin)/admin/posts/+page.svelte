@@ -1,491 +1,314 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import type { PageData } from './$types';
+        import { goto } from '$app/navigation';
+        import { page } from '$app/stores';
+        import type { PageData } from './$types';
+        import { Badge } from '$lib/components/ui/badge';
+        import { Button } from '$lib/components/ui/button';
+        import { Input } from '$lib/components/ui/input';
+        import { Separator } from '$lib/components/ui/separator';
+        import {
+                Select,
+                SelectContent,
+                SelectGroup,
+                SelectItem,
+                SelectLabel,
+                SelectTrigger
+        } from '$lib/components/ui/select';
+        import {
+                Table,
+                TableBody,
+                TableCell,
+                TableHead,
+                TableHeader,
+                TableRow
+        } from '$lib/components/ui/table';
+        import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+        import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
+        import PencilIcon from '@lucide/svelte/icons/pencil';
+        import TrashIcon from '@lucide/svelte/icons/trash-2';
+        import UploadIcon from '@lucide/svelte/icons/upload';
 
-	let { data }: { data: PageData } = $props();
+        let { data }: { data: PageData } = $props();
 
-	let searchInput = $state(data.filters.search);
-	let statusFilter = $state(data.filters.status);
-	let deleting = $state<string | null>(null);
+        let searchInput = $state(data.filters.search);
+        let statusFilter = $state(data.filters.status);
+        let deleting = $state<string | null>(null);
 
-	function applyFilters() {
-		const params = new URLSearchParams();
-		if (searchInput) params.set('search', searchInput);
-		if (statusFilter !== 'all') params.set('status', statusFilter);
-		params.set('page', '1');
-		goto(`/admin/posts?${params.toString()}`);
-	}
+        // Applies the current filters and resets pagination to the first page.
+        function applyFilters() {
+                const params = new URLSearchParams();
+                if (searchInput) params.set('search', searchInput);
+                if (statusFilter !== 'all') params.set('status', statusFilter);
+                params.set('page', '1');
+                goto(`/admin/posts?${params.toString()}`);
+        }
 
-	function goToPage(pageNum: number) {
-		const params = new URLSearchParams($page.url.searchParams);
-		params.set('page', pageNum.toString());
-		goto(`/admin/posts?${params.toString()}`);
-	}
+        // Clears all filters and returns to the initial listing state.
+        function resetFilters() {
+                searchInput = '';
+                statusFilter = 'all';
+                applyFilters();
+        }
 
-	async function deletePost(id: string, title: string) {
-		if (!confirm(`Are you sure you want to delete "${title}"?`)) {
-			return;
-		}
+        // Navigates to a specific page while preserving active filters.
+        function goToPage(pageNum: number) {
+                const params = new URLSearchParams($page.url.searchParams);
+                params.set('page', pageNum.toString());
+                goto(`/admin/posts?${params.toString()}`);
+        }
 
-		deleting = id;
+        // Deletes a post after confirmation and refreshes the listing.
+        async function deletePost(id: string, title: string) {
+                if (!confirm(`Are you sure you want to delete "${title}"?`)) {
+                        return;
+                }
 
-		try {
-			const response = await fetch(`/api/admin/posts/${id}`, {
-				method: 'DELETE'
-			});
+                deleting = id;
 
-			if (response.ok) {
-				// Reload the page to refresh the list
-				window.location.reload();
-			} else {
-				const error = await response.json();
-				alert(`Failed to delete post: ${error.message || 'Unknown error'}`);
-			}
-		} catch (err) {
-			alert('Failed to delete post. Please try again.');
-		} finally {
-			deleting = null;
-		}
-	}
+                try {
+                        const response = await fetch(`/api/admin/posts/${id}`, {
+                                method: 'DELETE'
+                        });
 
-	async function togglePublish(id: string, currentStatus: 'draft' | 'published') {
-		const action = currentStatus === 'published' ? 'unpublish' : 'publish';
+                        if (response.ok) {
+                                window.location.reload();
+                        } else {
+                                const error = await response.json();
+                                alert(`Failed to delete post: ${error.message || 'Unknown error'}`);
+                        }
+                } catch (err) {
+                        alert('Failed to delete post. Please try again.');
+                } finally {
+                        deleting = null;
+                }
+        }
 
-		try {
-			const response = await fetch(`/api/admin/posts/${id}/${action}`, {
-				method: 'PATCH'
-			});
+        // Toggles publish/unpublish state for a post and refreshes the listing.
+        async function togglePublish(id: string, currentStatus: 'draft' | 'published') {
+                const action = currentStatus === 'published' ? 'unpublish' : 'publish';
 
-			if (response.ok) {
-				window.location.reload();
-			} else {
-				const error = await response.json();
-				alert(`Failed to ${action} post: ${error.message || 'Unknown error'}`);
-			}
-		} catch (err) {
-			alert(`Failed to ${action} post. Please try again.`);
-		}
-	}
+                try {
+                        const response = await fetch(`/api/admin/posts/${id}/${action}`, {
+                                method: 'PATCH'
+                        });
 
-	function formatDate(dateString: string | null): string {
-		if (!dateString) return 'Never';
-		return new Date(dateString).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
+                        if (response.ok) {
+                                window.location.reload();
+                        } else {
+                                const error = await response.json();
+                                alert(`Failed to ${action} post: ${error.message || 'Unknown error'}`);
+                        }
+                } catch (err) {
+                        alert(`Failed to ${action} post. Please try again.`);
+                }
+        }
+
+        // Formats a date string for concise table display.
+        function formatDate(dateString: string | null): string {
+                if (!dateString) return 'Never';
+                return new Date(dateString).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                });
+        }
 </script>
 
 <svelte:head>
-	<title>Posts - EdgePress Admin</title>
+        <title>Posts - EdgePress Admin</title>
 </svelte:head>
 
-<div class="posts-page">
-	<div class="page-header">
-		<h1>Posts</h1>
-		<a href="/admin/posts/new" class="btn-primary">Create New Post</a>
-	</div>
+<div class="space-y-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="space-y-1">
+                        <h1 class="text-3xl font-semibold tracking-tight">Posts</h1>
+                        <p class="text-sm text-muted-foreground">
+                                Review, filter, and publish content created in the editor.
+                        </p>
+                </div>
+                <Button href="/admin/posts/new" size="sm" class="ml-auto">
+                        <UploadIcon class="size-4" />
+                        Create post
+                </Button>
+        </div>
 
-	<div class="filters">
-		<div class="search-box">
-			<input
-				type="text"
-				bind:value={searchInput}
-				placeholder="Search posts..."
-				onkeydown={(e) => e.key === 'Enter' && applyFilters()}
-			/>
-			<button onclick={applyFilters} class="btn-secondary">Search</button>
-		</div>
+        <div class="rounded-lg border bg-card p-4 shadow-sm">
+                <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-end">
+                        <div class="space-y-2">
+                                <div class="flex items-center justify-between gap-2">
+                                        <label for="search-input" class="text-sm font-medium text-foreground/90">Search</label>
+                                        <Button variant="ghost" size="sm" class="h-8" onclick={resetFilters}>
+                                                Reset
+                                        </Button>
+                                </div>
+                                <div class="flex flex-col gap-2 sm:flex-row">
+                                        <Input
+                                                id="search-input"
+                                                placeholder="Search by title or author"
+                                                bind:value={searchInput}
+                                                onkeydown={(event) => event.key === 'Enter' && applyFilters()}
+                                        />
+                                        <Button variant="outline" class="sm:w-28" onclick={applyFilters}>
+                                                Apply
+                                        </Button>
+                                </div>
+                        </div>
 
-		<div class="filter-group">
-			<label for="status">Status:</label>
-			<select id="status" bind:value={statusFilter} onchange={applyFilters}>
-				<option value="all">All</option>
-				<option value="published">Published</option>
-				<option value="draft">Draft</option>
-			</select>
-		</div>
+                        <label class="space-y-2 text-sm font-medium text-foreground/90">
+                                <span>Status</span>
+                                <Select bind:value={statusFilter} type="single">
+                                        <SelectTrigger class="w-full justify-between">
+                                                <span class="text-sm text-foreground">
+                                                        {statusFilter === 'all'
+                                                                ? 'All statuses'
+                                                                : statusFilter === 'published'
+                                                                        ? 'Published'
+                                                                        : 'Draft'}
+                                                </span>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                                <SelectGroup>
+                                                        <SelectLabel>Visibility</SelectLabel>
+                                                        <SelectItem value="all">All</SelectItem>
+                                                        <SelectItem value="published">Published</SelectItem>
+                                                        <SelectItem value="draft">Draft</SelectItem>
+                                                </SelectGroup>
+                                        </SelectContent>
+                                </Select>
+                        </label>
+                </div>
+                <Separator class="my-4" />
+                <p class="text-sm text-muted-foreground">{data.total} post{data.total !== 1 ? 's' : ''} found</p>
+        </div>
 
-		<div class="results-count">
-			{data.total} post{data.total !== 1 ? 's' : ''} found
-		</div>
-	</div>
+        {#if data.posts.length === 0}
+                <div class="flex flex-col items-center justify-center gap-4 rounded-lg border bg-muted/40 p-10 text-center">
+                        <p class="text-sm text-muted-foreground">No posts match the current filters.</p>
+                        <div class="flex gap-2">
+                                <Button href="/admin/posts/new" size="sm">
+                                        <PencilIcon class="size-4" />
+                                        Create your first post
+                                </Button>
+                                <Button variant="outline" size="sm" onclick={resetFilters}>
+                                        Clear filters
+                                </Button>
+                        </div>
+                </div>
+        {:else}
+                <div class="overflow-hidden rounded-lg border bg-card shadow-sm">
+                        <div class="overflow-x-auto">
+                                <Table class="min-w-full">
+                                        <TableHeader>
+                                                <TableRow>
+                                                        <TableHead>Title</TableHead>
+                                                        <TableHead>Status</TableHead>
+                                                        <TableHead>Author</TableHead>
+                                                        <TableHead>Category</TableHead>
+                                                        <TableHead>Published</TableHead>
+                                                        <TableHead>Updated</TableHead>
+                                                        <TableHead class="w-[160px] text-right">Actions</TableHead>
+                                                </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                                {#each data.posts as post}
+                                                        <TableRow class="align-top">
+                                                                <TableCell class="max-w-[320px]">
+                                                                        <div class="space-y-1">
+                                                                                <a
+                                                                                        href={`/admin/posts/${post.id}/edit`}
+                                                                                        class="line-clamp-2 font-medium text-foreground transition hover:text-primary"
+                                                                                >
+                                                                                        {post.title}
+                                                                                </a>
+                                                                                <p class="text-xs text-muted-foreground">{post.category_name || '—'}</p>
+                                                                        </div>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                        <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
+                                                                                {post.status}
+                                                                        </Badge>
+                                                                </TableCell>
+                                                                <TableCell class="whitespace-nowrap text-sm text-muted-foreground">
+                                                                        {post.author_name}
+                                                                </TableCell>
+                                                                <TableCell class="whitespace-nowrap text-sm text-muted-foreground">
+                                                                        {post.category_name || 'Uncategorized'}
+                                                                </TableCell>
+                                                                <TableCell class="whitespace-nowrap text-sm text-muted-foreground">
+                                                                        {formatDate(post.published_at)}
+                                                                </TableCell>
+                                                                <TableCell class="whitespace-nowrap text-sm text-muted-foreground">
+                                                                        {formatDate(post.updated_at)}
+                                                                </TableCell>
+                                                                <TableCell class="text-right">
+                                                                        <div class="flex justify-end gap-2">
+                                                                                <Button
+                                                                                        href={`/admin/posts/${post.id}/edit`}
+                                                                                        variant="ghost"
+                                                                                        size="icon-sm"
+                                                                                        title="Edit post"
+                                                                                >
+                                                                                        <PencilIcon class="size-4" />
+                                                                                </Button>
+                                                                                <Button
+                                                                                        variant="ghost"
+                                                                                        size="icon-sm"
+                                                                                        title={post.status === 'published' ? 'Unpublish' : 'Publish'}
+                                                                                        onclick={() => togglePublish(post.id, post.status)}
+                                                                                >
+                                                                                        {post.status === 'published' ? 'Unpublish' : 'Publish'}
+                                                                                </Button>
+                                                                                <Button
+                                                                                        variant="ghost"
+                                                                                        size="icon-sm"
+                                                                                        class="text-destructive hover:text-destructive"
+                                                                                        title="Delete"
+                                                                                        disabled={deleting === post.id}
+                                                                                        onclick={() => deletePost(post.id, post.title)}
+                                                                                >
+                                                                                        {#if deleting === post.id}
+                                                                                                …
+                                                                                        {:else}
+                                                                                                <TrashIcon class="size-4" />
+                                                                                        {/if}
+                                                                                </Button>
+                                                                        </div>
+                                                                </TableCell>
+                                                        </TableRow>
+                                                {/each}
+                                        </TableBody>
+                                </Table>
+                        </div>
+                </div>
 
-	{#if data.posts.length === 0}
-		<div class="empty-state">
-			<p>No posts found.</p>
-			<a href="/admin/posts/new" class="btn-primary">Create your first post</a>
-		</div>
-	{:else}
-		<div class="table-container">
-			<table>
-				<thead>
-					<tr>
-						<th>Title</th>
-						<th>Status</th>
-						<th>Author</th>
-						<th>Category</th>
-						<th>Published</th>
-						<th>Updated</th>
-						<th class="actions-col">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each data.posts as post}
-						<tr>
-							<td>
-								<a href="/admin/posts/{post.id}/edit" class="post-title">{post.title}</a>
-							</td>
-							<td>
-								<span class="status-badge" data-status={post.status}>
-									{post.status}
-								</span>
-							</td>
-							<td>{post.author_name}</td>
-							<td>{post.category_name || '—'}</td>
-							<td>{formatDate(post.published_at)}</td>
-							<td>{formatDate(post.updated_at)}</td>
-							<td class="actions">
-								<a href="/admin/posts/{post.id}/edit" class="btn-icon" title="Edit"> ✏️ </a>
-								<button
-									onclick={() => togglePublish(post.id, post.status)}
-									class="btn-icon"
-									title={post.status === 'published' ? 'Unpublish' : 'Publish'}
-								>
-									{post.status === 'published' ? '📥' : '📤'}
-								</button>
-								<button
-									onclick={() => deletePost(post.id, post.title)}
-									class="btn-icon btn-danger"
-									disabled={deleting === post.id}
-									title="Delete"
-								>
-									{deleting === post.id ? '⏳' : '🗑️'}
-								</button>
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-
-		{#if data.totalPages > 1}
-			<div class="pagination">
-				<button
-					onclick={() => goToPage(data.currentPage - 1)}
-					disabled={data.currentPage === 1}
-					class="btn-secondary"
-				>
-					Previous
-				</button>
-
-				<span class="page-info">
-					Page {data.currentPage} of {data.totalPages}
-				</span>
-
-				<button
-					onclick={() => goToPage(data.currentPage + 1)}
-					disabled={data.currentPage === data.totalPages}
-					class="btn-secondary"
-				>
-					Next
-				</button>
-			</div>
-		{/if}
-	{/if}
+                {#if data.totalPages > 1}
+                        <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
+                                <p class="text-sm text-muted-foreground">
+                                        Page {data.currentPage} of {data.totalPages}
+                                </p>
+                                <div class="flex items-center gap-2">
+                                        <Button
+                                                variant="outline"
+                                                size="sm"
+                                                class="min-w-[96px]"
+                                                disabled={data.currentPage === 1}
+                                                onclick={() => goToPage(data.currentPage - 1)}
+                                        >
+                                                <ArrowLeftIcon class="size-4" />
+                                                Previous
+                                        </Button>
+                                        <Button
+                                                variant="outline"
+                                                size="sm"
+                                                class="min-w-[96px]"
+                                                disabled={data.currentPage === data.totalPages}
+                                                onclick={() => goToPage(data.currentPage + 1)}
+                                        >
+                                                Next
+                                                <ArrowRightIcon class="size-4" />
+                                        </Button>
+                                </div>
+                        </div>
+                {/if}
+        {/if}
 </div>
-
-<style>
-	.posts-page {
-		padding: 1rem;
-	}
-
-	.page-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.page-header h1 {
-		font-size: 2rem;
-		font-weight: 700;
-		color: var(--text-main);
-		letter-spacing: -0.02em;
-	}
-
-	.filters {
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-		margin-bottom: 1.5rem;
-		flex-wrap: wrap;
-		background: var(--bg-elevated);
-		padding: 1rem;
-		border-radius: 0.75rem;
-		border: 1px solid var(--border-subtle);
-	}
-
-	.search-box {
-		display: flex;
-		gap: 0.5rem;
-		flex: 1;
-		min-width: 300px;
-	}
-
-	.search-box input {
-		flex: 1;
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--border-subtle);
-		border-radius: 0.5rem;
-		background: var(--bg-page);
-		color: var(--text-main);
-		font-size: 0.875rem;
-	}
-
-	.search-box input:focus {
-		outline: none;
-		border-color: var(--accent);
-	}
-
-	.filter-group {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.filter-group label {
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--text-muted);
-	}
-
-	.filter-group select {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--border-subtle);
-		border-radius: 0.5rem;
-		background: var(--bg-page);
-		color: var(--text-main);
-		font-size: 0.875rem;
-	}
-
-	.results-count {
-		font-size: 0.875rem;
-		color: var(--text-muted);
-		margin-left: auto;
-	}
-
-	.empty-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		background: var(--bg-elevated);
-		border-radius: 0.75rem;
-		border: 1px solid var(--border-subtle);
-	}
-
-	.empty-state p {
-		color: var(--text-muted);
-		margin-bottom: 1rem;
-	}
-
-	.table-container {
-		border: 1px solid var(--border-subtle);
-		border-radius: 0.75rem;
-		overflow: hidden;
-		background: var(--bg-elevated);
-	}
-
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	thead {
-		background: var(--bg-soft);
-	}
-
-	th {
-		padding: 0.9rem 1.2rem;
-		text-align: left;
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: var(--text-subtle);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-bottom: 1px solid var(--border-subtle);
-	}
-
-	td {
-		padding: 1rem 1.2rem;
-		font-size: 0.9rem;
-		color: var(--text-main);
-		border-bottom: 1px solid var(--border-subtle);
-	}
-
-	tbody tr:last-child td {
-		border-bottom: none;
-	}
-
-	tbody tr:hover {
-		background: rgba(255, 255, 255, 0.02);
-	}
-
-	.post-title {
-		color: var(--text-main);
-		text-decoration: none;
-		font-weight: 500;
-		font-size: 0.95rem;
-	}
-
-	.post-title:hover {
-		color: var(--accent);
-	}
-
-	.status-badge {
-		display: inline-block;
-		padding: 0.2rem 0.6rem;
-		border-radius: 9999px;
-		font-size: 0.7rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.status-badge[data-status='published'] {
-		background: rgba(16, 185, 129, 0.15);
-		color: #34d399;
-		border: 1px solid rgba(16, 185, 129, 0.2);
-	}
-
-	.status-badge[data-status='draft'] {
-		background: rgba(148, 163, 184, 0.15);
-		color: #cbd5e1;
-		border: 1px solid rgba(148, 163, 184, 0.2);
-	}
-
-	.actions {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.actions-col {
-		width: 130px;
-	}
-
-	.btn-icon {
-		padding: 0.4rem;
-		background: transparent;
-		border: 1px solid transparent;
-		border-radius: 0.375rem;
-		cursor: pointer;
-		font-size: 1rem;
-		transition: all 0.15s;
-		text-decoration: none;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		color: var(--text-muted);
-	}
-
-	.btn-icon:hover:not(:disabled) {
-		background: var(--bg-soft);
-		color: var(--text-main);
-		border-color: var(--border-subtle);
-	}
-
-	.btn-icon:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.btn-icon.btn-danger:hover:not(:disabled) {
-		background: rgba(239, 68, 68, 0.15);
-		color: #fca5a5;
-		border-color: rgba(239, 68, 68, 0.3);
-	}
-
-	.btn-primary {
-		padding: 0.6rem 1.2rem;
-		background: linear-gradient(to right, var(--accent-strong), var(--accent));
-		color: #0f172a;
-		border: none;
-		border-radius: 999px;
-		font-size: 0.9rem;
-		font-weight: 600;
-		cursor: pointer;
-		text-decoration: none;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		transition: all 0.15s;
-	}
-
-	.btn-primary:hover {
-		filter: brightness(1.1);
-		transform: translateY(-1px);
-	}
-
-	.btn-secondary {
-		padding: 0.6rem 1.2rem;
-		background: var(--bg-elevated);
-		color: var(--text-main);
-		border: 1px solid var(--border-subtle);
-		border-radius: 0.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: all 0.15s;
-	}
-
-	.btn-secondary:hover:not(:disabled) {
-		border-color: var(--accent);
-		color: var(--accent);
-	}
-
-	.btn-secondary:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.pagination {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 1rem;
-		margin-top: 2rem;
-	}
-
-	.page-info {
-		font-size: 0.875rem;
-		color: var(--text-muted);
-	}
-
-	@media (max-width: 768px) {
-		.posts-page {
-			padding: 0;
-		}
-
-		.filters {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.search-box {
-			min-width: 100%;
-		}
-
-		.results-count {
-			margin-left: 0;
-		}
-
-		.table-container {
-			overflow-x: auto;
-		}
-
-		table {
-			min-width: 800px;
-		}
-	}
-</style>

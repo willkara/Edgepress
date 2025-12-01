@@ -3,9 +3,7 @@
 	// Allows keyboard users to skip navigation and jump directly to main content
 </script>
 
-<a href="#main-content" class="skip-link">
-	Skip to main content
-</a>
+<a href="#main-content" class="skip-link"> Skip to main content </a>
 
 <style>
 	.skip-link {
