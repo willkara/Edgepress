@@ -260,13 +260,13 @@ export async function getAllCategoriesCached(
 	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
 	const cacheKey = getCacheKey('categories:all', includePostCount ? 'with-count' : 'no-count');
 
-	const cached = await getCached<Category[]>(cache, cacheKey);
+	const cached = await getCached<Category[]>(cache, cacheKey, { tag: 'categories' });
 	if (cached) {
 		return cached;
 	}
 
 	const categories = await getAllCategories(db, includePostCount);
-	await setCached(cache, cacheKey, categories, 1800);
+	await setCached(cache, cacheKey, categories, { ttl: 1800, tag: 'categories' });
 
 	return categories;
 }

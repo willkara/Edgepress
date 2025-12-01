@@ -186,13 +186,13 @@ export async function getPublishedPostsCached(
 	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
 	const cacheKey = getCacheKey('posts:published', limit, offset);
 
-	const cached = await getCached<Post[]>(cache, cacheKey);
+	const cached = await getCached<Post[]>(cache, cacheKey, { tag: 'posts' });
 	if (cached) {
 		return cached;
 	}
 
 	const posts = await getPublishedPosts(db, limit, offset);
-	await setCached(cache, cacheKey, posts, 300);
+	await setCached(cache, cacheKey, posts, { ttl: 300, tag: 'posts' });
 
 	return posts;
 }
@@ -209,13 +209,13 @@ export async function getPostBySlugCached(
 	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
 	const cacheKey = getCacheKey('post', slug);
 
-	const cached = await getCached<Post | null>(cache, cacheKey);
+	const cached = await getCached<Post | null>(cache, cacheKey, { tag: 'posts' });
 	if (cached !== undefined) {
 		return cached;
 	}
 
 	const post = await getPostBySlug(db, slug);
-	await setCached(cache, cacheKey, post, 600);
+	await setCached(cache, cacheKey, post, { ttl: 600, tag: 'posts' });
 
 	return post;
 }
@@ -273,13 +273,13 @@ export async function getSearchIndexCached(
 	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
 	const cacheKey = getCacheKey('search:index', limit);
 
-	const cached = await getCached<SearchIndexItem[]>(cache, cacheKey);
+	const cached = await getCached<SearchIndexItem[]>(cache, cacheKey, { tag: 'search' });
 	if (cached) {
 		return cached;
 	}
 
 	const index = await getSearchIndex(db, limit);
-	await setCached(cache, cacheKey, index, 900);
+	await setCached(cache, cacheKey, index, { ttl: 900, tag: 'search' });
 	return index;
 }
 
@@ -362,13 +362,13 @@ export async function searchPostsCached(
 
 	const cacheKey = getCacheKey('search:fts', limit, normalized);
 
-	const cached = await getCached<SearchResult[]>(cache, cacheKey);
+	const cached = await getCached<SearchResult[]>(cache, cacheKey, { tag: 'search' });
 	if (cached) {
 		return cached;
 	}
 
 	const results = await searchPosts(db, normalized, limit);
-	await setCached(cache, cacheKey, results, 120); // short TTL to keep results fresh
+	await setCached(cache, cacheKey, results, { ttl: 120, tag: 'search' }); // short TTL to keep results fresh
 	return results;
 }
 

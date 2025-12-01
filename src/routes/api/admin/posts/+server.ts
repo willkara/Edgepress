@@ -2,8 +2,9 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { listPosts, createPost } from '$lib/server/db/admin-posts';
 import { syncPostMedia } from '$lib/server/db/media';
-import { invalidateCache, getCacheKey } from '$lib/server/cache/cache';
+import { invalidateCache } from '$lib/server/cache/cache';
 import { upsertPostVector } from '$lib/server/vectorize/post-index';
+import { deleteEdgeCached } from '$lib/server/cache/edge-cache';
 
 /**
  * GET /api/admin/posts
@@ -85,14 +86,22 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		// Sync media relationships
 		await syncPostMedia(db, post.id, body.content_html, body.hero_image_id ?? null);
 
-                // Invalidate public caches (best-effort)
+                // Invalidate public caches
                 if (platform.env.CACHE) {
-                        // Landing page uses limit 10
-                        await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 10, 0));
-                        // Default list uses limit 20
-                        await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
-                        await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
+			await invalidateCache(platform.env.CACHE, 'posts');
                 }
+
+		// Invalidate edge cache for the new post
+		// (Even though it's new, it might collide with something or if we reused a slug)
+		try {
+			const publicUrl = new URL(`/post/${post.slug}`, new URL(request.url).origin);
+			const cache = platform?.caches ? (platform.caches as unknown as { default: Cache }).default : undefined;
+			if (cache) {
+				await deleteEdgeCached(publicUrl, cache);
+			}
+		} catch (edgeErr) {
+			console.error('Failed to invalidate edge cache:', edgeErr);
+		}
 
                 // Best-effort vector index update for semantic search.
                 if (platform.env.AI && platform.env.VECTORIZE) {

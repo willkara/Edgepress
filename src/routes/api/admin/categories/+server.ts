@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE, 'categories');
 		}
 
 		return json(category, { status: 201 });

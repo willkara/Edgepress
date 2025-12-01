@@ -87,12 +87,21 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 
                 // Invalidate post caches
                 if (env.CACHE) {
-                        const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
-                        // Invalidate landing page and default list
-                        await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
-                        await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
-                        await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+                        const { invalidateCache } = await import('$lib/server/cache/cache');
+                        await invalidateCache(env.CACHE, 'posts');
                 }
+
+		// Invalidate edge cache
+		try {
+			const { deleteEdgeCached } = await import('$lib/server/cache/edge-cache');
+			const publicUrl = new URL(`/post/${post.slug}`, new URL(request.url).origin);
+			const cache = platform?.caches ? (platform.caches as unknown as { default: Cache }).default : undefined;
+			if (cache) {
+				await deleteEdgeCached(publicUrl, cache);
+			}
+		} catch (edgeErr) {
+			console.error('Failed to invalidate edge cache:', edgeErr);
+		}
 
                 // Best-effort vector index update for semantic search.
                 if (platform?.env?.AI && platform.env.VECTORIZE) {
@@ -133,7 +142,7 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
  * DELETE /api/admin/posts/[id]
  * Delete a post
  */
-export const DELETE: RequestHandler = async ({ platform, locals, params }): Promise<Response> => {
+export const DELETE: RequestHandler = async ({ platform, locals, params, request }): Promise<Response> => {
         if (!locals.user) {
                 throw error(401, 'Unauthorized');
         }
@@ -156,12 +165,23 @@ export const DELETE: RequestHandler = async ({ platform, locals, params }): Prom
 
                 // Invalidate post caches
                 if (env.CACHE) {
-                        const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
-                        // Invalidate landing page and default list
-                        await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
-                        await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
-                        await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+                        const { invalidateCache } = await import('$lib/server/cache/cache');
+                        await invalidateCache(env.CACHE, 'posts');
                 }
+
+		// Invalidate edge cache
+		try {
+			const { deleteEdgeCached } = await import('$lib/server/cache/edge-cache');
+			// Note: We need the full URL, but here we only have the relative slug.
+			// Construct it from the request URL which includes origin.
+			const publicUrl = new URL(`/post/${post.slug}`, new URL(request.url).origin);
+			const cache = platform?.caches ? (platform.caches as unknown as { default: Cache }).default : undefined;
+			if (cache) {
+				await deleteEdgeCached(publicUrl, cache);
+			}
+		} catch (edgeErr) {
+			console.error('Failed to invalidate edge cache:', edgeErr);
+		}
 
                 // Best-effort vector deletion to keep the index in sync.
                 if (platform?.env?.VECTORIZE) {

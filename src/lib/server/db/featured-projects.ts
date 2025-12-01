@@ -100,13 +100,13 @@ export async function getFeaturedProjectsCached(
                 includeUnfeatured ? 'all' : 'featured'
         );
 
-        const cached = await getCached<FeaturedProjectWithPost[]>(cache, cacheKey);
+        const cached = await getCached<FeaturedProjectWithPost[]>(cache, cacheKey, { tag: 'featured_projects' });
         if (cached) {
                 return cached;
         }
 
         const projects = await getFeaturedProjects(db, includeUnfeatured);
-        await setCached(cache, cacheKey, projects, 600);
+        await setCached(cache, cacheKey, projects, { ttl: 600, tag: 'featured_projects' });
 
         return projects;
 }

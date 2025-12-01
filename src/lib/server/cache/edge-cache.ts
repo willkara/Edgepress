@@ -122,3 +122,21 @@ export function canEdgeCache(request: Request, url: URL): boolean {
 	}
 	return true;
 }
+
+/**
+ * Delete a specific URL from the edge cache
+ * @param url - The URL to delete (string or URL object)
+ * @param cache - Cache instance to use
+ * @returns Promise that resolves when the delete operation is complete
+ */
+export async function deleteEdgeCached(url: string | URL, cache: Cache): Promise<boolean> {
+	// The Cache API typically requires a full URL.
+	// We create a dummy GET request for this URL to serve as the key.
+	const requestUrl = url.toString();
+	const request = new Request(requestUrl, {
+		method: 'GET'
+	});
+
+	// Attempt to delete
+	return await cache.delete(request);
+}

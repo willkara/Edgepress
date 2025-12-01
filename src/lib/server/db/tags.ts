@@ -250,13 +250,13 @@ export async function getAllTagsCached(
 	const { getCached, setCached, getCacheKey } = await import('$lib/server/cache/cache');
 	const cacheKey = getCacheKey('tags:all', includePostCount ? 'with-count' : 'no-count');
 
-	const cached = await getCached<Tag[]>(cache, cacheKey);
+	const cached = await getCached<Tag[]>(cache, cacheKey, { tag: 'tags' });
 	if (cached) {
 		return cached;
 	}
 
 	const tags = await getAllTags(db, includePostCount);
-	await setCached(cache, cacheKey, tags, 1800);
+	await setCached(cache, cacheKey, tags, { ttl: 1800, tag: 'tags' });
 
 	return tags;
 }

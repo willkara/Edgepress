@@ -175,7 +175,7 @@ export async function getSettingsGroupCached(
 	const cacheKey = 'settings:all';
 
 	// Try cache first
-	const cached = await getCached<SettingsGroup>(cache, cacheKey);
+	const cached = await getCached<SettingsGroup>(cache, cacheKey, { tag: 'settings' });
 	if (cached) {
 		return cached;
 	}
@@ -184,7 +184,7 @@ export async function getSettingsGroupCached(
 	const settings = await getSettingsGroup(db);
 
 	// Store in cache for 1 hour
-	await setCached(cache, cacheKey, settings, 3600);
+	await setCached(cache, cacheKey, settings, { ttl: 3600, tag: 'settings' });
 
 	return settings;
 }

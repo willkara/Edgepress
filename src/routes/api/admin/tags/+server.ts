@@ -67,7 +67,7 @@ export const POST: RequestHandler = async (event): Promise<Response> => {
 		// Invalidate tags cache
 		if (env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(env.CACHE, 'tags:all:*');
+			await invalidateCache(env.CACHE, 'tags');
 		}
 
 		return json(tag, { status: 201 });

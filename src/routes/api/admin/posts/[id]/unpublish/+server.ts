@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { unpublishPost } from '$lib/server/db/admin-posts';
-import { invalidateCache, getCacheKey } from '$lib/server/cache/cache';
+import { invalidateCache } from '$lib/server/cache/cache';
 import { requireEnv } from '$lib/server/env';
 
 /**
@@ -9,7 +9,7 @@ import { requireEnv } from '$lib/server/env';
  * Unpublish a post (set to draft)
  */
 export const PATCH: RequestHandler = async (event): Promise<Response> => {
-	const { locals, params } = event;
+	const { locals, params, request, platform } = event;
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
@@ -20,10 +20,22 @@ export const PATCH: RequestHandler = async (event): Promise<Response> => {
 	try {
 		const post = await unpublishPost(db, params.id);
 		if (env.CACHE) {
-			await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
-			await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
-			await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+			await invalidateCache(env.CACHE, 'posts');
 		}
+
+		if (platform?.caches) {
+			try {
+				const { deleteEdgeCached } = await import('$lib/server/cache/edge-cache');
+				const publicUrl = new URL(`/post/${post.slug}`, new URL(request.url).origin);
+				const cache = platform?.caches ? (platform.caches as unknown as { default: Cache }).default : undefined;
+				if (cache) {
+					await deleteEdgeCached(publicUrl, cache);
+				}
+			} catch (edgeErr) {
+				console.error('Failed to invalidate edge cache:', edgeErr);
+			}
+		}
+
 		return json(post);
 	} catch (err) {
 		console.error('Failed to unpublish post:', err);

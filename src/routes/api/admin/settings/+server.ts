@@ -191,7 +191,7 @@ export const PUT: RequestHandler = async (event): Promise<Response> => {
 
 			if (env.CACHE) {
 				const { invalidateCache } = await import('$lib/server/cache/cache');
-				await invalidateCache(env.CACHE, 'settings:all');
+				await invalidateCache(env.CACHE, 'settings');
 			}
 		}
 
