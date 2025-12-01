@@ -21,8 +21,8 @@ export const DELETE: RequestHandler = async ({ params, platform, locals }) => {
 		await removeFeaturedProject(platform.env.DB, id);
 
 		return json({ success: true });
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to remove featured project:', err);
-		throw error(500, err.message || 'Failed to remove featured project');
+		throw error(500, err instanceof Error ? err.message : 'Failed to remove featured project');
 	}
 };

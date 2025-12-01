@@ -14,24 +14,29 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	try {
 		// Get the tag to verify it exists
-                const tagRaw = await getTagBySlug(platform.env.DB, slug);
+		const tagRaw = await getTagBySlug(platform.env.DB, slug);
 
-                if (!tagRaw) {
-                        throw error(404, `Tag "${slug}" not found`);
-                }
+		if (!tagRaw) {
+			throw error(404, `Tag "${slug}" not found`);
+		}
 
-                const tag = tagSchema.parse(tagRaw);
+		const tag = tagSchema.parse(tagRaw);
 
-                // Get all posts with this tag
-                const postsRaw = await getPostsByTag(platform.env.DB, slug, 100, 0);
-                const posts = postSchema.array().parse(postsRaw);
+		// Get all posts with this tag
+		const postsRaw = await getPostsByTag(platform.env.DB, slug, 100, 0);
+		const posts = postSchema.array().parse(postsRaw);
 
 		return {
 			tag,
 			posts
 		};
-	} catch (err: any) {
-		if (err.status === 404) {
+	} catch (err: unknown) {
+		if (
+			err &&
+			typeof err === 'object' &&
+			'status' in err &&
+			(err as { status?: number }).status === 404
+		) {
 			throw err;
 		}
 		console.error('Failed to load tag page:', err);

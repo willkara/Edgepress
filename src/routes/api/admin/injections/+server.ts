@@ -7,7 +7,13 @@ import type { CreateInjectionInput } from '$lib/server/db/injections';
  * Validation helpers
  */
 type InjectionLocation = 'head' | 'body_start' | 'body_end' | 'post_before' | 'post_after';
-const VALID_LOCATIONS: InjectionLocation[] = ['head', 'body_start', 'body_end', 'post_before', 'post_after'];
+const VALID_LOCATIONS: InjectionLocation[] = [
+	'head',
+	'body_start',
+	'body_end',
+	'post_before',
+	'post_after'
+];
 const NAME_PATTERN = /^[a-zA-Z0-9-_]+$/;
 const MAX_CONTENT_LENGTH = 50000; // 50KB
 
@@ -83,19 +89,23 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 	}
 
 	try {
-		const body = await request.json();
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-		// Validate input
-		validateName(body.name);
-		validateLocation(body.location);
-		validateContent(body.content);
-		validateIsActive(body.is_active);
+		const { name, location, content, is_active } = parsedBody as Record<string, unknown>;
+
+		validateName(name);
+		validateLocation(location);
+		validateContent(content);
+		validateIsActive(is_active);
 
 		const input: CreateInjectionInput = {
-			name: body.name.trim(),
-			location: body.location,
-			content: body.content,
-			is_active: body.is_active !== undefined ? body.is_active : 1
+			name: name.trim(),
+			location,
+			content,
+			is_active: is_active !== undefined ? is_active : 1
 		};
 
 		const injection = await createInjection(platform.env.DB, input);

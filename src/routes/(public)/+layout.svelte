@@ -8,8 +8,9 @@
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import PullToRefresh from '$lib/components/PullToRefresh.svelte';
 	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
 
-	let { children, data }: { children: any; data: LayoutData } = $props();
+	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 </script>
 
 <SkipToContent />

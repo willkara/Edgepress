@@ -21,6 +21,11 @@ id = "5cccf14b5ee24a188aa6ea272a69bf1f"
 [ai]
 binding = "AI"
 
+# Cloudflare Vectorize index
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "edgepress-vector-index"
+
 # Environment variables
 [vars]
 CF_ACCOUNT_ID = "669daa4955e836aa1b5765242447e624"

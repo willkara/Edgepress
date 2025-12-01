@@ -12,16 +12,29 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 	}
 
 	try {
-		const { post_id, display_order, custom_description } = await request.json();
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-		if (!post_id) {
+		const { post_id, display_order, custom_description } = parsedBody as Record<string, unknown>;
+
+		if (typeof post_id !== 'string' || post_id.trim().length === 0) {
 			throw error(400, 'post_id is required');
+		}
+
+		if (display_order !== undefined && typeof display_order !== 'number') {
+			throw error(400, 'display_order must be a number');
+		}
+
+		if (custom_description !== undefined && typeof custom_description !== 'string') {
+			throw error(400, 'custom_description must be a string');
 		}
 
 		await addFeaturedProject(
 			platform.env.DB,
 			post_id,
-			display_order ?? 0,
+			typeof display_order === 'number' ? display_order : 0,
 			custom_description
 		);
 
@@ -30,8 +43,8 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 		const newFeatured = featured.find((f) => f.post_id === post_id);
 
 		return json(newFeatured);
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to add featured project:', err);
-		throw error(500, err.message || 'Failed to add featured project');
+		throw error(500, err instanceof Error ? err.message : 'Failed to add featured project');
 	}
 };

@@ -15,14 +15,18 @@
 	const post = data.post;
 
 	// Calculate word count from markdown content
-	const wordCount = post?.content_md ? post.content_md.split(/\s+/).filter(word => word.length > 0).length : 0;
+	const wordCount = post?.content_md
+		? post.content_md.split(/\s+/).filter((word) => word.length > 0).length
+		: 0;
 
 	// Build breadcrumbs
-	const breadcrumbItems = post ? [
-		{ label: 'Home', href: '/' },
-		{ label: 'Blog', href: '/blog' },
-		{ label: `Preview: ${post.title}` }
-	] : [];
+	const breadcrumbItems = post
+		? [
+				{ label: 'Home', href: '/' },
+				{ label: 'Blog', href: '/blog' },
+				{ label: `Preview: ${post.title}` }
+			]
+		: [];
 
 	let toc = $state<TocItem[]>([]);
 	let sanitizedContent = $state('');
@@ -36,20 +40,23 @@
 			toc = extractedToc;
 			sanitizedContent = DOMPurify.sanitize(modifiedHtml);
 
-			observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-				entries.forEach(entry => {
-					if (entry.isIntersecting) {
-						activeHeadingId = entry.target.id;
-					}
-				});
-			}, {
-				rootMargin: '-50% 0px -50% 0px',
-				threshold: 0
-			});
+			observer = new IntersectionObserver(
+				(entries: IntersectionObserverEntry[]) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							activeHeadingId = entry.target.id;
+						}
+					});
+				},
+				{
+					rootMargin: '-50% 0px -50% 0px',
+					threshold: 0
+				}
+			);
 
 			const articleBody = document.querySelector('.article-body');
 			if (articleBody) {
-				articleBody.querySelectorAll('h2, h3').forEach(heading => {
+				articleBody.querySelectorAll('h2, h3').forEach((heading) => {
 					observer?.observe(heading);
 				});
 			}
@@ -68,7 +75,7 @@
 </svelte:head>
 
 {#if post}
-	<ReadingProgressBar postSlug={post.slug} wordCount={wordCount} />
+	<ReadingProgressBar postSlug={post.slug} {wordCount} />
 
 	<!-- Preview Banner -->
 	<div class="preview-banner">
@@ -152,20 +159,23 @@
 			<div class="preview-notice">
 				<AlertCircle class="w-5 h-5" />
 				<p>
-					This is a preview. The post is not publicly visible and changes may occur before publication.
+					This is a preview. The post is not publicly visible and changes may occur before
+					publication.
 				</p>
 			</div>
 		</div>
 
 		<!-- Table of Contents Sidebar -->
 		{#if toc.length > 0}
-			<TableOfContents toc={toc} activeHeadingId={activeHeadingId} />
+			<TableOfContents {toc} {activeHeadingId} />
 		{/if}
 	</div>
 
-	<MobileArticleNav title={post.title} toc={toc} activeHeadingId={activeHeadingId} />
+	<MobileArticleNav title={post.title} {toc} {activeHeadingId} />
 {:else}
-	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8 text-center text-lg text-muted-foreground">
+	<div
+		class="relative mx-auto flex max-w-screen-xl px-4 py-8 text-center text-lg text-muted-foreground"
+	>
 		<p>Preview not found. Please check the URL.</p>
 	</div>
 {/if}

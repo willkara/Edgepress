@@ -47,9 +47,7 @@
 		</div>
 		<div>
 			<h3 class="newsletter-title">Subscribe to the Newsletter</h3>
-			<p class="newsletter-subtitle">
-				Get the latest posts delivered right to your inbox
-			</p>
+			<p class="newsletter-subtitle">Get the latest posts delivered right to your inbox</p>
 		</div>
 	</div>
 
@@ -83,23 +81,21 @@
 
 		{#if message}
 			<div class="message" class:success={status === 'success'} class:error={status === 'error'}>
-                                {#if status === 'success'}
-                                        <span class="message-icon" aria-hidden="true">
-                                                <CheckCircle />
-                                        </span>
-                                {:else if status === 'error'}
-                                        <span class="message-icon" aria-hidden="true">
-                                                <AlertCircle />
-                                        </span>
-                                {/if}
+				{#if status === 'success'}
+					<span class="message-icon" aria-hidden="true">
+						<CheckCircle />
+					</span>
+				{:else if status === 'error'}
+					<span class="message-icon" aria-hidden="true">
+						<AlertCircle />
+					</span>
+				{/if}
 				<span>{message}</span>
 			</div>
 		{/if}
 	</form>
 
-	<p class="newsletter-privacy">
-		We respect your privacy. Unsubscribe at any time.
-	</p>
+	<p class="newsletter-privacy">We respect your privacy. Unsubscribe at any time.</p>
 </aside>
 
 <style>
@@ -218,7 +214,9 @@
 	}
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.message {
@@ -243,17 +241,17 @@
 		color: rgb(248, 113, 113);
 	}
 
-        .message-icon {
-                display: inline-flex;
-                width: 1.125rem;
-                height: 1.125rem;
-                flex-shrink: 0;
-        }
+	.message-icon {
+		display: inline-flex;
+		width: 1.125rem;
+		height: 1.125rem;
+		flex-shrink: 0;
+	}
 
-        .message-icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.message-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	.newsletter-privacy {
 		font-size: 0.8125rem;

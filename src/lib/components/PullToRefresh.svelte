@@ -59,7 +59,7 @@
 				await invalidateAll();
 
 				// Minimum display time for refresh indicator
-				await new Promise(resolve => setTimeout(resolve, 800));
+				await new Promise((resolve) => setTimeout(resolve, 800));
 			} catch (error) {
 				console.error('Failed to refresh:', error);
 			} finally {
@@ -95,7 +95,10 @@
 {#if pullDistance > 0 || isRefreshing}
 	<div
 		class="pull-to-refresh-indicator"
-		style="transform: translateY({pullDistance}px); opacity: {Math.min(pullDistance / PULL_THRESHOLD, 1)}"
+		style="transform: translateY({pullDistance}px); opacity: {Math.min(
+			pullDistance / PULL_THRESHOLD,
+			1
+		)}"
 	>
 		<div class="refresh-icon" class:spinning={isRefreshing}>
 			<RefreshCw class="w-5 h-5" />

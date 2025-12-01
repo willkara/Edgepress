@@ -21,8 +21,8 @@ export const POST: RequestHandler = async ({ params, platform, locals }) => {
 		await toggleFeaturedStatus(platform.env.DB, id);
 
 		return json({ success: true });
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to toggle featured status:', err);
-		throw error(500, err.message || 'Failed to toggle featured status');
+		throw error(500, err instanceof Error ? err.message : 'Failed to toggle featured status');
 	}
 };

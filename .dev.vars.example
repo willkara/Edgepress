@@ -13,3 +13,9 @@ CF_ACCOUNT_ID=your-cloudflare-account-id
 
 # Cloudflare Images Delivery Hash (found in Cloudflare Dashboard > Images)
 CF_IMAGES_HASH=your-images-delivery-hash
+
+# Resend API Key for sending emails
+RESEND_API_KEY=re_123456789
+
+# Contact Email Address (where contact form submissions are sent)
+CONTACT_EMAIL=your-email@example.com

@@ -18,18 +18,19 @@ export const load: PageServerLoad = async ({ platform, setHeaders }) => {
 	try {
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-                const [latestPostsRaw, featuredProjectsRaw, categoriesRaw, popularPostsRaw] =
-                        await Promise.all([
-                                getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
-                                getFeaturedProjects(platform.env.DB, false),
-                                getAllCategories(platform.env.DB, true),
-                                getPopularPosts(platform.env.DB, 5)
-                        ]);
+		const [latestPostsRaw, featuredProjectsRaw, categoriesRaw, popularPostsRaw] = await Promise.all(
+			[
+				getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
+				getFeaturedProjects(platform.env.DB, false),
+				getAllCategories(platform.env.DB, true),
+				getPopularPosts(platform.env.DB, 5)
+			]
+		);
 
-                const latestPosts = projectPostSchema.array().parse(latestPostsRaw);
-                const featuredProjects = featuredProjectSchema.array().parse(featuredProjectsRaw);
-                const categories = categorySchema.array().parse(categoriesRaw);
-                const popularPosts = projectPostSchema.array().parse(popularPostsRaw);
+		const latestPosts = projectPostSchema.array().parse(latestPostsRaw);
+		const featuredProjects = featuredProjectSchema.array().parse(featuredProjectsRaw);
+		const categories = categorySchema.array().parse(categoriesRaw);
+		const popularPosts = projectPostSchema.array().parse(popularPostsRaw);
 
 		return {
 			latestPosts,
