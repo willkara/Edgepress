@@ -31,7 +31,9 @@
 		aria-label="Scroll to top"
 		title="Scroll to top"
 	>
-		<ArrowUp class="icon" />
+		<span class="icon" aria-hidden="true">
+			<ArrowUp />
+		</span>
 	</button>
 {/if}
 
@@ -71,8 +73,14 @@
 	}
 
 	.icon {
+		display: inline-flex;
 		width: 1.25rem;
 		height: 1.25rem;
+	}
+
+	.icon :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	@keyframes fadeIn {

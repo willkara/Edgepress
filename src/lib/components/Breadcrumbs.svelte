@@ -22,6 +22,7 @@
 </script>
 
 <svelte:head>
+	<!-- prettier-ignore -->
 	<script type="application/ld+json">
 		{JSON.stringify(schemaData)}
 	</script>
@@ -41,7 +42,9 @@
 					</span>
 				{/if}
 				{#if index < items.length - 1}
-					<ChevronRight class="breadcrumb-separator" aria-hidden="true" />
+					<span class="breadcrumb-separator" aria-hidden="true">
+						<ChevronRight />
+					</span>
 				{/if}
 			</li>
 		{/each}
@@ -94,10 +97,16 @@
 	}
 
 	.breadcrumb-separator {
+		display: inline-flex;
 		width: 1rem;
 		height: 1rem;
 		color: var(--text-subtle);
 		flex-shrink: 0;
+	}
+
+	.breadcrumb-separator :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	@media (max-width: 640px) {

@@ -39,29 +39,32 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 	}
 
 	try {
-		const body = await request.json();
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-		// Validate required fields
-		if (!body.name || typeof body.name !== 'string') {
+		const { name, slug } = parsedBody as Record<string, unknown>;
+
+		if (typeof name !== 'string') {
 			throw error(400, 'Category name is required');
 		}
 
-		if (body.name.trim().length === 0) {
+		if (name.trim().length === 0) {
 			throw error(400, 'Category name cannot be empty');
 		}
 
-		if (body.name.length > 100) {
+		if (name.length > 100) {
 			throw error(400, 'Category name is too long (max 100 characters)');
 		}
 
-		// Validate slug if provided
-		if (body.slug !== undefined && typeof body.slug !== 'string') {
+		if (slug !== undefined && typeof slug !== 'string') {
 			throw error(400, 'Category slug must be a string');
 		}
 
 		const category = await createCategory(platform.env.DB, {
-			name: body.name.trim(),
-			slug: body.slug?.trim() ?? undefined
+			name: name.trim(),
+			slug: slug?.trim() ?? undefined
 		});
 
 		// Invalidate categories cache

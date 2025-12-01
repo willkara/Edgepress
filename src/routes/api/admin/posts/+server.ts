@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { listPosts, createPost } from '$lib/server/db/admin-posts';
 import { syncPostMedia } from '$lib/server/db/media';
 import { invalidateCache, getCacheKey } from '$lib/server/cache/cache';
+import { upsertPostVector } from '$lib/server/vectorize/post-index';
 
 /**
  * GET /api/admin/posts
@@ -91,6 +92,24 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 			// Default list uses limit 20
 			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
 			await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
+		}
+
+		// Best-effort vector index update for semantic search.
+		if (platform.env.AI && platform.env.VECTORIZE) {
+			try {
+				await upsertPostVector(platform.env.AI, platform.env.VECTORIZE, {
+					id: post.id,
+					title: post.title,
+					slug: post.slug,
+					contentMd: body.content_md,
+					excerpt: body.excerpt,
+					status: post.status,
+					publishedAt: post.published_at,
+					categoryId: post.category_id
+				});
+			} catch (vectorError) {
+				console.error('Failed to index post in Vectorize:', vectorError);
+			}
 		}
 
 		return json(post, { status: 201 });

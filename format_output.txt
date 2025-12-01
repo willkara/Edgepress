@@ -1,0 +1,163 @@
+
+> edgepress@0.0.1 format:check
+> prettier --check .
+
+Checking formatting...
+[warn] AI_VECTORIZE.md
+[warn] ARCHITECTURE.md
+[warn] DESIGN_PHILOSOPHY.md
+[warn] package.json
+[warn] src/app.css
+[warn] src/app.d.ts
+[warn] src/hooks.server.ts
+[warn] src/lib/components/ArticleSkeleton.svelte
+SyntaxError: Unexpected token, expected "," (2:8)
+  1 |
+> 2 | 		{JSON.stringify(schemaData)}
+    | 		     ^
+  3 |
+    at Cr (file:///app/node_modules/prettier/plugins/babel.mjs:13:16070)
+    at Er (file:///app/node_modules/prettier/plugins/babel.mjs:13:16505)
+    at Oe (file:///app/node_modules/prettier/plugins/babel.mjs:15:4618)
+    at Object.parse (file:///app/node_modules/prettier/plugins/babel.mjs:15:5940)
+    at parse5 (file:///app/node_modules/prettier/index.mjs:17632:24)
+    at async textToDoc (file:///app/node_modules/prettier/index.mjs:17753:7) {
+  loc: { start: { line: 2, column: 8 } },
+  cause: SyntaxError: Unexpected token, expected "," (2:7)
+      at r (file:///app/node_modules/prettier/plugins/babel.mjs:3:11599)
+      at Ce.raise (file:///app/node_modules/prettier/plugins/babel.mjs:7:16940)
+      at Ce.unexpected (file:///app/node_modules/prettier/plugins/babel.mjs:7:17299)
+      at Ce.expect (file:///app/node_modules/prettier/plugins/babel.mjs:7:22354)
+      at Ce.parseObjectLike (file:///app/node_modules/prettier/plugins/babel.mjs:8:758)
+      at Ce.parseExprAtom (file:///app/node_modules/prettier/plugins/babel.mjs:7:117131)
+      at Ce.parseExprSubscripts (file:///app/node_modules/prettier/plugins/babel.mjs:7:112193)
+      at Ce.parseUpdate (file:///app/node_modules/prettier/plugins/babel.mjs:7:111826)
+      at Ce.parseMaybeUnary (file:///app/node_modules/prettier/plugins/babel.mjs:7:111452)
+      at Ce.parseMaybeUnaryOrPrivate (file:///app/node_modules/prettier/plugins/babel.mjs:7:108865) {
+    code: 'BABEL_PARSER_SYNTAX_ERROR',
+    reasonCode: 'UnexpectedToken',
+    loc: B { line: 2, column: 7, index: 8 },
+    pos: 8,
+    syntaxPlugin: undefined
+  },
+  codeFrame: '  1 |\n> 2 | \t\t{JSON.stringify(schemaData)}\n    | \t\t     ^\n  3 | \t'
+}
+[warn] src/lib/components/Breadcrumbs.svelte
+[warn] src/lib/components/CloudflareImage.svelte
+[warn] src/lib/components/ContinueReadingBanner.svelte
+[warn] src/lib/components/edra/extensions/InlineMathReplacer.ts
+[warn] src/lib/components/edra/utils.ts
+[warn] src/lib/components/MobileArticleNav.svelte
+[warn] src/lib/components/MobileBottomNav.svelte
+[warn] src/lib/components/MobilePublicNav.svelte
+[warn] src/lib/components/NewsletterSignup.svelte
+[warn] src/lib/components/PopularPosts.svelte
+[warn] src/lib/components/PostCardSkeleton.svelte
+[warn] src/lib/components/PostReactions.svelte
+[warn] src/lib/components/PostSeriesNav.svelte
+[warn] src/lib/components/ProjectCard.svelte
+[warn] src/lib/components/PublicSidebar.svelte
+[warn] src/lib/components/PullToRefresh.svelte
+[warn] src/lib/components/RelatedPosts.svelte
+[warn] src/lib/components/ScrollToTop.svelte
+[warn] src/lib/components/SkeletonCard.svelte
+[warn] src/lib/components/SkeletonImage.svelte
+[warn] src/lib/components/SkipToContent.svelte
+[warn] src/lib/components/SpotlightCard.svelte
+[warn] src/lib/components/TableOfContents.svelte
+[warn] src/lib/components/ui/alert/alert-description.svelte
+[warn] src/lib/components/ui/alert/alert-title.svelte
+[warn] src/lib/components/ui/dialog/dialog-footer.svelte
+[warn] src/lib/components/ui/dialog/dialog-header.svelte
+[warn] src/lib/components/ui/drawer/drawer-close.svelte
+[warn] src/lib/components/ui/drawer/drawer-content.svelte
+[warn] src/lib/components/ui/drawer/drawer-description.svelte
+[warn] src/lib/components/ui/drawer/drawer-footer.svelte
+[warn] src/lib/components/ui/drawer/drawer-header.svelte
+[warn] src/lib/components/ui/drawer/drawer-nested.svelte
+[warn] src/lib/components/ui/drawer/drawer-overlay.svelte
+[warn] src/lib/components/ui/drawer/drawer-title.svelte
+[warn] src/lib/components/ui/drawer/drawer-trigger.svelte
+[warn] src/lib/components/ui/drawer/drawer.svelte
+[warn] src/lib/components/ui/drawer/index.ts
+[warn] src/lib/components/ui/dropdown-menu/dropdown-menu-label.svelte
+[warn] src/lib/components/ui/dropdown-menu/dropdown-menu-shortcut.svelte
+[warn] src/lib/components/ui/progress/index.ts
+[warn] src/lib/components/ui/progress/progress.svelte
+[warn] src/lib/components/ui/select/select-label.svelte
+[warn] src/lib/components/ui/sheet/index.ts
+[warn] src/lib/components/ui/sheet/sheet-close.svelte
+[warn] src/lib/components/ui/sheet/sheet-content.svelte
+[warn] src/lib/components/ui/sheet/sheet-description.svelte
+[warn] src/lib/components/ui/sheet/sheet-footer.svelte
+[warn] src/lib/components/ui/sheet/sheet-header.svelte
+[warn] src/lib/components/ui/sheet/sheet-overlay.svelte
+[warn] src/lib/components/ui/sheet/sheet-title.svelte
+[warn] src/lib/components/ui/sheet/sheet-trigger.svelte
+[warn] src/lib/components/ui/skeleton/index.ts
+[warn] src/lib/components/ui/skeleton/skeleton.svelte
+[warn] src/lib/components/ui/table/table-body.svelte
+[warn] src/lib/components/ui/table/table-caption.svelte
+[warn] src/lib/components/ui/table/table-cell.svelte
+[warn] src/lib/components/ui/table/table-footer.svelte
+[warn] src/lib/components/ui/table/table-head.svelte
+[warn] src/lib/components/ui/table/table-header.svelte
+[warn] src/lib/components/ui/table/table-row.svelte
+[warn] src/lib/components/ui/table/table.svelte
+[warn] src/lib/components/UserMenu.svelte
+[warn] src/lib/components/ViewCounter.svelte
+[warn] src/lib/search/client.ts
+[warn] src/lib/server/db/analytics.ts
+[warn] src/lib/server/db/featured-projects.ts
+[warn] src/lib/server/db/logger.ts
+[warn] src/lib/server/db/posts.ts
+[warn] src/lib/server/db/projects.ts
+[warn] src/lib/server/env.ts
+[warn] src/lib/server/vectorize/post-index.ts
+[warn] src/lib/types/posts.ts
+[warn] src/lib/types/projects.ts
+[warn] src/lib/types/search.ts
+[warn] src/lib/types/taxonomy.ts
+[warn] src/lib/utils/image-upload.ts
+[warn] src/routes/(admin)/+layout.svelte
+[warn] src/routes/(admin)/admin/injections/+page.svelte
+[warn] src/routes/(admin)/admin/posts/[id]/edit/+page.svelte
+[warn] src/routes/(admin)/admin/projects/+page.server.ts
+[warn] src/routes/(admin)/admin/projects/+page.svelte
+[warn] src/routes/(public)/+layout.svelte
+[warn] src/routes/(public)/+page.server.ts
+[warn] src/routes/(public)/+page.svelte
+[warn] src/routes/(public)/blog/[slug]/+page.server.ts
+[warn] src/routes/(public)/blog/[slug]/+page.svelte
+[warn] src/routes/(public)/blog/+page.server.ts
+[warn] src/routes/(public)/blog/+page.svelte
+[warn] src/routes/(public)/blog/category/[slug]/+page.server.ts
+[warn] src/routes/(public)/blog/category/[slug]/+page.svelte
+[warn] src/routes/(public)/blog/preview/[token]/+page.server.ts
+[warn] src/routes/(public)/blog/preview/[token]/+page.svelte
+[warn] src/routes/(public)/blog/tag/[slug]/+page.server.ts
+[warn] src/routes/(public)/blog/tag/[slug]/+page.svelte
+[warn] src/routes/(public)/projects/+page.server.ts
+[warn] src/routes/(public)/projects/+page.svelte
+[warn] src/routes/(public)/search/+page.svelte
+[warn] src/routes/+layout.svelte
+[warn] src/routes/api/admin/categories/[id]/+server.ts
+[warn] src/routes/api/admin/categories/+server.ts
+[warn] src/routes/api/admin/injections/[id]/+server.ts
+[warn] src/routes/api/admin/injections/+server.ts
+[warn] src/routes/api/admin/media/[id]/+server.ts
+[warn] src/routes/api/admin/posts/[id]/+server.ts
+[warn] src/routes/api/admin/posts/[id]/preview/+server.ts
+[warn] src/routes/api/admin/posts/[id]/tags/+server.ts
+[warn] src/routes/api/admin/posts/+server.ts
+[warn] src/routes/api/admin/posts/summarize/+server.ts
+[warn] src/routes/api/admin/projects/featured/[id]/+server.ts
+[warn] src/routes/api/admin/projects/featured/[id]/toggle/+server.ts
+[warn] src/routes/api/admin/projects/featured/+server.ts
+[warn] src/routes/api/admin/projects/reorder/+server.ts
+[warn] src/routes/api/admin/projects/settings/+server.ts
+[warn] src/routes/api/newsletter/subscribe/+server.ts
+[warn] src/routes/api/reactions/[postId]/+server.ts
+[warn] src/routes/api/search/+server.ts
+[warn] src/routes/api/search/index/+server.ts
+[warn] Code style issues found in 126 files. Run Prettier with --write to fix.

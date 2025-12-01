@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
+import type { Ai, D1Database, KVNamespace, VectorizeIndex } from '@cloudflare/workers-types';
 
 type EnvKeys = Array<string>;
 
@@ -7,6 +7,8 @@ export interface RequiredEnv {
 	DB: D1Database;
 	CACHE: KVNamespace;
 	SESSIONS: KVNamespace;
+	AI?: Ai;
+	VECTORIZE?: VectorizeIndex;
 	JWT_SECRET: string;
 	// Add other bindings as needed
 }

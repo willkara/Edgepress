@@ -8,6 +8,12 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		throw error(401, 'Unauthorized');
 	}
 
+	const userId = locals.user?.id;
+
+	if (!userId) {
+		throw error(401, 'Unauthorized');
+	}
+
 	if (!platform?.env?.DB) {
 		throw error(500, 'Database not available');
 	}
@@ -20,19 +26,11 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		throw error(500, 'Cloudflare Images not configured');
 	}
 
-	try {
-		const formData = await request.formData();
-		const file = formData.get('file') as File;
-
-		if (!file) {
-			throw error(400, 'No file provided');
-		}
-
+	const uploadSingleFile = async (file: File, autoAltFromFilename: boolean, userId: string) => {
 		if (!file.type.startsWith('image/')) {
 			throw error(400, 'File must be an image');
 		}
 
-		// Upload to Cloudflare Images
 		const uploadFormData = new FormData();
 		uploadFormData.append('file', file);
 
@@ -64,22 +62,28 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		const width = cfResult.result.meta?.width ?? null;
 		const height = cfResult.result.meta?.height ?? null;
 
-		// Store in database
 		const mediaId = nanoid();
+
+		const altText = autoAltFromFilename
+			? file.name
+					.replace(/\.[^.]+$/, '')
+					.replace(/[-_]+/g, ' ')
+					.trim() || null
+			: null;
 
 		const media = await createMedia(platform.env.DB, {
 			id: mediaId,
 			cf_image_id: cfImageId,
 			filename: file.name,
-			uploaded_by: locals.user.id,
+			uploaded_by: userId,
 			width,
 			height,
 			file_size: file.size,
-			mime_type: file.type
+			mime_type: file.type,
+			alt_text: altText
 		});
 
-		// Return media info with Cloudflare Images URL
-		return json({
+		return {
 			mediaId: media.id,
 			imageId: cfImageId,
 			hash: platform.env.CF_IMAGES_HASH,
@@ -87,8 +91,37 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 			variants: cfVariants,
 			width,
 			height,
-			filename: file.name
-		});
+			filename: file.name,
+			altText
+		};
+	};
+
+	try {
+		const formData = await request.formData();
+		const files: File[] = [];
+
+		const formFiles = formData.getAll('files').filter((item): item is File => item instanceof File);
+		const singleFile = formData.get('file');
+		const autoAltFromFilename = formData.get('autoAltFromFilename') === 'true';
+
+		if (formFiles.length > 0) {
+			files.push(...formFiles);
+		} else if (singleFile instanceof File) {
+			files.push(singleFile);
+		}
+
+		if (files.length === 0) {
+			throw error(400, 'No file provided');
+		}
+
+		const uploads = [];
+
+		for (const file of files) {
+			const uploadResult = await uploadSingleFile(file, autoAltFromFilename, userId);
+			uploads.push(uploadResult);
+		}
+
+		return json({ uploads });
 	} catch (err) {
 		console.error('Upload error:', err);
 

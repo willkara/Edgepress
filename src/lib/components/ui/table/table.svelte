@@ -8,12 +8,7 @@
 		children?: Snippet;
 	}
 
-	let {
-		ref = $bindable(null),
-		class: className,
-		children,
-		...restProps
-	}: Props = $props();
+	let { ref = $bindable(null), class: className, children, ...restProps }: Props = $props();
 </script>
 
 <div data-slot="table-container" class="relative w-full overflow-x-auto">

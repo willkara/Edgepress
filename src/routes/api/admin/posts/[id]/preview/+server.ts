@@ -1,6 +1,5 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAuth } from '$lib/server/auth';
 
 /**
  * Generate a cryptographically secure random token
@@ -8,12 +7,11 @@ import { requireAuth } from '$lib/server/auth';
 function generateSecureToken(): string {
 	const array = new Uint8Array(32);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-export const POST: RequestHandler = async ({ params, platform, request }) => {
-	const session = await requireAuth(request, platform);
-	if (!session) {
+export const POST: RequestHandler = async ({ params, platform, locals }) => {
+	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
 

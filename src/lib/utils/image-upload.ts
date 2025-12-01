@@ -84,9 +84,7 @@ export async function uploadImageToCloudflare(
 				try {
 					const errorData = JSON.parse(xhr.responseText) as { message?: string };
 					const message =
-						errorData && typeof errorData.message === 'string'
-							? errorData.message
-							: undefined;
+						errorData && typeof errorData.message === 'string' ? errorData.message : undefined;
 					reject(new Error(message ?? `Upload failed: ${xhr.status}`));
 				} catch {
 					reject(new Error(`Upload failed with status ${xhr.status}`));

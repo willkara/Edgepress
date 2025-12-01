@@ -2,12 +2,13 @@
 	import '../app.css';
 	import { sanitizeInjection } from '$lib/utils/sanitize';
 	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
 	import BackgroundGlow from '$lib/components/BackgroundGlow.svelte';
 	import { navigating } from '$app/stores';
 	import PostCardSkeleton from '$lib/components/PostCardSkeleton.svelte';
 	import ArticleSkeleton from '$lib/components/ArticleSkeleton.svelte';
 
-	let { children, data }: { children: any; data: LayoutData } = $props();
+	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
 	const headInjections = $derived(data.injections?.head || []);
 	const bodyStartInjections = $derived(data.injections?.body_start || []);

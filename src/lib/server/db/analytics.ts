@@ -18,10 +18,7 @@ export async function incrementViewCount(db: D1Database, slug: string): Promise<
 	}
 
 	// 1. Increment total view count
-	await db
-		.prepare('UPDATE posts SET view_count = view_count + 1 WHERE id = ?')
-		.bind(post.id)
-		.run();
+	await db.prepare('UPDATE posts SET view_count = view_count + 1 WHERE id = ?').bind(post.id).run();
 
 	// 2. Upsert daily view count
 	// SQLite ON CONFLICT clause handles the "create or increment" logic
@@ -47,6 +44,6 @@ export async function getViewCount(db: D1Database, slug: string): Promise<number
 		.prepare('SELECT view_count FROM posts WHERE slug = ?')
 		.bind(slug)
 		.first<{ view_count: number }>();
-	
+
 	return result?.view_count || 0;
 }

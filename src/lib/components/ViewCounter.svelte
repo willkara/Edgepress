@@ -4,9 +4,9 @@
 
 	let { initialViews, slug }: { initialViews: number; slug: string } = $props();
 
-let views = $state(initialViews);
-// Keep a local flag to avoid double-counting in this session; not used in template
-let _hasViewed = false;
+	let views = $state(initialViews);
+	// Keep a local flag to avoid double-counting in this session; not used in template
+	let _hasViewed = false;
 
 	onMount(async () => {
 		// Simple session storage check to prevent double counting on refresh
@@ -37,5 +37,9 @@ let _hasViewed = false;
 
 <div class="flex items-center gap-1.5 text-sm text-muted-foreground" title="{views} views">
 	<Eye class="h-4 w-4" />
-	<span>{new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(views)}</span>
+	<span
+		>{new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(
+			views
+		)}</span
+	>
 </div>

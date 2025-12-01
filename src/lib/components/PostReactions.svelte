@@ -117,7 +117,9 @@
 			disabled={isLoading}
 			aria-label={userReactions.has('like') ? 'Unlike post' : 'Like post'}
 		>
-			<ThumbsUp class="reaction-icon" />
+			<span class="reaction-icon">
+				<ThumbsUp />
+			</span>
 			<span class="reaction-count">{likes}</span>
 			<span class="reaction-label">Like</span>
 		</button>
@@ -129,7 +131,9 @@
 			disabled={isLoading}
 			aria-label={userReactions.has('heart') ? 'Remove heart' : 'Heart post'}
 		>
-			<Heart class="reaction-icon" />
+			<span class="reaction-icon">
+				<Heart />
+			</span>
 			<span class="reaction-count">{hearts}</span>
 			<span class="reaction-label">Love</span>
 		</button>
@@ -141,7 +145,9 @@
 			disabled={isLoading}
 			aria-label={userReactions.has('bookmark') ? 'Remove bookmark' : 'Bookmark post'}
 		>
-			<Bookmark class="reaction-icon" />
+			<span class="reaction-icon">
+				<Bookmark />
+			</span>
 			<span class="reaction-count">{bookmarks}</span>
 			<span class="reaction-label">Save</span>
 		</button>
@@ -214,8 +220,16 @@
 	}
 
 	.reaction-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		width: 1.5rem;
 		height: 1.5rem;
+	}
+
+	.reaction-icon :global(svg) {
+		width: 100%;
+		height: 100%;
 		transition: all 200ms;
 	}
 

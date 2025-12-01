@@ -1,5 +1,6 @@
 import { getPostBySlugCached, getPostTags, getRelatedPosts } from '$lib/server/db/posts';
 import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
+import { postSchema, postTagSchema } from '$lib/types/posts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -14,7 +15,8 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 	}
 
 	try {
-		const post = await getPostBySlugCached(platform.env.DB, platform.env.CACHE, params.slug);
+		const postRaw = await getPostBySlugCached(platform.env.DB, platform.env.CACHE, params.slug);
+		const post = postRaw ? postSchema.parse(postRaw) : null;
 
 		if (!post) {
 			throw error(404, 'Post not found');
@@ -23,10 +25,13 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 		// Set cache headers for public blog post
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		const [tags, relatedPosts] = await Promise.all([
+		const [tagsRaw, relatedPostsRaw] = await Promise.all([
 			getPostTags(platform.env.DB, post.id),
 			getRelatedPosts(platform.env.DB, post.id, 3)
 		]);
+
+		const tags = postTagSchema.array().parse(tagsRaw);
+		const relatedPosts = postSchema.array().parse(relatedPostsRaw);
 
 		return {
 			post,

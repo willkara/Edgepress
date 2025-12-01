@@ -20,19 +20,31 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 
 	try {
 		const ai = platform?.env.AI;
-		if (!ai) {
+		if (!ai || typeof ai !== 'object' || typeof (ai as { run?: unknown }).run !== 'function') {
 			throw error(500, 'AI service not available');
 		}
 
 		// Use Cloudflare's BART model for summarization
 		// This model is optimized for generating concise summaries
-		const response = await ai.run('@cf/facebook/bart-large-cnn', {
+		const aiClient = ai as {
+			run: (
+				model: string,
+				options: { input_text: string; max_length?: number }
+			) => Promise<unknown>;
+		};
+		const response = await aiClient.run('@cf/facebook/bart-large-cnn', {
 			input_text: trimmedContent,
 			max_length: 150 // Maximum summary length in tokens
 		});
 
-		// Type assertion for the response structure
-		const result = response as { summary: string };
+		if (!response || typeof response !== 'object') {
+			throw error(500, 'Invalid summary response');
+		}
+
+		const result = response as { summary?: unknown };
+		if (typeof result.summary !== 'string') {
+			throw error(500, 'Invalid summary response');
+		}
 
 		return json({
 			summary: result.summary
