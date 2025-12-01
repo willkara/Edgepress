@@ -1,14 +1,14 @@
 import {
-        searchIndexItemSchema,
-        type SearchIndexItem,
-        searchResultSchema,
-        type SearchResult
+	searchIndexItemSchema,
+	type SearchIndexItem,
+	searchResultSchema,
+	type SearchResult
 } from '$lib/types/search';
 
 /** Returns a human readable message for an unknown error. */
 function getErrorMessage(error: unknown): string {
-        if (error instanceof Error) return error.message;
-        return String(error);
+	if (error instanceof Error) {return error.message;}
+	return String(error);
 }
 
 const searchIndexArraySchema = searchIndexItemSchema.array();
@@ -28,14 +28,14 @@ export async function fetchSearchIndex(): Promise<SearchIndexItem[]> {
 				throw new Error(`Failed to load search index (${res.status})`);
 			}
 			const raw = (await res.json()) as unknown;
-                        if (raw && typeof raw === 'object' && 'items' in raw) {
-                                const maybeItems = (raw as { items?: unknown }).items;
-                                const parsed = searchIndexArraySchema.safeParse(maybeItems);
-                                if (parsed.success) {
-                                        return parsed.data;
-                                }
-                        }
-                        return [];
+			if (raw && typeof raw === 'object' && 'items' in raw) {
+				const maybeItems = (raw as { items?: unknown }).items;
+				const parsed = searchIndexArraySchema.safeParse(maybeItems);
+				if (parsed.success) {
+					return parsed.data;
+				}
+			}
+			return [];
 		})
 		.catch((error) => {
 			console.error('Failed to fetch search index', getErrorMessage(error));
@@ -49,11 +49,7 @@ export async function fetchSearchIndex(): Promise<SearchIndexItem[]> {
 	return cachedIndex;
 }
 
-export function localSearch(
-	query: string,
-	items: SearchIndexItem[],
-	limit = 20
-): SearchResult[] {
+export function localSearch(query: string, items: SearchIndexItem[], limit = 20): SearchResult[] {
 	const tokens = query
 		.trim()
 		.toLowerCase()
@@ -113,14 +109,14 @@ export async function remoteSearch(query: string, limit = 20): Promise<SearchRes
 			throw new Error(`Remote search failed (${res.status})`);
 		}
 		const raw = (await res.json()) as unknown;
-                if (raw && typeof raw === 'object' && 'results' in raw) {
-                        const maybeResults = (raw as { results?: unknown }).results;
-                        const parsed = searchResultsArraySchema.safeParse(maybeResults);
-                        if (parsed.success) {
-                                return parsed.data;
-                        }
-                }
-                return [];
+		if (raw && typeof raw === 'object' && 'results' in raw) {
+			const maybeResults = (raw as { results?: unknown }).results;
+			const parsed = searchResultsArraySchema.safeParse(maybeResults);
+			if (parsed.success) {
+				return parsed.data;
+			}
+		}
+		return [];
 	} catch (error) {
 		console.error('Remote search error', getErrorMessage(error));
 		return [];

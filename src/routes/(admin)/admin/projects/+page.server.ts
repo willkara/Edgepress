@@ -13,20 +13,22 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const [featuredProjects, unfeaturedPosts, pageTitle, pageSubtitle, showAll] = await Promise.all([
-			getFeaturedProjects(platform.env.DB, true), // Include unfeatured to show all
-			getUnfeaturedProjectPosts(platform.env.DB),
-			getSetting(platform.env.DB, 'projects_page_title'),
-			getSetting(platform.env.DB, 'projects_page_subtitle'),
-			getSetting(platform.env.DB, 'projects_page_show_all')
-		]);
+		const [featuredProjects, unfeaturedPosts, pageTitle, pageSubtitle, showAll] = await Promise.all(
+			[
+				getFeaturedProjects(platform.env.DB, true), // Include unfeatured to show all
+				getUnfeaturedProjectPosts(platform.env.DB),
+				getSetting(platform.env.DB, 'projects_page_title'),
+				getSetting(platform.env.DB, 'projects_page_subtitle'),
+				getSetting(platform.env.DB, 'projects_page_show_all')
+			]
+		);
 
 		return {
 			featuredProjects,
 			unfeaturedPosts,
 			settings: {
 				pageTitle: pageTitle || 'My Projects',
-				pageSubtitle: pageSubtitle || 'Explore the things I\'ve built and the problems I\'ve solved.',
+				pageSubtitle: pageSubtitle || "Explore the things I've built and the problems I've solved.",
 				showAll: showAll === '1'
 			}
 		};

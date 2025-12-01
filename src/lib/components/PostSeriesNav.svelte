@@ -19,13 +19,13 @@
 </script>
 
 <aside class="post-series">
-        <div class="series-header">
-                <span class="series-icon" aria-hidden="true">
-                        <List />
-                </span>
-                <div>
-                        <div class="series-badge">Part {currentOrder} of {totalPosts}</div>
-                        <h4 class="series-title">
+	<div class="series-header">
+		<span class="series-icon" aria-hidden="true">
+			<List />
+		</span>
+		<div>
+			<div class="series-badge">Part {currentOrder} of {totalPosts}</div>
+			<h4 class="series-title">
 				<a href="/series/{seriesSlug}">{seriesName}</a>
 			</h4>
 		</div>
@@ -33,15 +33,15 @@
 
 	<div class="series-nav">
 		{#if previousPost}
-                        <a href="/blog/{previousPost.slug}" class="series-link prev">
-                                <span class="link-icon" aria-hidden="true">
-                                        <ChevronLeft />
-                                </span>
-                                <div class="link-content">
-                                        <span class="link-label">Previous</span>
-                                        <span class="link-title">{previousPost.title}</span>
-                                </div>
-                        </a>
+			<a href="/blog/{previousPost.slug}" class="series-link prev">
+				<span class="link-icon" aria-hidden="true">
+					<ChevronLeft />
+				</span>
+				<div class="link-content">
+					<span class="link-label">Previous</span>
+					<span class="link-title">{previousPost.title}</span>
+				</div>
+			</a>
 		{:else}
 			<div class="series-link disabled">
 				<span class="link-label">First in series</span>
@@ -49,15 +49,15 @@
 		{/if}
 
 		{#if nextPost}
-                        <a href="/blog/{nextPost.slug}" class="series-link next">
-                                <div class="link-content">
-                                        <span class="link-label">Next</span>
-                                        <span class="link-title">{nextPost.title}</span>
-                                </div>
-                                <span class="link-icon" aria-hidden="true">
-                                        <ChevronRight />
-                                </span>
-                        </a>
+			<a href="/blog/{nextPost.slug}" class="series-link next">
+				<div class="link-content">
+					<span class="link-label">Next</span>
+					<span class="link-title">{nextPost.title}</span>
+				</div>
+				<span class="link-icon" aria-hidden="true">
+					<ChevronRight />
+				</span>
+			</a>
 		{:else}
 			<div class="series-link disabled">
 				<span class="link-label">Last in series</span>
@@ -85,19 +85,19 @@
 		border-bottom: 1px solid var(--border-subtle);
 	}
 
-        .series-icon {
-                display: inline-flex;
-                width: 1.5rem;
-                height: 1.5rem;
-                color: var(--accent);
-                flex-shrink: 0;
-                margin-top: 0.125rem;
-        }
+	.series-icon {
+		display: inline-flex;
+		width: 1.5rem;
+		height: 1.5rem;
+		color: var(--accent);
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+	}
 
-        .series-icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.series-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	.series-badge {
 		font-size: 0.75rem;
@@ -163,18 +163,18 @@
 		justify-content: center;
 	}
 
-        .link-icon {
-                display: inline-flex;
-                width: 1.125rem;
-                height: 1.125rem;
-                color: var(--text-subtle);
-                flex-shrink: 0;
-        }
+	.link-icon {
+		display: inline-flex;
+		width: 1.125rem;
+		height: 1.125rem;
+		color: var(--text-subtle);
+		flex-shrink: 0;
+	}
 
-        .link-icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.link-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	.series-link:not(.disabled):hover .link-icon {
 		color: var(--accent);

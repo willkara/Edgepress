@@ -5,9 +5,9 @@ import type { PageServerLoad } from './$types';
 import { z } from 'zod';
 
 const previewPostSchema = postSchema.extend({
-        preview_token: z.string().nullable(),
-        preview_expires_at: z.string().nullable(),
-        status: z.string()
+	preview_token: z.string().nullable(),
+	preview_expires_at: z.string().nullable(),
+	status: z.string()
 });
 
 type PreviewPost = z.infer<typeof previewPostSchema>;
@@ -56,8 +56,8 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 	}
 
 	try {
-                const postRaw = await getPostByPreviewToken(platform.env.DB, params.token);
-                const post = postRaw ? previewPostSchema.parse(postRaw) : null;
+		const postRaw = await getPostByPreviewToken(platform.env.DB, params.token);
+		const post = postRaw ? previewPostSchema.parse(postRaw) : null;
 
 		if (!post) {
 			throw error(404, 'Preview not found');
@@ -73,8 +73,8 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 			}
 		}
 
-                const tagsRaw = await getPostTags(platform.env.DB, post.id);
-                const tags = postTagSchema.array().parse(tagsRaw);
+		const tagsRaw = await getPostTags(platform.env.DB, post.id);
+		const tags = postTagSchema.array().parse(tagsRaw);
 
 		return {
 			post,

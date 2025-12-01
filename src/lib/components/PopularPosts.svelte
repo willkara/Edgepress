@@ -7,12 +7,12 @@
 
 {#if posts.length > 0}
 	<aside class="popular-posts">
-                <div class="header">
-                        <span class="header-icon" aria-hidden="true">
-                                <TrendingUp />
-                        </span>
-                        <h3 class="header-title">Popular Posts</h3>
-                </div>
+		<div class="header">
+			<span class="header-icon" aria-hidden="true">
+				<TrendingUp />
+			</span>
+			<h3 class="header-title">Popular Posts</h3>
+		</div>
 
 		<ul class="posts-list">
 			{#each posts as post, index}
@@ -21,15 +21,15 @@
 						<div class="post-rank">{index + 1}</div>
 						<div class="post-content">
 							<h4 class="post-title">{post.title}</h4>
-                                                        <div class="post-meta">
-                                                                <span class="meta-icon" aria-hidden="true">
-                                                                        <Eye />
-                                                                </span>
-                                                                <span>{post.view_count.toLocaleString()} views</span>
-                                                                {#if post.reading_time}
-                                                                        <span>· {post.reading_time} min</span>
-                                                                {/if}
-                                                        </div>
+							<div class="post-meta">
+								<span class="meta-icon" aria-hidden="true">
+									<Eye />
+								</span>
+								<span>{post.view_count.toLocaleString()} views</span>
+								{#if post.reading_time}
+									<span>· {post.reading_time} min</span>
+								{/if}
+							</div>
 						</div>
 					</a>
 				</li>
@@ -55,17 +55,17 @@
 		border-bottom: 1px solid var(--border-subtle);
 	}
 
-        .header-icon {
-                display: inline-flex;
-                width: 1.25rem;
-                height: 1.25rem;
-                color: var(--accent);
-        }
+	.header-icon {
+		display: inline-flex;
+		width: 1.25rem;
+		height: 1.25rem;
+		color: var(--accent);
+	}
 
-        .header-icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.header-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	.header-title {
 		font-size: 1.125rem;
@@ -129,13 +129,13 @@
 		color: var(--text-main);
 		margin: 0 0 0.5rem;
 		line-height: 1.4;
-                display: -webkit-box;
-                line-clamp: 2;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                transition: color 150ms;
-        }
+		display: -webkit-box;
+		line-clamp: 2;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		transition: color 150ms;
+	}
 
 	.post-link:hover .post-title {
 		color: var(--accent);
@@ -149,16 +149,16 @@
 		color: var(--text-subtle);
 	}
 
-        .meta-icon {
-                display: inline-flex;
-                width: 0.875rem;
-                height: 0.875rem;
-        }
+	.meta-icon {
+		display: inline-flex;
+		width: 0.875rem;
+		height: 0.875rem;
+	}
 
-        .meta-icon :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.meta-icon :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	@media (max-width: 768px) {
 		.popular-posts {

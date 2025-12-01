@@ -50,7 +50,7 @@
 
 			// Calculate overall reading progress based on active heading position
 			if (toc.length > 0 && activeHeadingId) {
-				const activeIndex = toc.findIndex(item => item.id === activeHeadingId);
+				const activeIndex = toc.findIndex((item) => item.id === activeHeadingId);
 				if (activeIndex !== -1) {
 					scrollProgress = ((activeIndex + 1) / toc.length) * 100;
 				}
@@ -82,7 +82,7 @@
 				aria-expanded={!isCollapsed}
 				aria-label={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
 			>
-                                <ChevronDown class={`w-4 h-4 ${isCollapsed ? 'rotated' : ''}`} />
+				<ChevronDown class={`w-4 h-4 ${isCollapsed ? 'rotated' : ''}`} />
 			</button>
 		</div>
 
@@ -93,11 +93,11 @@
 		{/if}
 	</div>
 
-        {#if !isCollapsed}
-                <nav class="toc-nav">
-                        {#each toc as item, index (item.id)}
-                                <a
-                                        href={`#${item.id}`}
+	{#if !isCollapsed}
+		<nav class="toc-nav">
+			{#each toc as item, index (item.id)}
+				<a
+					href={`#${item.id}`}
 					class="toc-link"
 					class:level-2={item.level === 2}
 					class:level-3={item.level === 3}

@@ -14,17 +14,17 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	try {
 		// Get the category to verify it exists
-                const categoryRaw = await getCategoryBySlug(platform.env.DB, slug);
+		const categoryRaw = await getCategoryBySlug(platform.env.DB, slug);
 
-                if (!categoryRaw) {
-                        throw error(404, `Category "${slug}" not found`);
-                }
+		if (!categoryRaw) {
+			throw error(404, `Category "${slug}" not found`);
+		}
 
-                const category = categorySchema.parse(categoryRaw);
+		const category = categorySchema.parse(categoryRaw);
 
-                // Get all posts in this category
-                const postsRaw = await getPostsByCategory(platform.env.DB, slug, 100, 0);
-                const posts = postSchema.array().parse(postsRaw);
+		// Get all posts in this category
+		const postsRaw = await getPostsByCategory(platform.env.DB, slug, 100, 0);
+		const posts = postSchema.array().parse(postsRaw);
 
 		return {
 			category,

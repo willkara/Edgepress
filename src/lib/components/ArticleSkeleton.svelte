@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Skeleton } from "$lib/components/ui/skeleton";
+	import { Skeleton } from '$lib/components/ui/skeleton';
 </script>
 
 <div class="relative mx-auto flex max-w-screen-xl px-4 py-8">
@@ -29,10 +29,10 @@
 			<Skeleton class="h-4 w-[98%] animate-shimmer" />
 			<Skeleton class="h-4 w-[95%] animate-shimmer" />
 			<Skeleton class="h-4 w-[90%] animate-shimmer" />
-			
+
 			<!-- Mock Code Block or Image -->
 			<Skeleton class="h-48 w-full my-8 rounded-xl animate-shimmer opacity-70" />
-			
+
 			<Skeleton class="h-4 w-full animate-shimmer" />
 			<Skeleton class="h-4 w-[92%] animate-shimmer" />
 			<Skeleton class="h-4 w-[96%] animate-shimmer" />

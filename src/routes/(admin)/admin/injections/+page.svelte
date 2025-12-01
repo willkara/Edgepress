@@ -343,7 +343,7 @@
 							<input
 								type="checkbox"
 								checked={!!formData.is_active}
-								onchange={(e) => formData.is_active = e.currentTarget.checked ? 1 : 0}
+								onchange={(e) => (formData.is_active = e.currentTarget.checked ? 1 : 0)}
 								disabled={saving}
 							/>
 							<span>Active</span>

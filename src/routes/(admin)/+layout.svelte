@@ -1,9 +1,9 @@
 <script lang="ts">
-import AdminShell from '$lib/components/admin/AdminShell.svelte';
-import type { LayoutData } from './$types';
-import type { Snippet } from 'svelte';
+	import AdminShell from '$lib/components/admin/AdminShell.svelte';
+	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
 
-let { data, children }: { data: LayoutData; children: Snippet } = $props();
+	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 </script>
 
 {#if data.user}

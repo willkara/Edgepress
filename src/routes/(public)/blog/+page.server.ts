@@ -11,13 +11,8 @@ export const load: PageServerLoad = async ({ platform, setHeaders }) => {
 	}
 
 	try {
-                const postsRaw = await getPublishedPostsCached(
-                        platform.env.DB,
-                        platform.env.CACHE,
-                        20,
-                        0
-                );
-                const posts = postSchema.array().parse(postsRaw);
+		const postsRaw = await getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 20, 0);
+		const posts = postSchema.array().parse(postsRaw);
 
 		// Set cache headers for public blog list
 		setCacheHeaders(setHeaders, CachePresets.publicPage());

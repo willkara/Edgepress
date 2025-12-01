@@ -7,7 +7,13 @@ import type { UpdateInjectionInput } from '$lib/server/db/injections';
  * Validation helpers
  */
 type InjectionLocation = 'head' | 'body_start' | 'body_end' | 'post_before' | 'post_after';
-const VALID_LOCATIONS: InjectionLocation[] = ['head', 'body_start', 'body_end', 'post_before', 'post_after'];
+const VALID_LOCATIONS: InjectionLocation[] = [
+	'head',
+	'body_start',
+	'body_end',
+	'post_before',
+	'post_after'
+];
 const NAME_PATTERN = /^[a-zA-Z0-9-_]+$/;
 const MAX_CONTENT_LENGTH = 50000; // 50KB
 
@@ -80,7 +86,12 @@ export const GET: RequestHandler = async ({ params, platform, locals }): Promise
  * PUT /api/admin/injections/[id]
  * Update an existing injection point
  */
-export const PUT: RequestHandler = async ({ params, request, platform, locals }): Promise<Response> => {
+export const PUT: RequestHandler = async ({
+	params,
+	request,
+	platform,
+	locals
+}): Promise<Response> => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
@@ -89,34 +100,34 @@ export const PUT: RequestHandler = async ({ params, request, platform, locals })
 		throw error(500, 'Database not available');
 	}
 
-        try {
-                const parsedBody = (await request.json()) as unknown;
-                if (!parsedBody || typeof parsedBody !== 'object') {
-                        throw error(400, 'Invalid request body');
-                }
+	try {
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-                const { name, location, content, is_active } = parsedBody as Record<string, unknown>;
-                const input: UpdateInjectionInput = {};
+		const { name, location, content, is_active } = parsedBody as Record<string, unknown>;
+		const input: UpdateInjectionInput = {};
 
-                if (name !== undefined) {
-                        validateName(name);
-                        input.name = name.trim();
-                }
+		if (name !== undefined) {
+			validateName(name);
+			input.name = name.trim();
+		}
 
-                if (location !== undefined) {
-                        validateLocation(location);
-                        input.location = location;
-                }
+		if (location !== undefined) {
+			validateLocation(location);
+			input.location = location;
+		}
 
-                if (content !== undefined) {
-                        validateContent(content);
-                        input.content = content;
-                }
+		if (content !== undefined) {
+			validateContent(content);
+			input.content = content;
+		}
 
-                if (is_active !== undefined) {
-                        validateIsActive(is_active);
-                        input.is_active = is_active;
-                }
+		if (is_active !== undefined) {
+			validateIsActive(is_active);
+			input.is_active = is_active;
+		}
 
 		const injection = await updateInjection(platform.env.DB, params.id, input);
 		return json(injection);

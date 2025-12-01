@@ -377,11 +377,7 @@ export async function searchPostsCached(
  * Returns posts that share tags with the current post, or posts in the same category
  * Excludes the current post from results
  */
-export async function getRelatedPosts(
-	db: D1Database,
-	postId: string,
-	limit = 3
-): Promise<Post[]> {
+export async function getRelatedPosts(db: D1Database, postId: string, limit = 3): Promise<Post[]> {
 	const query = `
 		WITH current_post AS (
 			SELECT category_id

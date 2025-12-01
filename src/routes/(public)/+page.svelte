@@ -5,12 +5,12 @@
 	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
 	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
-        import { navigating } from '$app/stores';
+	import { navigating } from '$app/stores';
 
-        let { data }: { data: PageData } = $props();
+	let { data }: { data: PageData } = $props();
 
-        const navigatingStore = $derived(navigating);
-        const isLoading = $derived(Boolean(navigatingStore));
+	const navigatingStore = $derived(navigating);
+	const isLoading = $derived(Boolean(navigatingStore));
 </script>
 
 <svelte:head>
@@ -23,9 +23,9 @@
 	<div class="hero-content">
 		<h1 class="hero-title">Hi, I'm EdgePress 👋</h1>
 		<p class="hero-subtitle">
-			Welcome to my corner of the internet. I write about technology, build projects, and share
-			what I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's
-			edge network.
+			Welcome to my corner of the internet. I write about technology, build projects, and share what
+			I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's edge
+			network.
 		</p>
 		<div class="hero-actions">
 			<a href="/blog" class="button-primary">
@@ -143,23 +143,23 @@
 
 				<div class="categories-grid">
 					{#each data.categories as category}
-                                                <a href="/blog/category/{category.slug}" class="category-card">
-                                                        <div class="category-icon">
-                                                                <Folder class="w-6 h-6" />
-                                                        </div>
-                                                        <div class="category-info">
-                                                                <h3 class="category-name">{category.name}</h3>
-                                                                <p class="category-count">
-                                                                        {category.post_count || 0}
-                                                                        {category.post_count === 1 ? 'post' : 'posts'}
-                                                                </p>
-                                                        </div>
-                                                        <span class="category-arrow" aria-hidden="true">
-                                                                <ArrowRight />
-                                                        </span>
-                                                </a>
-                                        {/each}
-                                </div>
+						<a href="/blog/category/{category.slug}" class="category-card">
+							<div class="category-icon">
+								<Folder class="w-6 h-6" />
+							</div>
+							<div class="category-info">
+								<h3 class="category-name">{category.name}</h3>
+								<p class="category-count">
+									{category.post_count || 0}
+									{category.post_count === 1 ? 'post' : 'posts'}
+								</p>
+							</div>
+							<span class="category-arrow" aria-hidden="true">
+								<ArrowRight />
+							</span>
+						</a>
+					{/each}
+				</div>
 			</div>
 		{/if}
 
@@ -293,7 +293,9 @@
 		border: 1px solid var(--border-subtle);
 		overflow: hidden;
 		text-decoration: none;
-		transition: transform 150ms, box-shadow 150ms;
+		transition:
+			transform 150ms,
+			box-shadow 150ms;
 	}
 
 	.project-card:hover {
@@ -485,19 +487,19 @@
 		margin: 0;
 	}
 
-        .category-arrow {
-                display: inline-flex;
-                color: var(--text-subtle);
-                flex-shrink: 0;
-                transition: transform 150ms;
-                width: 1.25rem;
-                height: 1.25rem;
-        }
+	.category-arrow {
+		display: inline-flex;
+		color: var(--text-subtle);
+		flex-shrink: 0;
+		transition: transform 150ms;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
 
-        .category-arrow :global(svg) {
-                width: 100%;
-                height: 100%;
-        }
+	.category-arrow :global(svg) {
+		width: 100%;
+		height: 100%;
+	}
 
 	.category-card:hover .category-arrow {
 		transform: translateX(4px);
