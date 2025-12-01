@@ -22,10 +22,7 @@
 	{:else}
 		<div class="projects-grid">
 			{#each data.projects as project (project.id)}
-				<ProjectCard
-					{project}
-					imageHash={data.imageHash}
-				/>
+				<ProjectCard {project} imageHash={data.imageHash} />
 			{/each}
 		</div>
 	{/if}

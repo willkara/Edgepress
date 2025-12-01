@@ -18,16 +18,16 @@ export const load: PageServerLoad = async ({ platform, setHeaders }) => {
 	try {
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
-		const [latestPosts, allProjects, categories, popularPosts] = await Promise.all([
+		const [latestPosts, featuredProjects, categories, popularPosts] = await Promise.all([
 			getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
-			getAllProjects(platform.env.DB, true), // true = only featured
+			getAllProjects(platform.env.DB, true),
 			getAllCategories(platform.env.DB, true),
 			getPopularPosts(platform.env.DB, 5)
 		]);
 
 		return {
 			latestPosts,
-			featuredProjects: allProjects.slice(0, 3), // Only show 3 featured
+			featuredProjects: featuredProjects.slice(0, 3),
 			categories,
 			popularPosts,
 			imageHash: platform.env.CF_IMAGES_HASH

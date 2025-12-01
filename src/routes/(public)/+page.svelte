@@ -1,15 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
-	import PopularPosts from '$lib/components/PopularPosts.svelte';
-	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
-	import { formatDateRelative } from '$lib/utils/date';
-	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
-	import { navigating } from '$app/stores';
+import SpotlightCard from '$lib/components/SpotlightCard.svelte';
+import PopularPosts from '$lib/components/PopularPosts.svelte';
+import { formatDateRelative } from '$lib/utils/date';
+import { ArrowRight, Folder, BookOpen } from 'lucide-svelte';
 
-	let { data }: { data: PageData } = $props();
-
-	let isLoading = $derived(!!$navigating);
+let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
@@ -22,9 +18,9 @@
 	<div class="hero-content">
 		<h1 class="hero-title">Hi, I'm EdgePress 👋</h1>
 		<p class="hero-subtitle">
-			Welcome to my corner of the internet. I write about technology, build projects, and share
-			what I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's
-			edge network.
+			Welcome to my corner of the internet. I write about technology, build projects, and share what
+			I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's edge
+			network.
 		</p>
 		<div class="hero-actions">
 			<a href="/blog" class="button-primary">
@@ -154,7 +150,9 @@
 									{category.post_count === 1 ? 'post' : 'posts'}
 								</p>
 							</div>
-							<ArrowRight class="category-arrow w-5 h-5" />
+							<span class="category-arrow" aria-hidden="true">
+								<ArrowRight />
+							</span>
 						</a>
 					{/each}
 				</div>
@@ -291,7 +289,9 @@
 		border: 1px solid var(--border-subtle);
 		overflow: hidden;
 		text-decoration: none;
-		transition: transform 150ms, box-shadow 150ms;
+		transition:
+			transform 150ms,
+			box-shadow 150ms;
 	}
 
 	.project-card:hover {
@@ -484,9 +484,17 @@
 	}
 
 	.category-arrow {
+		display: inline-flex;
 		color: var(--text-subtle);
 		flex-shrink: 0;
 		transition: transform 150ms;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	.category-arrow :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.category-card:hover .category-arrow {

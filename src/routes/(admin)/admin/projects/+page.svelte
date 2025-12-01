@@ -39,7 +39,7 @@
 
 			if (!response.ok) throw new Error('Failed to save order');
 			toast.success('Order updated');
-		} catch (err) {
+		} catch (_err) {
 			toast.error('Failed to update order');
 		}
 	}
@@ -54,9 +54,9 @@
 
 			if (!response.ok) throw new Error('Failed to delete');
 
-			projects = projects.filter(p => p.id !== id);
+			projects = projects.filter((p) => p.id !== id);
 			toast.success('Project deleted');
-		} catch (err) {
+		} catch (_err) {
 			toast.error('Failed to delete project');
 		}
 	}

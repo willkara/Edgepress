@@ -4,16 +4,20 @@ import { getAllProjects } from '$lib/server/db/projects';
 import { getSetting } from '$lib/server/db/settings';
 
 export const load: PageServerLoad = async ({ platform }) => {
+	if (!platform?.env?.DB) {
+		throw error(500, 'Database not available');
+	}
+
 	try {
 		const [projects, pageTitle, pageSubtitle] = await Promise.all([
-			getAllProjects(platform!.env.DB),
-			getSetting(platform!.env.DB, 'projects_page_title'),
-			getSetting(platform!.env.DB, 'projects_page_subtitle')
+			getAllProjects(platform.env.DB),
+			getSetting(platform.env.DB, 'projects_page_title'),
+			getSetting(platform.env.DB, 'projects_page_subtitle')
 		]);
 
 		return {
 			projects,
-			imageHash: platform!.env.CF_IMAGES_HASH,
+			imageHash: platform.env.CF_IMAGES_HASH,
 			pageTitle: pageTitle || 'Projects',
 			pageSubtitle: pageSubtitle || 'A collection of my work and experiments.'
 		};
