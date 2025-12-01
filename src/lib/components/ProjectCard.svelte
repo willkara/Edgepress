@@ -1,162 +1,154 @@
 <script lang="ts">
-	import CloudflareImage from '$lib/components/CloudflareImage.svelte';
-	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
-	import { formatDateRelative } from '$lib/utils/date';
+	import { Github, Globe } from 'lucide-svelte';
+	import type { Project } from '$lib/server/db/projects';
 
-	export interface ProjectDisplay {
-		title: string;
-		slug: string;
-		summary: string | null;
-		tech_stack?: string[];
-		repo_url?: string | null;
-		live_url?: string | null;
-		hero_image_id?: string | null;
-		status?: string;
-		post_slug?: string;
-		post_title?: string;
-		post_published_at?: string;
-	}
-
-	let { project }: { project: ProjectDisplay } = $props();
+	let { project, imageHash } = $props<{ project: Project; imageHash: string }>();
 </script>
 
-<SpotlightCard>
-	<article class="project-card">
-		{#if project.hero_image_id}
-			<div class="project-image">
-				<CloudflareImage imageId={project.hero_image_id} alt={project.title} variant="public" />
-			</div>
-		{/if}
+<article class="project-card group">
+	{#if project.hero_image_id}
+		<div class="project-image-container">
+			<img
+				src="/cdn-cgi/imagedelivery/{imageHash}/{project.hero_image_id}/public"
+				alt={project.title}
+				class="project-image"
+				loading="lazy"
+			/>
+		</div>
+	{/if}
 
-		<div class="project-content">
-			<div class="project-header">
-				<div>
-					<h2 class="project-title">{project.title}</h2>
-					{#if project.summary}
-						<p class="project-summary">{project.summary}</p>
-					{/if}
-				</div>
-				{#if project.status}
-					<span class="status-badge">{project.status}</span>
-				{/if}
-			</div>
-
-			{#if project.tech_stack && project.tech_stack.length > 0}
-				<div class="tech-stack">
-					{#each project.tech_stack as tech}
-						<span class="chip">{tech}</span>
-					{/each}
-				</div>
-			{/if}
-
+	<div class="project-content">
+		<div class="project-header">
+			<h3 class="project-title">{project.title}</h3>
 			<div class="project-links">
 				{#if project.repo_url}
-					<a class="link" href={project.repo_url} target="_blank" rel="noreferrer">View repo</a>
+					<a
+						href={project.repo_url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="icon-link"
+						title="View Code"
+					>
+						<Github class="w-5 h-5" />
+					</a>
 				{/if}
-				{#if project.live_url}
-					<a class="link" href={project.live_url} target="_blank" rel="noreferrer">Live demo</a>
-				{/if}
-				{#if project.post_slug}
-					<a class="link" href={`/blog/${project.post_slug}`}>
-						{project.post_title ? `Read: ${project.post_title}` : 'Related post'}
+				{#if project.demo_url}
+					<a
+						href={project.demo_url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="icon-link"
+						title="View Demo"
+					>
+						<Globe class="w-5 h-5" />
 					</a>
 				{/if}
 			</div>
-
-			{#if project.post_published_at}
-				<p class="meta">Updated {formatDateRelative(project.post_published_at)}</p>
-			{/if}
 		</div>
-	</article>
-</SpotlightCard>
+
+		<p class="project-description">{project.description}</p>
+
+		{#if project.tech_stack && project.tech_stack.length > 0}
+			<div class="project-tech">
+				{#each project.tech_stack as tech}
+					<span class="tech-badge">{tech}</span>
+				{/each}
+			</div>
+		{/if}
+	</div>
+</article>
 
 <style>
 	.project-card {
+		background: var(--bg-elevated);
+		border: 1px solid var(--border-subtle);
+		border-radius: 1rem;
+		overflow: hidden;
+		transition: transform 0.2s, border-color 0.2s;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
 		height: 100%;
 	}
 
-	.project-image :global(img) {
+	.project-card:hover {
+		transform: translateY(-2px);
+		border-color: var(--accent);
+	}
+
+	.project-image-container {
+		aspect-ratio: 16/9;
+		overflow: hidden;
+		background: var(--bg-soft);
+	}
+
+	.project-image {
 		width: 100%;
-		height: 220px;
+		height: 100%;
 		object-fit: cover;
+		transition: transform 0.5s ease;
+	}
+
+	.project-card:hover .project-image {
+		transform: scale(1.05);
 	}
 
 	.project-content {
+		padding: 1.5rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
-		padding: 0.75rem 0.25rem 0.25rem 0.25rem;
+		flex-grow: 1;
+		gap: 1rem;
 	}
 
 	.project-header {
 		display: flex;
-		align-items: flex-start;
 		justify-content: space-between;
-		gap: 0.75rem;
+		align-items: flex-start;
+		gap: 1rem;
 	}
 
 	.project-title {
-		font-size: 1.2rem;
+		font-size: 1.25rem;
 		font-weight: 700;
-		margin: 0;
-	}
-
-	.project-summary {
-		margin-top: 0.35rem;
-		color: var(--text-muted);
-		line-height: 1.6;
-	}
-
-	.status-badge {
-		align-self: flex-start;
-		background: var(--bg-soft);
-		border: 1px solid var(--border-subtle);
-		border-radius: 999px;
-		padding: 0.25rem 0.75rem;
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: var(--text-subtle);
-		text-transform: capitalize;
-	}
-
-	.tech-stack {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.chip {
-		background: var(--tag-bg);
-		border: 1px solid rgba(148, 163, 184, 0.4);
-		color: var(--text-muted);
-		padding: 0.35rem 0.6rem;
-		border-radius: 999px;
-		font-size: 0.85rem;
+		color: var(--text-main);
+		line-height: 1.3;
 	}
 
 	.project-links {
 		display: flex;
-		flex-wrap: wrap;
 		gap: 0.75rem;
-		margin-top: 0.25rem;
+		flex-shrink: 0;
 	}
 
-	.link {
+	.icon-link {
+		color: var(--text-muted);
+		transition: color 0.2s;
+	}
+
+	.icon-link:hover {
 		color: var(--accent);
-		font-weight: 600;
-		text-decoration: none;
 	}
 
-	.link:hover {
-		text-decoration: underline;
+	.project-description {
+		font-size: 0.95rem;
+		color: var(--text-muted);
+		line-height: 1.6;
+		flex-grow: 1;
 	}
 
-	.meta {
-		color: var(--text-subtle);
-		font-size: 0.85rem;
-		margin: 0.25rem 0 0 0;
+	.project-tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: auto;
+	}
+
+	.tech-badge {
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--accent);
+		background: var(--accent-soft);
+		padding: 0.25rem 0.6rem;
+		border-radius: 999px;
 	}
 </style>

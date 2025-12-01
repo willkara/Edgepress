@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { batchUpdateDisplayOrders } from '$lib/server/db/featured-projects';
+import { reorderProjects } from '$lib/server/db/projects';
 
 export const POST: RequestHandler = async ({ request, platform, locals }) => {
 	if (!locals.user) {
@@ -17,31 +17,31 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 			throw error(400, 'Invalid request body');
 		}
 
-		const { orders } = parsedBody as Record<string, unknown>;
+		const { updates } = parsedBody as Record<string, unknown>;
 
-		if (!Array.isArray(orders)) {
-			throw error(400, 'orders must be an array');
+		if (!Array.isArray(updates)) {
+			throw error(400, 'updates must be an array');
 		}
 
-		const updates = orders.map((entry) => {
+		const validated = updates.map((entry) => {
 			if (!entry || typeof entry !== 'object') {
-				throw error(400, 'Each order must be an object');
+				throw error(400, 'Each update must be an object');
 			}
 
 			const { id, display_order } = entry as Record<string, unknown>;
 
 			if (typeof id !== 'string' || id.trim().length === 0) {
-				throw error(400, 'Each order must include a valid id');
+				throw error(400, 'Each update must include a valid id');
 			}
 
 			if (typeof display_order !== 'number') {
-				throw error(400, 'Each order must include a numeric display_order');
+				throw error(400, 'Each update must include a numeric display_order');
 			}
 
 			return { id, display_order };
 		});
 
-		await batchUpdateDisplayOrders(platform.env.DB, updates);
+		await reorderProjects(platform.env.DB, validated);
 
 		return json({ success: true });
 	} catch (err) {

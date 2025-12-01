@@ -1,25 +1,19 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import ProjectCard from '$lib/components/ProjectCard.svelte';
 
-	let { data }: { data: PageData } = $props();
-
-	const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: 'Projects' }];
+	let { data } = $props();
 </script>
 
 <svelte:head>
-	<title>{data.settings.pageTitle} - EdgePress</title>
-	<meta name="description" content={data.settings.pageSubtitle} />
+	<title>{data.pageTitle} | EdgePress</title>
+	<meta name="description" content={data.pageSubtitle} />
 </svelte:head>
 
 <div class="projects-page">
-	<Breadcrumbs items={breadcrumbItems} />
-
-	<section class="hero">
-		<h1 class="hero-title">{data.settings.pageTitle}</h1>
-		<p class="hero-subtitle">{data.settings.pageSubtitle}</p>
-	</section>
+	<header class="page-header">
+		<h1>{data.pageTitle}</h1>
+		<p class="subtitle">{data.pageSubtitle}</p>
+	</header>
 
 	{#if data.projects.length === 0}
 		<div class="empty-state">
@@ -28,7 +22,7 @@
 	{:else}
 		<div class="projects-grid">
 			{#each data.projects as project (project.id)}
-				<ProjectCard {project} />
+				<ProjectCard {project} imageHash={data.imageHash} />
 			{/each}
 		</div>
 	{/if}
@@ -38,52 +32,49 @@
 	.projects-page {
 		max-width: 1200px;
 		margin: 0 auto;
+		padding: 2rem 1rem;
 	}
 
-	.hero {
-		margin-bottom: 3rem;
+	.page-header {
+		text-align: center;
+		margin-bottom: 4rem;
 	}
 
-	.hero-title {
-		font-size: 2.5rem;
-		font-weight: 700;
-		margin-bottom: 0.75rem;
-		color: var(--text-main);
-		font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+	.page-header h1 {
+		font-size: 3rem;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		margin-bottom: 1rem;
+		background: linear-gradient(to right, #fff, #94a3b8);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
 	}
 
-	.hero-subtitle {
-		font-size: 1.125rem;
+	.subtitle {
+		font-size: 1.25rem;
 		color: var(--text-muted);
-		max-width: 42rem;
+		max-width: 600px;
+		margin: 0 auto;
 	}
 
 	.projects-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		gap: 1.5rem;
+		grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+		gap: 2rem;
 	}
 
 	.empty-state {
-		padding: 4rem 2rem;
 		text-align: center;
-		background: var(--bg-elevated);
-		border-radius: 0.9rem;
-		border: 1px solid var(--border-subtle);
-	}
-
-	.empty-state p {
-		font-size: 1rem;
+		padding: 4rem;
 		color: var(--text-muted);
+		background: var(--bg-elevated);
+		border-radius: 1rem;
+		border: 1px dashed var(--border-subtle);
 	}
 
 	@media (max-width: 768px) {
-		.hero-title {
-			font-size: 2rem;
-		}
-
-		.hero-subtitle {
-			font-size: 1rem;
+		.page-header h1 {
+			font-size: 2.5rem;
 		}
 
 		.projects-grid {

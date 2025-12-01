@@ -1,6 +1,6 @@
-import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
-import { getFeaturedProjects, getUnfeaturedProjectPosts } from '$lib/server/db/featured-projects';
+import type { PageServerLoad } from './$types';
+import { getAllProjects } from '$lib/server/db/projects';
 import { getSetting } from '$lib/server/db/settings';
 
 export const load: PageServerLoad = async ({ platform, locals }) => {
@@ -13,27 +13,23 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const [featuredProjects, unfeaturedPosts, pageTitle, pageSubtitle, showAll] = await Promise.all(
-			[
-				getFeaturedProjects(platform.env.DB, true), // Include unfeatured to show all
-				getUnfeaturedProjectPosts(platform.env.DB),
-				getSetting(platform.env.DB, 'projects_page_title'),
-				getSetting(platform.env.DB, 'projects_page_subtitle'),
-				getSetting(platform.env.DB, 'projects_page_show_all')
-			]
-		);
+		const [projects, pageTitle, pageSubtitle] = await Promise.all([
+			getAllProjects(platform.env.DB),
+			getSetting(platform.env.DB, 'projects_page_title'),
+			getSetting(platform.env.DB, 'projects_page_subtitle')
+		]);
 
 		return {
-			featuredProjects,
-			unfeaturedPosts,
+			projects,
+			imageHash: platform.env.CF_IMAGES_HASH,
 			settings: {
-				pageTitle: pageTitle || 'My Projects',
-				pageSubtitle: pageSubtitle || "Explore the things I've built and the problems I've solved.",
-				showAll: showAll === '1'
+				pageTitle: pageTitle ?? 'Projects',
+				pageSubtitle: pageSubtitle ?? 'A collection of my work and experiments.'
 			}
 		};
-	} catch (err: any) {
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : 'Failed to load projects';
 		console.error('Failed to load projects:', err);
-		throw error(500, 'Failed to load projects');
+		throw error(500, message);
 	}
 };
