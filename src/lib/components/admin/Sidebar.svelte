@@ -4,6 +4,7 @@
 	const navItems = [
 		{ href: '/admin', label: 'Dashboard', icon: '📊' },
 		{ href: '/admin/posts', label: 'Posts', icon: '📝' },
+		{ href: '/admin/pages', label: 'Pages', icon: '📄' },
 		{ href: '/admin/projects', label: 'Projects Page', icon: '🚀' },
 		{ href: '/admin/media', label: 'Media', icon: '🖼️' },
 		{ href: '/admin/categories', label: 'Categories', icon: '📂' },
