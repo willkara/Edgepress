@@ -26,7 +26,21 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		throw error(500, 'Cloudflare Images not configured');
 	}
 
-	const uploadSingleFile = async (file: File, autoAltFromFilename: boolean, userId: string) => {
+	const uploadSingleFile = async (
+		file: File,
+		autoAltFromFilename: boolean,
+		userId: string
+	): Promise<{
+		mediaId: string;
+		imageId: string;
+		hash: string;
+		url: string;
+		variants: string[];
+		width: number | null;
+		height: number | null;
+		filename: string;
+		altText: string | null;
+	}> => {
 		if (!file.type.startsWith('image/')) {
 			throw error(400, 'File must be an image');
 		}
@@ -51,7 +65,19 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 			throw error(500, 'Failed to upload to Cloudflare Images');
 		}
 
-		const cfResult = await cfResponse.json();
+		interface CloudflareImagesResponse {
+			success: boolean;
+			result?: {
+				id: string;
+				variants?: string[];
+				meta?: {
+					width?: number;
+					height?: number;
+				};
+			};
+		}
+
+		const cfResult = (await cfResponse.json()) as CloudflareImagesResponse;
 
 		if (!cfResult.success || !cfResult.result) {
 			throw error(500, 'Cloudflare Images returned invalid response');
@@ -71,7 +97,7 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 					.trim() || null
 			: null;
 
-		const media = await createMedia(platform.env.DB, {
+		const media = await createMedia(platform.env.DB as D1Database, {
 			id: mediaId,
 			cf_image_id: cfImageId,
 			filename: file.name,

@@ -15,7 +15,11 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 	}
 
 	try {
-		const postRaw = await getPostBySlugCached(platform.env.DB, platform.env.CACHE, params.slug);
+		const postRaw = await getPostBySlugCached(
+			platform.env.DB as D1Database,
+			platform.env.CACHE as KVNamespace,
+			params.slug
+		);
 		const post = postRaw ? postSchema.parse(postRaw) : null;
 
 		if (!post) {
@@ -26,8 +30,8 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
 		const [tagsRaw, relatedPostsRaw] = await Promise.all([
-			getPostTags(platform.env.DB, post.id),
-			getRelatedPosts(platform.env.DB, post.id, 3)
+			getPostTags(platform.env.DB as D1Database, post.id),
+			getRelatedPosts(platform.env.DB as D1Database, post.id, 3)
 		]);
 
 		const tags = postTagSchema.array().parse(tagsRaw);

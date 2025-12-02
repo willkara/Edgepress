@@ -37,7 +37,10 @@ export const POST: RequestHandler = async ({ params, platform, locals }) => {
 			WHERE id = ?
 		`;
 
-		await platform.env.DB.prepare(query).bind(previewToken, previewExpiresAt, postId).run();
+		await (platform.env.DB as any)
+			.prepare(query)
+			.bind(previewToken, previewExpiresAt, postId)
+			.run();
 
 		return json({
 			preview_token: previewToken,

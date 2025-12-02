@@ -5,7 +5,6 @@
 	import ReadingProgressBar from '$lib/components/ReadingProgressBar.svelte';
 	import { extractToc, type TocItem } from '$lib/utils/toc';
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
-	import ViewCounter from '$lib/components/ViewCounter.svelte';
 	import MobileArticleNav from '$lib/components/MobileArticleNav.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import CopyCodeButton from '$lib/components/CopyCodeButton.svelte';
@@ -151,6 +150,10 @@
 			</div>
 
 			<div class="article-body">
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
 				{@html sanitizedContent}
 				<CopyCodeButton />
 			</div>

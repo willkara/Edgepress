@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 	const offset = (page - 1) * limit;
 
 	try {
-		const result = await listPosts(db, {
+		const result = await listPosts(db as D1Database, {
 			status,
 			search: search || undefined,
 			limit,

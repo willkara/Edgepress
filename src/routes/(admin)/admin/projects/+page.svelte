@@ -39,7 +39,7 @@
 
 			if (!response.ok) throw new Error('Failed to save order');
 			toast.success('Order updated');
-		} catch (_err) {
+		} catch {
 			toast.error('Failed to update order');
 		}
 	}
@@ -56,7 +56,7 @@
 
 			projects = projects.filter((p) => p.id !== id);
 			toast.success('Project deleted');
-		} catch (_err) {
+		} catch {
 			toast.error('Failed to delete project');
 		}
 	}
@@ -122,7 +122,9 @@
 								<div class="flex items-center gap-2 mb-1">
 									<h3 class="font-medium truncate">{project.title}</h3>
 									{#if project.is_featured}
-										<span class="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+										<span
+											class="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"
+										>
 											Featured
 										</span>
 									{/if}
@@ -142,7 +144,9 @@
 								</div>
 							</div>
 
-							<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+							<div
+								class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+							>
 								<Button href="/admin/projects/{project.id}/edit" variant="ghost" size="icon">
 									<Pencil class="w-4 h-4" />
 								</Button>

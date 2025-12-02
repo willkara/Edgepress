@@ -28,7 +28,7 @@
 		// Clear saved progress on dismiss
 		try {
 			localStorage.removeItem(`reading-progress-${postSlug}`);
-		} catch (e) {
+		} catch {
 			// Ignore localStorage errors
 		}
 	}
@@ -44,7 +44,7 @@
 					showBanner = true;
 				}
 			}
-		} catch (e) {
+		} catch {
 			// Ignore localStorage errors
 		}
 	});

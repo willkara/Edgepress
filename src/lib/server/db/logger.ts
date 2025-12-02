@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Database query performance monitoring for EdgePress
  * Logs slow queries and tracks execution times

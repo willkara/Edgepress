@@ -194,11 +194,11 @@ export async function listMedia(
 		let posts: Array<{ id: string; title: string; usage_type: 'hero' | 'content' }> = [];
 
 		try {
-			const parsed = JSON.parse(posts_json);
+			const parsed = JSON.parse(posts_json) as any[];
 			// Filter out null entries and sort by title
 			posts = parsed
-				.filter((p: any) => p !== null)
-				.sort((a: any, b: any) => a.title.localeCompare(b.title));
+				.filter((p) => p !== null)
+				.sort((a: { title: string }, b: { title: string }) => a.title.localeCompare(b.title));
 		} catch (e) {
 			console.error('Failed to parse posts_json:', e);
 		}

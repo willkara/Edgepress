@@ -76,7 +76,7 @@
 				const error = await response.json();
 				alert(`Failed to delete post: ${error.message || 'Unknown error'}`);
 			}
-		} catch (err) {
+		} catch {
 			alert('Failed to delete post. Please try again.');
 		} finally {
 			deleting = null;
@@ -98,7 +98,7 @@
 				const error = await response.json();
 				alert(`Failed to ${action} post: ${error.message || 'Unknown error'}`);
 			}
-		} catch (err) {
+		} catch {
 			alert(`Failed to ${action} post. Please try again.`);
 		}
 	}

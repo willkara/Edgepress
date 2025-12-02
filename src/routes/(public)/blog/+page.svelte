@@ -5,12 +5,12 @@
 	import { ArrowLeft } from 'lucide-svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
-import { navigating } from '$app/stores';
+	import { navigating } from '$app/stores';
 
-let { data }: { data: PageData } = $props();
+	let { data }: { data: PageData } = $props();
 
-const navigatingStore = $derived(navigating);
-const isLoading = $derived(Boolean(navigatingStore));
+	const navigatingStore = $derived(navigating);
+	const isLoading = $derived(Boolean(navigatingStore));
 
 	const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: 'Blog' }];
 </script>
@@ -41,7 +41,7 @@ const isLoading = $derived(Boolean(navigatingStore));
 	<!-- Posts List -->
 	{#if isLoading}
 		<div class="posts-list">
-			{#each Array(5) as _, i}
+			{#each Array(5) as _}
 				<SkeletonCard />
 			{/each}
 		</div>

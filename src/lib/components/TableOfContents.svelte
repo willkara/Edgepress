@@ -14,7 +14,7 @@
 		// Save preference to localStorage
 		try {
 			localStorage.setItem('toc-collapsed', isCollapsed.toString());
-		} catch (e) {
+		} catch {
 			// Ignore localStorage errors
 		}
 	}
@@ -39,7 +39,7 @@
 			if (saved !== null) {
 				isCollapsed = saved === 'true';
 			}
-		} catch (e) {
+		} catch {
 			// Ignore localStorage errors
 		}
 
@@ -95,7 +95,7 @@
 
 	{#if !isCollapsed}
 		<nav class="toc-nav">
-			{#each toc as item, index (item.id)}
+			{#each toc as item (item.id)}
 				<a
 					href={`#${item.id}`}
 					class="toc-link"

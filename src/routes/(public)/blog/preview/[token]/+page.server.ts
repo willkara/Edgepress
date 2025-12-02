@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 	}
 
 	try {
-		const postRaw = await getPostByPreviewToken(platform.env.DB, params.token);
+		const postRaw = await getPostByPreviewToken(platform.env.DB as D1Database, params.token);
 		const post = postRaw ? previewPostSchema.parse(postRaw) : null;
 
 		if (!post) {
@@ -73,7 +73,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 			}
 		}
 
-		const tagsRaw = await getPostTags(platform.env.DB, post.id);
+		const tagsRaw = await getPostTags(platform.env.DB as D1Database, post.id);
 		const tags = postTagSchema.array().parse(tagsRaw);
 
 		return {

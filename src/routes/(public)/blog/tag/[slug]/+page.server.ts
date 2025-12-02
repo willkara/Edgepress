@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	try {
 		// Get the tag to verify it exists
-		const tagRaw = await getTagBySlug(platform.env.DB, slug);
+		const tagRaw = await getTagBySlug(platform.env.DB as D1Database, slug);
 
 		if (!tagRaw) {
 			throw error(404, `Tag "${slug}" not found`);
@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 		const tag = tagSchema.parse(tagRaw);
 
 		// Get all posts with this tag
-		const postsRaw = await getPostsByTag(platform.env.DB, slug, 100, 0);
+		const postsRaw = await getPostsByTag(platform.env.DB as D1Database, slug, 100, 0);
 		const posts = postSchema.array().parse(postsRaw);
 
 		return {

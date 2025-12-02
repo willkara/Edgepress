@@ -7,7 +7,8 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 		throw error(401, 'Unauthorized');
 	}
 
-	const { content } = await request.json();
+	const body = (await request.json()) as { content?: unknown };
+	const { content } = body;
 
 	if (!content || typeof content !== 'string') {
 		throw error(400, 'Content is required');

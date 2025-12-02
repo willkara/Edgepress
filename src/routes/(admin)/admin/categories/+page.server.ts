@@ -12,12 +12,12 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const categories = await getAllCategories(platform.env.DB, true);
+		const categories = await getAllCategories(platform.env.DB as D1Database, true);
 
 		return {
 			categories
 		};
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to load categories:', err);
 		throw error(500, 'Failed to load categories');
 	}

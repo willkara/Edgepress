@@ -13,7 +13,10 @@
 	// Only auto-update slug if it matches the generated version of the title
 	// (i.e., user hasn't customized it)
 	function generateSlug(t: string) {
-		return t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+		return t
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/(^-|-$)+/g, '');
 	}
 
 	$effect(() => {
@@ -48,7 +51,9 @@
 		class="space-y-6"
 	>
 		{#if form?.error}
-			<div class="bg-destructive/10 text-destructive px-4 py-3 rounded-md border border-destructive/20">
+			<div
+				class="bg-destructive/10 text-destructive px-4 py-3 rounded-md border border-destructive/20"
+			>
 				{form.error}
 			</div>
 		{/if}
@@ -150,7 +155,10 @@
 						checked={data.project.is_featured}
 						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 					/>
-					<label for="is_featured" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+					<label
+						for="is_featured"
+						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+					>
 						Feature on homepage
 					</label>
 				</div>

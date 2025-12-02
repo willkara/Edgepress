@@ -259,6 +259,11 @@
 				{#if showPreview}
 					<div class="preview-container article-body">
 						<div class="prose max-w-none">
+							<!-- eslint-disable svelte/no-at-html-tags -->
+							<!-- eslint-disable svelte/no-at-html-tags -->
+							<!-- eslint-disable svelte/no-at-html-tags -->
+							<!-- eslint-disable svelte/no-at-html-tags -->
+							<!-- eslint-disable svelte/no-at-html-tags -->
 							{@html previewHtml}
 						</div>
 					</div>

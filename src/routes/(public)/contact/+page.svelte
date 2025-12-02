@@ -16,6 +16,7 @@
 	import type { ActionData } from './$types';
 
 	type ContactFormData = ActionData & {
+		success?: boolean;
 		data?: {
 			name?: string;
 			email?: string;

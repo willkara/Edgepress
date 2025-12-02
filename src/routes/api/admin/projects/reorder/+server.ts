@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 			return { id, display_order };
 		});
 
-		await reorderProjects(platform.env.DB, validated);
+		await reorderProjects(platform.env.DB as D1Database, validated);
 
 		return json({ success: true });
 	} catch (err) {

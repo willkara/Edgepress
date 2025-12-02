@@ -1,18 +1,7 @@
 <script lang="ts">
-	import { Check, Copy } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
-	let copied = $state(false);
 	let codeBlocks: NodeListOf<HTMLPreElement> | null = null;
-
-	function copyCode(code: string) {
-		navigator.clipboard.writeText(code).then(() => {
-			copied = true;
-			setTimeout(() => {
-				copied = false;
-			}, 2000);
-		});
-	}
 
 	onMount(() => {
 		// Find all code blocks and add copy buttons

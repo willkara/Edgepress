@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ platform, locals }): Promise<Respons
 	}
 
 	try {
-		const categories = await getAllCategories(platform.env.DB, true);
+		const categories = await getAllCategories(platform.env.DB as D1Database, true);
 		return json(categories);
 	} catch (err) {
 		console.error('Failed to list categories:', err);
@@ -62,7 +62,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 			throw error(400, 'Category slug must be a string');
 		}
 
-		const category = await createCategory(platform.env.DB, {
+		const category = await createCategory(platform.env.DB as D1Database, {
 			name: name.trim(),
 			slug: slug?.trim() ?? undefined
 		});
@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json(category, { status: 201 });

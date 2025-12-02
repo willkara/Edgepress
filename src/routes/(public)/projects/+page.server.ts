@@ -10,9 +10,9 @@ export const load: PageServerLoad = async ({ platform }) => {
 
 	try {
 		const [projects, pageTitle, pageSubtitle] = await Promise.all([
-			getAllProjects(platform.env.DB),
-			getSetting(platform.env.DB, 'projects_page_title'),
-			getSetting(platform.env.DB, 'projects_page_subtitle')
+			getAllProjects(platform.env.DB as D1Database),
+			getSetting(platform.env.DB as D1Database, 'projects_page_title'),
+			getSetting(platform.env.DB as D1Database, 'projects_page_subtitle')
 		]);
 
 		return {

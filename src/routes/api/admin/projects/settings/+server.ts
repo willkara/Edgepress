@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 			projects_page_show_all: showAll ? '1' : '0'
 		};
 
-		await setMultipleSettings(platform.env.DB, settings);
+		await setMultipleSettings(platform.env.DB as D1Database, settings);
 
 		return json({ success: true });
 	} catch (err) {

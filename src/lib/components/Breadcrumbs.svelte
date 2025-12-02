@@ -9,6 +9,7 @@
 	let { items }: { items: BreadcrumbItem[] } = $props();
 
 	// Generate Schema.org structured data for SEO
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const schemaData = {
 		'@context': 'https://schema.org',
 		'@type': 'BreadcrumbList',

@@ -44,13 +44,18 @@ export const actions: Actions = {
 				content_md: content_md || null,
 				repo_url: repo_url || null,
 				demo_url: demo_url || null,
-				tech_stack: tech_stack_str ? tech_stack_str.split(',').map(t => t.trim()).filter(Boolean) : [],
+				tech_stack: tech_stack_str
+					? tech_stack_str
+							.split(',')
+							.map((t) => t.trim())
+							.filter(Boolean)
+					: [],
 				is_featured,
 				hero_image_id: hero_image_id || null
 			});
-		} catch (err: any) {
+		} catch (err) {
 			console.error('Failed to update project:', err);
-			return { error: err.message || 'Failed to update project' };
+			return { error: (err as any).message || 'Failed to update project' };
 		}
 
 		throw redirect(303, '/admin/projects');

@@ -26,7 +26,7 @@
 			} else {
 				error = data.error || 'Login failed';
 			}
-		} catch (err) {
+		} catch {
 			error = 'An error occurred. Please try again.';
 		} finally {
 			loading = false;

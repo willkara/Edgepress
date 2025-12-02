@@ -12,9 +12,9 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const injections = await getAllInjections(platform.env.DB);
+		const injections = await getAllInjections(platform.env.DB as D1Database);
 		return { injections };
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to load injections:', err);
 		throw error(500, 'Failed to load injections');
 	}

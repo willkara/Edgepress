@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, platform, locals }): Promise
 	}
 
 	try {
-		const category = await getCategoryById(platform.env.DB, params.id);
+		const category = await getCategoryById(platform.env.DB as D1Database, params.id);
 
 		if (!category) {
 			throw error(404, 'Category not found');
@@ -84,7 +84,7 @@ export const PUT: RequestHandler = async ({
 			throw error(400, 'Category slug must be a string');
 		}
 
-		const category = await updateCategory(platform.env.DB, params.id, {
+		const category = await updateCategory(platform.env.DB as D1Database, params.id, {
 			name: typeof name === 'string' ? name.trim() : undefined,
 			slug: typeof slug === 'string' ? slug.trim() : undefined
 		});
@@ -92,7 +92,7 @@ export const PUT: RequestHandler = async ({
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json(category);
@@ -129,15 +129,15 @@ export const DELETE: RequestHandler = async ({ params, platform, locals }): Prom
 
 	try {
 		// Get post count for response
-		const postCount = await getCategoryPostCount(platform.env.DB, params.id);
+		const postCount = await getCategoryPostCount(platform.env.DB as D1Database, params.id);
 
 		// Delete the category (posts will be set to category_id = NULL)
-		await deleteCategory(platform.env.DB, params.id);
+		await deleteCategory(platform.env.DB as D1Database, params.id);
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json({

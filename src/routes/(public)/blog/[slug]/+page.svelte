@@ -104,7 +104,7 @@
 	<ReadingProgressBar postSlug={post.slug} {wordCount} />
 	<ContinueReadingBanner postSlug={post.slug} />
 
-	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8">
+	<div class="relative mx-auto flex max-w-screen-xl px-4 py-8 gap-8">
 		<!-- Main Article Content -->
 		<div class="flex-1 min-w-0 max-w-prose mx-auto">
 			<div class="mb-8">
@@ -162,6 +162,11 @@
 			</div>
 
 			<div class="article-body">
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
+				<!-- eslint-disable svelte/no-at-html-tags -->
 				{@html sanitizedContent}
 				<CopyCodeButton />
 			</div>
@@ -184,7 +189,7 @@
 		</div>
 
 		<!-- Table of Contents Sidebar -->
-		{#if toc.length > 0}
+		{#if toc.length > 1 && wordCount > 300}
 			<TableOfContents {toc} {activeHeadingId} />
 		{/if}
 	</div>

@@ -19,10 +19,15 @@ export const load: PageServerLoad = async ({ platform, setHeaders }) => {
 		setCacheHeaders(setHeaders, CachePresets.publicPage());
 
 		const [latestPosts, featuredProjects, categories, popularPosts] = await Promise.all([
-			getPublishedPostsCached(platform.env.DB, platform.env.CACHE, 5, 0),
-			getAllProjects(platform.env.DB, true),
-			getAllCategories(platform.env.DB, true),
-			getPopularPosts(platform.env.DB, 5)
+			getPublishedPostsCached(
+				platform.env.DB as D1Database,
+				platform.env.CACHE as KVNamespace,
+				5,
+				0
+			),
+			getAllProjects(platform.env.DB as D1Database, true),
+			getAllCategories(platform.env.DB as D1Database, true),
+			getPopularPosts(platform.env.DB as D1Database, 5)
 		]);
 
 		return {

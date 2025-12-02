@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ platform, locals, url }) => {
 	}
 
 	const filter = (url.searchParams.get('filter') || 'all') as 'all' | 'used' | 'orphaned';
-	const media = await listMedia(platform.env.DB, {
+	const media = await listMedia(platform.env.DB as D1Database, {
 		filter,
 		limit: 100,
 		offset: 0

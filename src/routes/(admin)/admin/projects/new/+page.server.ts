@@ -42,14 +42,19 @@ export const actions: Actions = {
 				content_md: content_md || null,
 				repo_url: repo_url || null,
 				demo_url: demo_url || null,
-				tech_stack: tech_stack_str ? tech_stack_str.split(',').map(t => t.trim()).filter(Boolean) : [],
+				tech_stack: tech_stack_str
+					? tech_stack_str
+							.split(',')
+							.map((t) => t.trim())
+							.filter(Boolean)
+					: [],
 				is_featured,
 				hero_image_id: hero_image_id || null,
 				display_order: maxOrder + 1
 			});
-		} catch (err: any) {
+		} catch (err) {
 			console.error('Failed to create project:', err);
-			return { error: err.message || 'Failed to create project' };
+			return { error: (err as any).message || 'Failed to create project' };
 		}
 
 		throw redirect(303, '/admin/projects');

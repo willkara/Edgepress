@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ platform, locals, setHeaders }) => 
 	try {
 		const settings = await getSettingsGroupCached(platform.env.DB, platform.env.CACHE);
 		return { settings };
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to load settings:', err);
 		throw error(500, 'Failed to load settings');
 	}

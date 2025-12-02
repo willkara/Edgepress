@@ -156,7 +156,10 @@ export async function updateProject(
 	values.push(id);
 
 	const query = `UPDATE projects SET ${fields.join(', ')} WHERE id = ?`;
-	await db.prepare(query).bind(...values).run();
+	await db
+		.prepare(query)
+		.bind(...values)
+		.run();
 }
 
 export async function deleteProject(db: D1Database, id: string): Promise<void> {

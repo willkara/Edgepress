@@ -99,13 +99,13 @@ export const actions: Actions = {
 				</html>
 			`;
 
-			const { error } = await resend.emails.send({
+			const { error } = (await resend.emails.send({
 				from: 'EdgePress Contact <onboarding@resend.dev>', // Default Resend test domain, user will need to verify their own domain for production
 				to: [contactEmail],
 				subject: `[Contact Form] ${subject}`,
 				html: htmlContent,
 				replyTo: email
-			});
+			})) as any;
 
 			if (error) {
 				console.error('Resend API Error:', error);
@@ -117,11 +117,14 @@ export const actions: Actions = {
 			}
 
 			return { success: true };
-		} catch (err) {
+		} catch (err: unknown) {
 			console.error('Unexpected error sending email:', err);
+
 			return fail(500, {
 				error: true,
+
 				message: 'An unexpected error occurred while sending the email.',
+
 				errors: {} as Record<string, string | undefined>
 			});
 		}

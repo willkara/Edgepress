@@ -40,7 +40,7 @@ export const POST: RequestHandler = async ({ params, request, platform }) => {
 	}
 
 	try {
-		const { type, fingerprint } = await request.json();
+		const { type, fingerprint } = (await request.json()) as any;
 
 		if (!type || !fingerprint) {
 			return json({ error: 'Missing required fields' }, { status: 400 });
@@ -80,7 +80,7 @@ export const DELETE: RequestHandler = async ({ params, request, platform }) => {
 	}
 
 	try {
-		const { type, fingerprint } = await request.json();
+		const { type, fingerprint } = (await request.json()) as any;
 
 		if (!type || !fingerprint) {
 			return json({ error: 'Missing required fields' }, { status: 400 });

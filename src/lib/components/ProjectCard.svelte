@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { Github, Globe } from 'lucide-svelte';
 	import type { Project } from '$lib/server/db/projects';
 
 	let { project, imageHash } = $props<{ project: Project; imageHash: string }>();
 </script>
 
-<article class="project-card group">
+<a href="/projects/{project.slug}" class="project-card group">
 	{#if project.hero_image_id}
 		<div class="project-image-container">
 			<img
@@ -20,30 +19,6 @@
 	<div class="project-content">
 		<div class="project-header">
 			<h3 class="project-title">{project.title}</h3>
-			<div class="project-links">
-				{#if project.repo_url}
-					<a
-						href={project.repo_url}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="icon-link"
-						title="View Code"
-					>
-						<Github class="w-5 h-5" />
-					</a>
-				{/if}
-				{#if project.demo_url}
-					<a
-						href={project.demo_url}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="icon-link"
-						title="View Demo"
-					>
-						<Globe class="w-5 h-5" />
-					</a>
-				{/if}
-			</div>
 		</div>
 
 		<p class="project-description">{project.description}</p>
@@ -56,7 +31,7 @@
 			</div>
 		{/if}
 	</div>
-</article>
+</a>
 
 <style>
 	.project-card {
@@ -64,7 +39,9 @@
 		border: 1px solid var(--border-subtle);
 		border-radius: 1rem;
 		overflow: hidden;
-		transition: transform 0.2s, border-color 0.2s;
+		transition:
+			transform 0.2s,
+			border-color 0.2s;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
@@ -112,21 +89,6 @@
 		font-weight: 700;
 		color: var(--text-main);
 		line-height: 1.3;
-	}
-
-	.project-links {
-		display: flex;
-		gap: 0.75rem;
-		flex-shrink: 0;
-	}
-
-	.icon-link {
-		color: var(--text-muted);
-		transition: color 0.2s;
-	}
-
-	.icon-link:hover {
-		color: var(--accent);
 	}
 
 	.project-description {

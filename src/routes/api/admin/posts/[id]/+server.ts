@@ -105,7 +105,7 @@ export const PUT: RequestHandler = async ({
 		// Best-effort vector index update for semantic search.
 		if (platform?.env?.AI && platform.env.VECTORIZE) {
 			try {
-				await upsertPostVector(platform.env.AI, platform.env.VECTORIZE, {
+				await upsertPostVector(platform.env.AI as any, platform.env.VECTORIZE, {
 					id: post.id,
 					title: post.title,
 					slug: post.slug,

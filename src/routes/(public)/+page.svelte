@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-import SpotlightCard from '$lib/components/SpotlightCard.svelte';
-import PopularPosts from '$lib/components/PopularPosts.svelte';
-import { formatDateRelative } from '$lib/utils/date';
-import { ArrowRight, Folder, BookOpen } from 'lucide-svelte';
+	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
+	import PopularPosts from '$lib/components/PopularPosts.svelte';
+	import { formatDateRelative } from '$lib/utils/date';
+	import { ArrowRight, Folder, BookOpen } from 'lucide-svelte';
 
-let { data }: { data: PageData } = $props();
+	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
@@ -14,7 +14,7 @@ let { data }: { data: PageData } = $props();
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="hero">
+<section class="landing-hero">
 	<div class="hero-content">
 		<h1 class="hero-title">Hi, I'm EdgePress 👋</h1>
 		<p class="hero-subtitle">
@@ -100,29 +100,27 @@ let { data }: { data: PageData } = $props();
 		<div class="posts-list">
 			{#each data.latestPosts as post}
 				<SpotlightCard>
-					<article class="post-card">
+					<a href="/blog/{post.slug}" class="post-card">
 						<div class="post-meta">
 							{formatDateRelative(post.published_at)}
 							{#if post.category_name}
-								· <a href="/blog/category/{post.category_slug}" class="category-link">
+								· <span class="category-link">
 									{post.category_name}
-								</a>
+								</span>
 							{/if}
 							{#if post.reading_time}
 								· {post.reading_time} min read
 							{/if}
 						</div>
 						<h3 class="post-title">
-							<a href="/blog/{post.slug}">
-								{post.title}
-							</a>
+							{post.title}
 						</h3>
 						{#if post.excerpt}
 							<p class="post-excerpt">
 								{post.excerpt}
 							</p>
 						{/if}
-					</article>
+					</a>
 				</SpotlightCard>
 			{/each}
 		</div>
@@ -170,9 +168,9 @@ let { data }: { data: PageData } = $props();
 
 <style>
 	/* Hero Section */
-	.hero {
+	.landing-hero {
 		margin-bottom: 4rem;
-		padding: 3rem 0;
+		padding: 5rem 0;
 	}
 
 	.hero-content {
@@ -390,13 +388,7 @@ let { data }: { data: PageData } = $props();
 		font-weight: 600;
 	}
 
-	.post-title a {
-		color: var(--text-main);
-		text-decoration: none;
-		transition: color 150ms;
-	}
-
-	.post-title a:hover {
+	.post-card:hover .post-title {
 		color: var(--accent);
 	}
 

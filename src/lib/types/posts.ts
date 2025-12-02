@@ -16,7 +16,7 @@ export const postSchema = z.object({
 	like_count: z.number().optional(),
 	heart_count: z.number().optional(),
 	bookmark_count: z.number().optional(),
-	author_name: z.string(),
+	author_name: z.string().nullable(),
 	category_name: z.string().nullable(),
 	category_slug: z.string().nullable()
 });

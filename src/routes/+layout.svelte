@@ -26,12 +26,15 @@
 
 	<!-- HEAD INJECTIONS -->
 	{#each headInjections as injection}
+		<!-- eslint-disable svelte/no-at-html-tags -->
+		<!-- eslint-disable svelte/no-at-html-tags -->
 		{@html sanitizeInjection(injection.content)}
 	{/each}
 </svelte:head>
 
 <!-- BODY START INJECTIONS -->
 {#each bodyStartInjections as injection}
+	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html sanitizeInjection(injection.content)}
 {/each}
 
@@ -54,5 +57,6 @@
 
 <!-- BODY END INJECTIONS -->
 {#each bodyEndInjections as injection}
+	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html sanitizeInjection(injection.content)}
 {/each}
