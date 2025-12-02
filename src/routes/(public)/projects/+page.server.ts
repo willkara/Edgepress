@@ -18,8 +18,8 @@ export const load: PageServerLoad = async ({ platform }) => {
 		return {
 			projects,
 			imageHash: platform.env.CF_IMAGES_HASH,
-			pageTitle: pageTitle || 'Projects',
-			pageSubtitle: pageSubtitle || 'A collection of my work and experiments.'
+			pageTitle: pageTitle ?? 'Projects',
+			pageSubtitle: pageSubtitle ?? 'A collection of my work and experiments.'
 		};
 	} catch (err) {
 		console.error('Failed to load projects page:', err);

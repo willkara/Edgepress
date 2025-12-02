@@ -31,7 +31,7 @@ async function getPostByPreviewToken(db: D1Database, token: string): Promise<Pre
 	`;
 
 	const result = await db.prepare(query).bind(token).first<PreviewPost>();
-	return result || null;
+	return result ?? null;
 }
 
 /**
@@ -47,7 +47,7 @@ async function getPostTags(db: D1Database, postId: string): Promise<PostTag[]> {
 	`;
 
 	const result = await db.prepare(query).bind(postId).all<PostTag>();
-	return result.results || [];
+	return result.results ?? [];
 }
 
 export const load: PageServerLoad = async ({ params, platform }) => {

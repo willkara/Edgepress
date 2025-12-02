@@ -1,6 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-import type { VectorizeIndex } from '@cloudflare/workers-types';
+import type { VectorizeIndex, Ai } from '@cloudflare/workers-types';
 declare global {
 	namespace App {
 		interface Error {
@@ -26,7 +26,7 @@ declare global {
 				DB: D1Database;
 				SESSIONS: KVNamespace;
 				CACHE: KVNamespace;
-				AI: any;
+				AI: Ai;
 				VECTORIZE: VectorizeIndex;
 				CF_IMAGES_TOKEN: string;
 				CF_ACCOUNT_ID: string;

@@ -194,13 +194,23 @@ export async function listMedia(
 		let posts: Array<{ id: string; title: string; usage_type: 'hero' | 'content' }> = [];
 
 		try {
-			const parsed = JSON.parse(posts_json) as any[];
-			// Filter out null entries and sort by title
-			posts = parsed
-				.filter((p) => p !== null)
-				.sort((a: { title: string }, b: { title: string }) => a.title.localeCompare(b.title));
-		} catch (e) {
-			console.error('Failed to parse posts_json:', e);
+			const parsed = JSON.parse(posts_json);
+			// Ensure parsed is an array and filter out null entries
+			if (Array.isArray(parsed)) {
+				posts = parsed
+					.filter((p) => p !== null && typeof p === 'object' && p.id && p.title)
+					.map((p) => ({
+						id: p.id as string,
+						title: p.title as string,
+						usage_type: p.usage_type as 'hero' | 'content'
+					}))
+					.sort((a, b) => a.title.localeCompare(b.title));
+			} else {
+				posts = [];
+			}
+		} catch (e: any) {
+			const errorMessage = e instanceof Error ? e.message : String(e);
+			console.error('Failed to parse posts_json:', errorMessage);
 		}
 
 		return {

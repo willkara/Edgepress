@@ -32,15 +32,21 @@ function parseTechStack(raw: string | null): string[] {
 	}
 }
 
-function parseProject(row: any): Project {
+function parseProject(row: Record<string, any>): Project {
 	return {
-		...row,
-		content_md: row.content_md ?? null,
-		hero_image_id: row.hero_image_id ?? null,
-		repo_url: row.repo_url ?? null,
-		demo_url: row.demo_url ?? null,
+		id: row.id as string,
+		slug: row.slug as string,
+		title: row.title as string,
+		description: row.description as string,
+		content_md: row.content_md as string ?? null,
+		hero_image_id: row.hero_image_id as string ?? null,
+		repo_url: row.repo_url as string ?? null,
+		demo_url: row.demo_url as string ?? null,
+		tech_stack: parseTechStack(row.tech_stack),
 		is_featured: row.is_featured === 1 || row.is_featured === true,
-		tech_stack: parseTechStack(row.tech_stack)
+		display_order: row.display_order as number,
+		created_at: row.created_at as string,
+		updated_at: row.updated_at as string
 	};
 }
 

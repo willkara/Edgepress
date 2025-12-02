@@ -5,6 +5,7 @@
 	import type { Editor } from '@tiptap/core';
 	import EdraEditor from '$lib/components/edra/shadcn/editor.svelte';
 	import EdraToolbar from '$lib/components/edra/shadcn/toolbar.svelte';
+	import DOMPurify from 'isomorphic-dompurify';
 
 	let { data }: { data: PageData } = $props();
 
@@ -49,7 +50,8 @@
 			showPreview = false;
 		} else {
 			if (editor) {
-				previewHtml = editor.getHTML();
+				const rawHtml = editor.getHTML();
+				previewHtml = DOMPurify.sanitize(rawHtml);
 			}
 			showPreview = true;
 		}
@@ -147,6 +149,7 @@
 
 		try {
 			const contentHtml = editor.getHTML();
+			const sanitizedContentHtml = DOMPurify.sanitize(contentHtml);
 
 			const response = await fetch(`/api/admin/posts/${data.post.id}`, {
 				method: 'PUT',
@@ -155,7 +158,7 @@
 					title: title.trim(),
 					slug: slug.trim() || undefined,
 					content_md: contentMd.trim(),
-					content_html: contentHtml,
+					content_html: sanitizedContentHtml,
 					excerpt: excerpt.trim() || null,
 					category_id: categoryId || null,
 					hero_image_id: heroImageId || null,

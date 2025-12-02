@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * Database query performance monitoring for EdgePress
  * Logs slow queries and tracks execution times
@@ -35,9 +34,11 @@ export async function withRequestLogging<T>(
 		const result = await fn();
 		const duration = performance.now() - startTime;
 
-		console.info(`[DB] ${operation} completed in ${duration.toFixed(2)}ms`, {
-			requestId
-		});
+		if (duration > SLOW_QUERY_THRESHOLD_MS / 2) { // Only log if query is moderately slow
+			console.warn(`[DB] ${operation} completed in ${duration.toFixed(2)}ms`, {
+				requestId
+			});
+		}
 
 		return result;
 	} catch (error) {
@@ -216,7 +217,7 @@ export class RequestMetrics {
 		const queryCount = this.getQueryCount();
 		const queryTime = this.getTotalQueryTime();
 
-		console.log(`[PERF] ${route}`, {
+		console.warn(`[PERF] ${route}`, {
 			total_ms: totalDuration.toFixed(2),
 			db_queries: queryCount,
 			db_time_ms: queryTime.toFixed(2),

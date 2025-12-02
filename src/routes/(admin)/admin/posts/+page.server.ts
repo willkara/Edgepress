@@ -18,9 +18,9 @@ export const load: PageServerLoad = async ({ platform, url }) => {
 	const db = platform.env.DB;
 
 	// Parse query parameters
-	const status = (url.searchParams.get('status') || 'all') as 'draft' | 'published' | 'all';
-	const search = url.searchParams.get('search') || '';
-	const page = parseInt(url.searchParams.get('page') || '1');
+	const status = (url.searchParams.get('status') ?? 'all') as 'draft' | 'published' | 'all';
+	const search = url.searchParams.get('search') ?? '';
+	const page = parseInt(url.searchParams.get('page') ?? '1');
 	const limit = 20;
 	const offset = (page - 1) * limit;
 

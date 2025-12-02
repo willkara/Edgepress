@@ -27,7 +27,7 @@
 	}}
 	class="bg-popover flex h-fit w-fit items-center gap-1 rounded border p-1 shadow-lg"
 >
-	<Button variant="link" href={link} class="max-w-80 p-1" target="_blank">
+	<Button variant="link" href={link} class="max-w-80 p-1" target="_blank" rel="noopener noreferrer">
 		<span class="w-full overflow-hidden text-ellipsis">
 			{link}
 		</span>

@@ -174,7 +174,7 @@ export const POST: RequestHandler = async (event): Promise<Response> => {
 		);
 
 		// 4. Store session in KV
-		const userAgent = request.headers.get('user-agent') || undefined;
+		const userAgent = request.headers.get('user-agent') ?? undefined;
 		await createSession(env.SESSIONS, token, user.id, SESSION_TTL, userAgent);
 
 		// 5. Set HTTP-only cookie with security flags (Secure only on HTTPS)

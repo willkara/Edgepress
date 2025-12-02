@@ -32,8 +32,8 @@ export const load: PageServerLoad = async ({ platform, params, locals }) => {
 		return {
 			post,
 			postTags: postTags.map((t) => t.id),
-			categories: (categoriesResult.results as any[]) || [],
-			tags: (tagsResult.results as any[]) || []
+			categories: (categoriesResult.results as any[]) ?? [],
+			tags: (tagsResult.results as any[]) ?? []
 		};
 	} catch (err) {
 		console.error('Failed to load post for editing:', err);

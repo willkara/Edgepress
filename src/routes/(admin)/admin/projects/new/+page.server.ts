@@ -31,17 +31,22 @@ export const actions: Actions = {
 		}
 
 		try {
+			const db = platform?.env?.DB;
+			if (!db) {
+				throw error(500, 'Database not available');
+			}
+
 			// Get max display order to put new project at end
-			const allProjects = await getAllProjects(platform!.env.DB);
+			const allProjects = await getAllProjects(db);
 			const maxOrder = allProjects.reduce((max, p) => Math.max(max, p.display_order), -1);
 
-			await createProject(platform!.env.DB, {
+			await createProject(db, {
 				title,
 				slug,
 				description,
-				content_md: content_md || null,
-				repo_url: repo_url || null,
-				demo_url: demo_url || null,
+				content_md: content_md ?? null,
+				repo_url: repo_url ?? null,
+				demo_url: demo_url ?? null,
 				tech_stack: tech_stack_str
 					? tech_stack_str
 							.split(',')
@@ -49,12 +54,12 @@ export const actions: Actions = {
 							.filter(Boolean)
 					: [],
 				is_featured,
-				hero_image_id: hero_image_id || null,
+				hero_image_id: hero_image_id ?? null,
 				display_order: maxOrder + 1
 			});
 		} catch (err) {
 			console.error('Failed to create project:', err);
-			return { error: (err as any).message || 'Failed to create project' };
+			return { error: (err as any).message ?? 'Failed to create project' };
 		}
 
 		throw redirect(303, '/admin/projects');

@@ -97,7 +97,7 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 					.trim() || null
 			: null;
 
-		const media = await createMedia(platform.env.DB as D1Database, {
+		const media = await createMedia(platform.env.DB, {
 			id: mediaId,
 			cf_image_id: cfImageId,
 			filename: file.name,

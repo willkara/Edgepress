@@ -10,9 +10,9 @@
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
-	const headInjections = $derived(data.injections?.head || []);
-	const bodyStartInjections = $derived(data.injections?.body_start || []);
-	const bodyEndInjections = $derived(data.injections?.body_end || []);
+	const headInjections = $derived(data.injections?.head ?? []);
+	const bodyStartInjections = $derived(data.injections?.body_start ?? []);
+	const bodyEndInjections = $derived(data.injections?.body_end ?? []);
 
 	// Determine which skeleton to show based on the target route
 	let showSkeleton = $derived(!!$navigating);

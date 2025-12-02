@@ -7,7 +7,12 @@ export const load: PageServerLoad = async ({ params, platform, locals }) => {
 		throw error(401, 'Unauthorized');
 	}
 
-	const project = await getProjectById(platform!.env.DB, params.id);
+	const db = platform?.env?.DB;
+	if (!db) {
+		throw error(500, 'Database not available');
+	}
+
+	const project = await getProjectById(db, params.id);
 	if (!project) {
 		throw error(404, 'Project not found');
 	}
@@ -37,13 +42,18 @@ export const actions: Actions = {
 		}
 
 		try {
-			await updateProject(platform!.env.DB, params.id!, {
+			const db = platform?.env?.DB;
+			if (!db) {
+				throw error(500, 'Database not available');
+			}
+
+			await updateProject(db, params.id, {
 				title,
 				slug,
 				description,
-				content_md: content_md || null,
-				repo_url: repo_url || null,
-				demo_url: demo_url || null,
+				content_md: content_md ?? null,
+				repo_url: repo_url ?? null,
+				demo_url: demo_url ?? null,
 				tech_stack: tech_stack_str
 					? tech_stack_str
 							.split(',')
@@ -51,11 +61,11 @@ export const actions: Actions = {
 							.filter(Boolean)
 					: [],
 				is_featured,
-				hero_image_id: hero_image_id || null
+				hero_image_id: hero_image_id ?? null
 			});
 		} catch (err) {
 			console.error('Failed to update project:', err);
-			return { error: (err as any).message || 'Failed to update project' };
+			return { error: (err as any).message ?? 'Failed to update project' };
 		}
 
 		throw redirect(303, '/admin/projects');

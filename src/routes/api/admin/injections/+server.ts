@@ -105,7 +105,7 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 			name: name.trim(),
 			location,
 			content,
-			is_active: is_active !== undefined ? is_active : 1
+			is_active: is_active ?? 1
 		};
 
 		const injection = await createInjection(platform.env.DB, input);

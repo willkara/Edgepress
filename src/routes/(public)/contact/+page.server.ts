@@ -105,7 +105,7 @@ export const actions: Actions = {
 				subject: `[Contact Form] ${subject}`,
 				html: htmlContent,
 				replyTo: email
-			})) as any;
+			}));
 
 			if (error) {
 				console.error('Resend API Error:', error);
