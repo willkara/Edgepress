@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ platform, locals }): Promise<Respons
 	}
 
 	try {
-		const categories = await getAllCategories(platform.env.DB, true);
+		const categories = await getAllCategories(platform.env.DB as D1Database, true);
 		return json(categories);
 	} catch (err) {
 		console.error('Failed to list categories:', err);
@@ -39,35 +39,38 @@ export const POST: RequestHandler = async ({ request, platform, locals }): Promi
 	}
 
 	try {
-		const body = await request.json();
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-		// Validate required fields
-		if (!body.name || typeof body.name !== 'string') {
+		const { name, slug } = parsedBody as Record<string, unknown>;
+
+		if (typeof name !== 'string') {
 			throw error(400, 'Category name is required');
 		}
 
-		if (body.name.trim().length === 0) {
+		if (name.trim().length === 0) {
 			throw error(400, 'Category name cannot be empty');
 		}
 
-		if (body.name.length > 100) {
+		if (name.length > 100) {
 			throw error(400, 'Category name is too long (max 100 characters)');
 		}
 
-		// Validate slug if provided
-		if (body.slug !== undefined && typeof body.slug !== 'string') {
+		if (slug !== undefined && typeof slug !== 'string') {
 			throw error(400, 'Category slug must be a string');
 		}
 
-		const category = await createCategory(platform.env.DB, {
-			name: body.name.trim(),
-			slug: body.slug?.trim() ?? undefined
+		const category = await createCategory(platform.env.DB as D1Database, {
+			name: name.trim(),
+			slug: slug?.trim() ?? undefined
 		});
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json(category, { status: 201 });

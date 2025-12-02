@@ -21,6 +21,37 @@ export interface QueryMetrics {
 const SLOW_QUERY_THRESHOLD_MS = 100;
 
 /**
+ * Lightweight logger for request-scoped database operations
+ */
+export async function withRequestLogging<T>(
+	requestId: string | undefined,
+	operation: string,
+	fn: () => Promise<T>
+): Promise<T> {
+	const startTime = performance.now();
+
+	try {
+		const result = await fn();
+		const duration = performance.now() - startTime;
+
+		if (duration > SLOW_QUERY_THRESHOLD_MS / 2) { // Only log if query is moderately slow
+			console.warn(`[DB] ${operation} completed in ${duration.toFixed(2)}ms`, {
+				requestId
+			});
+		}
+
+		return result;
+	} catch (error) {
+		const duration = performance.now() - startTime;
+		console.error(`[DB] ${operation} failed after ${duration.toFixed(2)}ms`, {
+			requestId,
+			error
+		});
+		throw error;
+	}
+}
+
+/**
  * Track query execution time and log if slow
  */
 export async function trackQuery<T>(
@@ -186,7 +217,7 @@ export class RequestMetrics {
 		const queryCount = this.getQueryCount();
 		const queryTime = this.getTotalQueryTime();
 
-		console.log(`[PERF] ${route}`, {
+		console.warn(`[PERF] ${route}`, {
 			total_ms: totalDuration.toFixed(2),
 			db_queries: queryCount,
 			db_time_ms: queryTime.toFixed(2),

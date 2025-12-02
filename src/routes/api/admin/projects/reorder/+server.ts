@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { batchUpdateDisplayOrders } from '$lib/server/db/featured-projects';
+import { reorderProjects } from '$lib/server/db/projects';
 
 export const POST: RequestHandler = async ({ request, platform, locals }) => {
 	if (!locals.user) {
@@ -12,17 +12,40 @@ export const POST: RequestHandler = async ({ request, platform, locals }) => {
 	}
 
 	try {
-		const { orders } = await request.json();
-
-		if (!Array.isArray(orders)) {
-			throw error(400, 'orders must be an array');
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
 		}
 
-		await batchUpdateDisplayOrders(platform.env.DB, orders);
+		const { updates } = parsedBody as Record<string, unknown>;
+
+		if (!Array.isArray(updates)) {
+			throw error(400, 'updates must be an array');
+		}
+
+		const validated = updates.map((entry) => {
+			if (!entry || typeof entry !== 'object') {
+				throw error(400, 'Each update must be an object');
+			}
+
+			const { id, display_order } = entry as Record<string, unknown>;
+
+			if (typeof id !== 'string' || id.trim().length === 0) {
+				throw error(400, 'Each update must include a valid id');
+			}
+
+			if (typeof display_order !== 'number') {
+				throw error(400, 'Each update must include a numeric display_order');
+			}
+
+			return { id, display_order };
+		});
+
+		await reorderProjects(platform.env.DB as D1Database, validated);
 
 		return json({ success: true });
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to reorder projects:', err);
-		throw error(500, err.message || 'Failed to reorder projects');
+		throw error(500, err instanceof Error ? err.message : 'Failed to reorder projects');
 	}
 };

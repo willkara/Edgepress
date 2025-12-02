@@ -14,7 +14,7 @@ export const load: LayoutServerLoad = async ({ platform, locals }) => {
 
 	if (platform?.env?.DB) {
 		try {
-			injections = await getActiveInjectionsGrouped(platform.env.DB);
+			injections = await getActiveInjectionsGrouped(platform.env.DB as D1Database);
 		} catch (error) {
 			console.error('Failed to load injections:', error);
 		}

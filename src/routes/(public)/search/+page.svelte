@@ -100,7 +100,13 @@
 </form>
 
 <div class="search-meta">
-	<span>{indexReady ? 'Local index ready' : loadingIndex ? 'Loading index…' : 'Index loads on first search'}</span>
+	<span
+		>{indexReady
+			? 'Local index ready'
+			: loadingIndex
+				? 'Loading index…'
+				: 'Index loads on first search'}</span
+	>
 	{#if usedRemote}
 		<span class="pill">Includes server results</span>
 	{/if}
@@ -178,7 +184,10 @@
 		color: #fff;
 		cursor: pointer;
 		box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.2);
-		transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+		transition:
+			transform 160ms ease,
+			box-shadow 160ms ease,
+			filter 160ms ease;
 	}
 	.search-form button:hover {
 		filter: brightness(1.05);

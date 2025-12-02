@@ -11,8 +11,19 @@ export const load: PageServerLoad = async ({ platform, locals, url }) => {
 		throw new Error('Required environment variables not configured');
 	}
 
-	const filter = (url.searchParams.get('filter') || 'all') as 'all' | 'used' | 'orphaned';
-	const media = await listMedia(platform.env.DB, {
+	const filter = (url.searchParams.get('filter') ?? 'all') as 'all' | 'used' | 'orphaned';
+
+	const db = platform?.env?.DB;
+	if (!db) {
+		throw new Error('Database not available');
+	}
+
+	const cfImagesHash = platform?.env?.CF_IMAGES_HASH;
+	if (!cfImagesHash) {
+		throw new Error('Cloudflare Images hash not configured');
+	}
+
+	const media = await listMedia(db, {
 		filter,
 		limit: 100,
 		offset: 0
@@ -21,6 +32,6 @@ export const load: PageServerLoad = async ({ platform, locals, url }) => {
 	return {
 		media,
 		filter,
-		cfImagesHash: platform.env.CF_IMAGES_HASH
+		cfImagesHash
 	};
 };

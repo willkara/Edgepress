@@ -12,12 +12,12 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const tags = await getAllTags(platform.env.DB, true);
+		const tags = await getAllTags(platform.env.DB as D1Database, true);
 
 		return {
 			tags
 		};
-	} catch (err: any) {
+	} catch (err) {
 		console.error('Failed to load tags:', err);
 		throw error(500, 'Failed to load tags');
 	}

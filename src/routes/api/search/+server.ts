@@ -1,41 +1,43 @@
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { searchPosts, searchPostsCached } from '$lib/server/db/posts';
-import { CachePresets, setCacheHeaders } from '$lib/server/cache/headers';
-import { requireEnv } from '$lib/server/env';
+import { MAX_SEARCH_RESULTS, searchPosts } from '$lib/server/vectorize/post-index';
 
-export const GET: RequestHandler = async (event) => {
-	const { url, setHeaders } = event;
-	const q = (url.searchParams.get('q') ?? '').trim();
-	const limit = Math.max(1, Math.min(50, parseInt(url.searchParams.get('limit') ?? '20')));
+/** Maximum query length allowed for semantic search inputs. */
+const MAX_QUERY_LENGTH = 500;
 
-	// Gracefully return nothing for very short queries
-	if (q.length < 2) {
-		return json(
-			{ results: [], tooShort: true },
-			{ headers: { 'Cache-Control': CachePresets.apiRead() } }
-		);
+/** Default number of results returned when the client does not specify a limit. */
+const DEFAULT_RESULT_LIMIT = 5;
+
+/**
+ * GET /api/search
+ * Generate an embedding for the incoming query and perform a Vectorize search.
+ * Requires both AI and Vectorize bindings to be configured.
+ */
+export const GET: RequestHandler = async ({ url, platform }) => {
+	const query = (url.searchParams.get('q') ?? '').trim();
+	if (!query) {
+		throw error(400, 'Query parameter "q" is required');
+	}
+	if (query.length > MAX_QUERY_LENGTH) {
+		throw error(400, 'Query is too long for semantic search');
 	}
 
-	let env;
-	try {
-		env = requireEnv(event, ['DB', 'CACHE']);
-	} catch {
-		return json({ results: [], error: 'database_unavailable' }, { status: 503 });
+	const rawLimit = Number.parseInt(url.searchParams.get('limit') ?? `${DEFAULT_RESULT_LIMIT}`, 10);
+	const limit = Number.isNaN(rawLimit)
+		? DEFAULT_RESULT_LIMIT
+		: Math.max(1, Math.min(rawLimit, MAX_SEARCH_RESULTS));
+
+	const ai = platform?.env?.AI;
+	const vectorize = platform?.env?.VECTORIZE;
+	if (!ai || !vectorize) {
+		throw error(503, 'Semantic search is not available');
 	}
 
-	const useCache = !!env.CACHE;
-
 	try {
-		setCacheHeaders(setHeaders, CachePresets.apiRead());
-
-		const results = useCache
-			? await searchPostsCached(env.DB, env.CACHE, q, limit)
-			: await searchPosts(env.DB, q, limit);
-
-		return json({ results });
-	} catch (error) {
-		console.error('Search API error', error);
-		return json({ results: [], error: 'search_failed' }, { status: 500 });
+		const results = await searchPosts(ai, vectorize, query, limit, false);
+		return json({ query, results });
+	} catch (vectorError) {
+		console.error('Semantic search failed:', vectorError);
+		throw error(500, 'Failed to complete semantic search');
 	}
 };

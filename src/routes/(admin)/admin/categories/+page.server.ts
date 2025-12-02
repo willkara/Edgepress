@@ -12,7 +12,12 @@ export const load: PageServerLoad = async ({ platform, locals }) => {
 	}
 
 	try {
-		const categories = await getAllCategories(platform.env.DB, true);
+		const db = platform?.env?.DB;
+		if (!db) {
+			throw error(500, 'Database not available');
+		}
+
+		const categories = await getAllCategories(db, true);
 
 		return {
 			categories

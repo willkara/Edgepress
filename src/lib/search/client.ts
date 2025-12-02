@@ -1,17 +1,20 @@
-import type { SearchIndexItem, SearchResult } from '$lib/types/search';
+import {
+	searchIndexItemSchema,
+	type SearchIndexItem,
+	searchResultSchema,
+	type SearchResult
+} from '$lib/types/search';
 
+/** Returns a human readable message for an unknown error. */
 function getErrorMessage(error: unknown): string {
-	if (error instanceof Error) return error.message;
+	if (error instanceof Error) {
+		return error.message;
+	}
 	return String(error);
 }
 
-function isSearchIndexItems(value: unknown): value is SearchIndexItem[] {
-	return Array.isArray(value);
-}
-
-function isSearchResults(value: unknown): value is SearchResult[] {
-	return Array.isArray(value);
-}
+const searchIndexArraySchema = searchIndexItemSchema.array();
+const searchResultsArraySchema = searchResultSchema.array();
 
 let indexPromise: Promise<SearchIndexItem[]> | null = null;
 let cachedIndex: SearchIndexItem[] = [];
@@ -29,8 +32,9 @@ export async function fetchSearchIndex(): Promise<SearchIndexItem[]> {
 			const raw = (await res.json()) as unknown;
 			if (raw && typeof raw === 'object' && 'items' in raw) {
 				const maybeItems = (raw as { items?: unknown }).items;
-				if (isSearchIndexItems(maybeItems)) {
-					return maybeItems;
+				const parsed = searchIndexArraySchema.safeParse(maybeItems);
+				if (parsed.success) {
+					return parsed.data;
 				}
 			}
 			return [];
@@ -47,11 +51,7 @@ export async function fetchSearchIndex(): Promise<SearchIndexItem[]> {
 	return cachedIndex;
 }
 
-export function localSearch(
-	query: string,
-	items: SearchIndexItem[],
-	limit = 20
-): SearchResult[] {
+export function localSearch(query: string, items: SearchIndexItem[], limit = 20): SearchResult[] {
 	const tokens = query
 		.trim()
 		.toLowerCase()
@@ -113,8 +113,9 @@ export async function remoteSearch(query: string, limit = 20): Promise<SearchRes
 		const raw = (await res.json()) as unknown;
 		if (raw && typeof raw === 'object' && 'results' in raw) {
 			const maybeResults = (raw as { results?: unknown }).results;
-			if (isSearchResults(maybeResults)) {
-				return maybeResults;
+			const parsed = searchResultsArraySchema.safeParse(maybeResults);
+			if (parsed.success) {
+				return parsed.data;
 			}
 		}
 		return [];

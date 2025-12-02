@@ -2,14 +2,10 @@
 	import type { PageData } from './$types';
 	import SpotlightCard from '$lib/components/SpotlightCard.svelte';
 	import PopularPosts from '$lib/components/PopularPosts.svelte';
-	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 	import { formatDateRelative } from '$lib/utils/date';
-	import { ArrowRight, Folder, BookOpen, ExternalLink } from 'lucide-svelte';
-	import { navigating } from '$app/stores';
+	import { ArrowRight, Folder, BookOpen } from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
-
-	$: isLoading = !!$navigating;
 </script>
 
 <svelte:head>
@@ -18,13 +14,13 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="hero">
+<section class="landing-hero">
 	<div class="hero-content">
 		<h1 class="hero-title">Hi, I'm EdgePress 👋</h1>
 		<p class="hero-subtitle">
-			Welcome to my corner of the internet. I write about technology, build projects, and share
-			what I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's
-			edge network.
+			Welcome to my corner of the internet. I write about technology, build projects, and share what
+			I learn along the way. This blog is built with SvelteKit and deployed on Cloudflare's edge
+			network.
 		</p>
 		<div class="hero-actions">
 			<a href="/blog" class="button-primary">
@@ -53,27 +49,28 @@
 		<div class="projects-grid">
 			{#each data.featuredProjects as project}
 				<SpotlightCard>
-					<a href="/blog/{project.post_slug}" class="project-card">
-						{#if project.post_hero_image_id}
+					<!-- Use ProjectCard component logic here eventually, but keep existing style for now -->
+					<a href="/projects" class="project-card">
+						{#if project.hero_image_id}
 							<div class="project-image">
 								<img
-									src="https://imagedelivery.net/YOUR_CF_ACCOUNT_HASH/{project.post_hero_image_id}/public"
-									alt={project.post_title}
+									src="/cdn-cgi/imagedelivery/{data.imageHash}/{project.hero_image_id}/public"
+									alt={project.title}
 									loading="lazy"
 								/>
 							</div>
 						{/if}
 
 						<div class="project-content">
-							<h3 class="project-title">{project.post_title}</h3>
+							<h3 class="project-title">{project.title}</h3>
 							<p class="project-excerpt">
-								{project.custom_description || project.post_excerpt}
+								{project.description}
 							</p>
 
-							{#if project.tags.length > 0}
+							{#if project.tech_stack && project.tech_stack.length > 0}
 								<div class="project-tags">
-									{#each project.tags.slice(0, 3) as tag}
-										<span class="tag">{tag}</span>
+									{#each project.tech_stack.slice(0, 3) as tech}
+										<span class="tag">{tech}</span>
 									{/each}
 								</div>
 							{/if}
@@ -103,29 +100,27 @@
 		<div class="posts-list">
 			{#each data.latestPosts as post}
 				<SpotlightCard>
-					<article class="post-card">
+					<a href="/blog/{post.slug}" class="post-card">
 						<div class="post-meta">
 							{formatDateRelative(post.published_at)}
 							{#if post.category_name}
-								· <a href="/blog/category/{post.category_slug}" class="category-link">
+								· <span class="category-link">
 									{post.category_name}
-								</a>
+								</span>
 							{/if}
 							{#if post.reading_time}
 								· {post.reading_time} min read
 							{/if}
 						</div>
 						<h3 class="post-title">
-							<a href="/blog/{post.slug}">
-								{post.title}
-							</a>
+							{post.title}
 						</h3>
 						{#if post.excerpt}
 							<p class="post-excerpt">
 								{post.excerpt}
 							</p>
 						{/if}
-					</article>
+					</a>
 				</SpotlightCard>
 			{/each}
 		</div>
@@ -153,7 +148,9 @@
 									{category.post_count === 1 ? 'post' : 'posts'}
 								</p>
 							</div>
-							<ArrowRight class="category-arrow w-5 h-5" />
+							<span class="category-arrow" aria-hidden="true">
+								<ArrowRight />
+							</span>
 						</a>
 					{/each}
 				</div>
@@ -171,9 +168,9 @@
 
 <style>
 	/* Hero Section */
-	.hero {
+	.landing-hero {
 		margin-bottom: 4rem;
-		padding: 3rem 0;
+		padding: 5rem 0;
 	}
 
 	.hero-content {
@@ -290,7 +287,9 @@
 		border: 1px solid var(--border-subtle);
 		overflow: hidden;
 		text-decoration: none;
-		transition: transform 150ms, box-shadow 150ms;
+		transition:
+			transform 150ms,
+			box-shadow 150ms;
 	}
 
 	.project-card:hover {
@@ -389,13 +388,7 @@
 		font-weight: 600;
 	}
 
-	.post-title a {
-		color: var(--text-main);
-		text-decoration: none;
-		transition: color 150ms;
-	}
-
-	.post-title a:hover {
+	.post-card:hover .post-title {
 		color: var(--accent);
 	}
 
@@ -483,9 +476,17 @@
 	}
 
 	.category-arrow {
+		display: inline-flex;
 		color: var(--text-subtle);
 		flex-shrink: 0;
 		transition: transform 150ms;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	.category-arrow :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.category-card:hover .category-arrow {

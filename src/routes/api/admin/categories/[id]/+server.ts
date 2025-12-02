@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, platform, locals }): Promise
 	}
 
 	try {
-		const category = await getCategoryById(platform.env.DB, params.id);
+		const category = await getCategoryById(platform.env.DB as D1Database, params.id);
 
 		if (!category) {
 			throw error(404, 'Category not found');
@@ -44,7 +44,12 @@ export const GET: RequestHandler = async ({ params, platform, locals }): Promise
  * PUT /api/admin/categories/[id]
  * Update a category
  */
-export const PUT: RequestHandler = async ({ params, request, platform, locals }): Promise<Response> => {
+export const PUT: RequestHandler = async ({
+	params,
+	request,
+	platform,
+	locals
+}): Promise<Response> => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
@@ -54,37 +59,40 @@ export const PUT: RequestHandler = async ({ params, request, platform, locals })
 	}
 
 	try {
-		const body = await request.json();
+		const parsedBody = (await request.json()) as unknown;
+		if (!parsedBody || typeof parsedBody !== 'object') {
+			throw error(400, 'Invalid request body');
+		}
 
-		// Validate name if provided
-		if (body.name !== undefined) {
-			if (typeof body.name !== 'string') {
+		const { name, slug } = parsedBody as Record<string, unknown>;
+
+		if (name !== undefined) {
+			if (typeof name !== 'string') {
 				throw error(400, 'Category name must be a string');
 			}
 
-			if (body.name.trim().length === 0) {
+			if (name.trim().length === 0) {
 				throw error(400, 'Category name cannot be empty');
 			}
 
-			if (body.name.length > 100) {
+			if (name.length > 100) {
 				throw error(400, 'Category name is too long (max 100 characters)');
 			}
 		}
 
-		// Validate slug if provided
-		if (body.slug !== undefined && typeof body.slug !== 'string') {
+		if (slug !== undefined && typeof slug !== 'string') {
 			throw error(400, 'Category slug must be a string');
 		}
 
-		const category = await updateCategory(platform.env.DB, params.id, {
-			name: body.name?.trim(),
-			slug: body.slug?.trim()
+		const category = await updateCategory(platform.env.DB as D1Database, params.id, {
+			name: typeof name === 'string' ? name.trim() : undefined,
+			slug: typeof slug === 'string' ? slug.trim() : undefined
 		});
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json(category);
@@ -121,15 +129,15 @@ export const DELETE: RequestHandler = async ({ params, platform, locals }): Prom
 
 	try {
 		// Get post count for response
-		const postCount = await getCategoryPostCount(platform.env.DB, params.id);
+		const postCount = await getCategoryPostCount(platform.env.DB as D1Database, params.id);
 
 		// Delete the category (posts will be set to category_id = NULL)
-		await deleteCategory(platform.env.DB, params.id);
+		await deleteCategory(platform.env.DB as D1Database, params.id);
 
 		// Invalidate categories cache
 		if (platform.env.CACHE) {
 			const { invalidateCache } = await import('$lib/server/cache/cache');
-			await invalidateCache(platform.env.CACHE, 'categories:all:*');
+			await invalidateCache(platform.env.CACHE as KVNamespace, 'categories:all:*');
 		}
 
 		return json({

@@ -11,7 +11,7 @@ import { getUserByEmail } from '$lib/server/auth/user';
 import { verifyPassword } from '$lib/server/auth/password';
 import { generateToken } from '$lib/server/auth/jwt';
 import { createSession } from '$lib/server/auth/session';
-import type { LoginCredentials, LoginResult } from '$lib/server/auth/types';
+import type { LoginResult } from '$lib/server/auth/types';
 import { SESSION_COOKIE_NAME, SESSION_TTL } from '$lib/server/auth/types';
 import { requireEnv } from '$lib/server/env';
 
@@ -67,13 +67,15 @@ export const POST: RequestHandler = async (event): Promise<Response> => {
 	const kv = env.CACHE;
 	const clientIp = getClientIp(request);
 
-	try {
-		// Parse request body
-		const body: LoginCredentials = await request.json();
-		const { email, password } = body;
+	interface LoginPayload {
+		email?: unknown;
+		password?: unknown;
+	}
 
-		// Validate required fields
-		if (!email || !password) {
+	try {
+		const { email, password } = (await request.json()) as LoginPayload;
+
+		if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
 			return new Response(
 				JSON.stringify({
 					success: false,
@@ -172,7 +174,7 @@ export const POST: RequestHandler = async (event): Promise<Response> => {
 		);
 
 		// 4. Store session in KV
-		const userAgent = request.headers.get('user-agent') || undefined;
+		const userAgent = request.headers.get('user-agent') ?? undefined;
 		await createSession(env.SESSIONS, token, user.id, SESSION_TTL, userAgent);
 
 		// 5. Set HTTP-only cookie with security flags (Secure only on HTTPS)

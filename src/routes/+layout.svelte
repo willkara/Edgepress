@@ -2,16 +2,17 @@
 	import '../app.css';
 	import { sanitizeInjection } from '$lib/utils/sanitize';
 	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
 	import BackgroundGlow from '$lib/components/BackgroundGlow.svelte';
 	import { navigating } from '$app/stores';
 	import PostCardSkeleton from '$lib/components/PostCardSkeleton.svelte';
 	import ArticleSkeleton from '$lib/components/ArticleSkeleton.svelte';
 
-	let { children, data }: { children: any; data: LayoutData } = $props();
+	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
-	const headInjections = $derived(data.injections?.head || []);
-	const bodyStartInjections = $derived(data.injections?.body_start || []);
-	const bodyEndInjections = $derived(data.injections?.body_end || []);
+	const headInjections = $derived(data.injections?.head ?? []);
+	const bodyStartInjections = $derived(data.injections?.body_start ?? []);
+	const bodyEndInjections = $derived(data.injections?.body_end ?? []);
 
 	// Determine which skeleton to show based on the target route
 	let showSkeleton = $derived(!!$navigating);
@@ -25,12 +26,15 @@
 
 	<!-- HEAD INJECTIONS -->
 	{#each headInjections as injection}
+		<!-- eslint-disable svelte/no-at-html-tags -->
+		<!-- eslint-disable svelte/no-at-html-tags -->
 		{@html sanitizeInjection(injection.content)}
 	{/each}
 </svelte:head>
 
 <!-- BODY START INJECTIONS -->
 {#each bodyStartInjections as injection}
+	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html sanitizeInjection(injection.content)}
 {/each}
 
@@ -53,5 +57,6 @@
 
 <!-- BODY END INJECTIONS -->
 {#each bodyEndInjections as injection}
+	<!-- eslint-disable svelte/no-at-html-tags -->
 	{@html sanitizeInjection(injection.content)}
 {/each}

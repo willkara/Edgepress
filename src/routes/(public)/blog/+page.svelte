@@ -9,12 +9,10 @@
 
 	let { data }: { data: PageData } = $props();
 
-	$: isLoading = !!$navigating;
+	const navigatingStore = $derived(navigating);
+	const isLoading = $derived(Boolean(navigatingStore));
 
-	const breadcrumbItems = [
-		{ label: 'Home', href: '/' },
-		{ label: 'Blog' }
-	];
+	const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: 'Blog' }];
 </script>
 
 <svelte:head>
@@ -35,14 +33,15 @@
 	<div class="page-header">
 		<h1 class="page-title">All Posts</h1>
 		<p class="page-subtitle">
-			{data.posts.length} {data.posts.length === 1 ? 'post' : 'posts'} published
+			{data.posts.length}
+			{data.posts.length === 1 ? 'post' : 'posts'} published
 		</p>
 	</div>
 
 	<!-- Posts List -->
 	{#if isLoading}
 		<div class="posts-list">
-			{#each Array(5) as _, i}
+			{#each Array(5) as _}
 				<SkeletonCard />
 			{/each}
 		</div>

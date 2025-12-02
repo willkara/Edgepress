@@ -1,7 +1,15 @@
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getPostById, updatePost, deletePost } from '$lib/server/db/admin-posts';
 import { syncPostMedia } from '$lib/server/db/media';
+import { deletePostVector, upsertPostVector } from '$lib/server/vectorize/post-index';
+
+const isHttpError = (err: unknown): err is { status: number } =>
+	typeof err === 'object' &&
+	err !== null &&
+	'status' in err &&
+	typeof (err as { status?: unknown }).status === 'number';
 
 /**
  * GET /api/admin/posts/[id]
@@ -12,11 +20,12 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
 		throw error(401, 'Unauthorized');
 	}
 
-	if (!platform?.env?.DB) {
+	const env = platform?.env as { DB: D1Database; CACHE: KVNamespace } | undefined;
+	if (!env?.DB) {
 		throw error(500, 'Database not available');
 	}
 
-	const db = platform.env.DB;
+	const db = env.DB;
 
 	try {
 		const post = await getPostById(db, params.id);
@@ -26,8 +35,8 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
 		}
 
 		return json(post);
-	} catch (err) {
-		if (err instanceof Error && 'status' in err && (err as any).status === 404) {
+	} catch (err: unknown) {
+		if (isHttpError(err) && err.status === 404) {
 			throw err;
 		}
 		console.error('Failed to get post:', err);
@@ -39,19 +48,35 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
  * PUT /api/admin/posts/[id]
  * Update a post
  */
-export const PUT: RequestHandler = async ({ platform, locals, params, request }): Promise<Response> => {
+export const PUT: RequestHandler = async ({
+	platform,
+	locals,
+	params,
+	request
+}): Promise<Response> => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
 
-	if (!platform?.env?.DB) {
+	const env = platform?.env as { DB: D1Database; CACHE: KVNamespace } | undefined;
+	if (!env?.DB) {
 		throw error(500, 'Database not available');
 	}
 
-	const db = platform.env.DB;
+	const db = env.DB;
 
 	try {
-		const body = await request.json();
+		const body = (await request.json()) as {
+			title: string;
+			slug: string;
+			content_md: string;
+			content_html: string;
+			excerpt: string;
+			hero_image_id: string | null;
+			category_id: string | null;
+			status: 'draft' | 'published';
+			published_at: string | null;
+		};
 
 		const post = await updatePost(db, params.id, {
 			title: body.title,
@@ -69,16 +94,34 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 		await syncPostMedia(db, params.id, body.content_html, body.hero_image_id ?? null);
 
 		// Invalidate post caches
-		if (platform.env.CACHE) {
+		if (env.CACHE) {
 			const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
 			// Invalidate landing page and default list
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 10, 0));
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
-			await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
+			await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
+			await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
+			await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+		}
+
+		// Best-effort vector index update for semantic search.
+		if (platform?.env?.AI && platform.env.VECTORIZE) {
+			try {
+				await upsertPostVector(platform.env.AI as any, platform.env.VECTORIZE, {
+					id: post.id,
+					title: post.title,
+					slug: post.slug,
+					contentMd: body.content_md,
+					excerpt: body.excerpt,
+					status: post.status,
+					publishedAt: post.published_at,
+					categoryId: post.category_id
+				});
+			} catch (vectorError) {
+				console.error('Failed to index post in Vectorize:', vectorError);
+			}
 		}
 
 		return json(post);
-	} catch (err) {
+	} catch (err: unknown) {
 		console.error('Failed to update post:', err);
 
 		const message = err instanceof Error ? err.message : '';
@@ -103,11 +146,12 @@ export const DELETE: RequestHandler = async ({ platform, locals, params }): Prom
 		throw error(401, 'Unauthorized');
 	}
 
-	if (!platform?.env?.DB) {
+	const env = platform?.env as { DB: D1Database; CACHE: KVNamespace } | undefined;
+	if (!env?.DB) {
 		throw error(500, 'Database not available');
 	}
 
-	const db = platform.env.DB;
+	const db = env.DB;
 
 	try {
 		// Check if post exists
@@ -119,17 +163,26 @@ export const DELETE: RequestHandler = async ({ platform, locals, params }): Prom
 		await deletePost(db, params.id);
 
 		// Invalidate post caches
-		if (platform.env.CACHE) {
+		if (env.CACHE) {
 			const { invalidateCache, getCacheKey } = await import('$lib/server/cache/cache');
 			// Invalidate landing page and default list
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 10, 0));
-			await invalidateCache(platform.env.CACHE, getCacheKey('posts:published', 20, 0));
-			await invalidateCache(platform.env.CACHE, getCacheKey('post', post.slug));
+			await invalidateCache(env.CACHE, getCacheKey('posts:published', 10, 0));
+			await invalidateCache(env.CACHE, getCacheKey('posts:published', 20, 0));
+			await invalidateCache(env.CACHE, getCacheKey('post', post.slug));
+		}
+
+		// Best-effort vector deletion to keep the index in sync.
+		if (platform?.env?.VECTORIZE) {
+			try {
+				await deletePostVector(platform.env.VECTORIZE, params.id);
+			} catch (vectorError) {
+				console.error('Failed to delete Vectorize entry for post:', vectorError);
+			}
 		}
 
 		return json({ success: true });
-	} catch (err) {
-		if (err instanceof Error && 'status' in err && (err as any).status === 404) {
+	} catch (err: unknown) {
+		if (isHttpError(err) && err.status === 404) {
 			throw err;
 		}
 		console.error('Failed to delete post:', err);

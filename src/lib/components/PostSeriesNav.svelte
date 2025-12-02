@@ -20,7 +20,9 @@
 
 <aside class="post-series">
 	<div class="series-header">
-		<List class="series-icon" />
+		<span class="series-icon" aria-hidden="true">
+			<List />
+		</span>
 		<div>
 			<div class="series-badge">Part {currentOrder} of {totalPosts}</div>
 			<h4 class="series-title">
@@ -32,7 +34,9 @@
 	<div class="series-nav">
 		{#if previousPost}
 			<a href="/blog/{previousPost.slug}" class="series-link prev">
-				<ChevronLeft class="link-icon" />
+				<span class="link-icon" aria-hidden="true">
+					<ChevronLeft />
+				</span>
 				<div class="link-content">
 					<span class="link-label">Previous</span>
 					<span class="link-title">{previousPost.title}</span>
@@ -50,7 +54,9 @@
 					<span class="link-label">Next</span>
 					<span class="link-title">{nextPost.title}</span>
 				</div>
-				<ChevronRight class="link-icon" />
+				<span class="link-icon" aria-hidden="true">
+					<ChevronRight />
+				</span>
 			</a>
 		{:else}
 			<div class="series-link disabled">
@@ -80,11 +86,17 @@
 	}
 
 	.series-icon {
+		display: inline-flex;
 		width: 1.5rem;
 		height: 1.5rem;
 		color: var(--accent);
 		flex-shrink: 0;
 		margin-top: 0.125rem;
+	}
+
+	.series-icon :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.series-badge {
@@ -152,10 +164,16 @@
 	}
 
 	.link-icon {
+		display: inline-flex;
 		width: 1.125rem;
 		height: 1.125rem;
 		color: var(--text-subtle);
 		flex-shrink: 0;
+	}
+
+	.link-icon :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.series-link:not(.disabled):hover .link-icon {

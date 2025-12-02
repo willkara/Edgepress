@@ -41,7 +41,9 @@
 
 							<div class="read-more">
 								<span>Read article</span>
-								<ArrowRight class="arrow-icon" />
+								<span class="arrow-icon" aria-hidden="true">
+									<ArrowRight />
+								</span>
 							</div>
 						</div>
 					</a>
@@ -129,6 +131,7 @@
 		line-height: 1.6;
 		flex: 1;
 		display: -webkit-box;
+		line-clamp: 3;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
@@ -145,9 +148,15 @@
 	}
 
 	.arrow-icon {
+		display: inline-flex;
 		width: 1rem;
 		height: 1rem;
 		transition: transform 150ms;
+	}
+
+	.arrow-icon :global(svg) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.post-card:hover .arrow-icon {

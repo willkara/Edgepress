@@ -18,13 +18,13 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
 	const db = platform.env.DB;
 
 	try {
-		const media = await getMediaById(db, params.id);
+		const media = await getMediaById(db as D1Database, params.id);
 
 		if (!media) {
 			throw error(404, 'Media not found');
 		}
 
-		const usage = await getMediaUsage(db, params.id);
+		const usage = await getMediaUsage(db as D1Database, params.id);
 
 		return json({
 			...media,
@@ -44,7 +44,12 @@ export const GET: RequestHandler = async ({ platform, locals, params }): Promise
  * PUT /api/admin/media/[id]
  * Update media metadata (alt_text, filename)
  */
-export const PUT: RequestHandler = async ({ platform, locals, params, request }): Promise<Response> => {
+export const PUT: RequestHandler = async ({
+	platform,
+	locals,
+	params,
+	request
+}): Promise<Response> => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
@@ -56,9 +61,9 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 	const db = platform.env.DB;
 
 	try {
-		const body = await request.json();
+		const body = (await request.json()) as { alt_text?: string; filename?: string };
 
-		const media = await updateMedia(db, params.id, {
+		const media = await updateMedia(db as D1Database, params.id, {
 			alt_text: body.alt_text,
 			filename: body.filename
 		});
@@ -96,15 +101,20 @@ export const DELETE: RequestHandler = async ({ platform, locals, params }): Prom
 	const cfToken = platform.env.CF_IMAGES_TOKEN;
 
 	try {
-		const result = await deleteMedia(db, params.id, cfAccountId, cfToken);
+		const result = await deleteMedia(db as D1Database, params.id, cfAccountId, cfToken);
 
 		if (!result.success) {
 			throw error(400, result.message);
 		}
 
 		return json({ success: true, message: result.message });
-	} catch (err) {
-		if (err && typeof err === 'object' && 'status' in err && err.status === 400) {
+	} catch (err: unknown) {
+		if (
+			err &&
+			typeof err === 'object' &&
+			'status' in err &&
+			(err as { status: number }).status === 400
+		) {
 			throw err;
 		}
 		const message = err instanceof Error ? err.message : 'Failed to delete media';

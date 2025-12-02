@@ -36,7 +36,8 @@
 		<div>
 			<h1 class="category-title">{data.category.name}</h1>
 			<p class="category-meta">
-				{data.posts.length} {data.posts.length === 1 ? 'post' : 'posts'}
+				{data.posts.length}
+				{data.posts.length === 1 ? 'post' : 'posts'}
 			</p>
 		</div>
 	</div>

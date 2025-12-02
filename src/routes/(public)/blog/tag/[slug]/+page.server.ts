@@ -2,6 +2,8 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { getPostsByTag } from '$lib/server/db/posts';
 import { getTagBySlug } from '$lib/server/db/tags';
+import { postSchema } from '$lib/types/posts';
+import { tagSchema } from '$lib/types/taxonomy';
 
 export const load: PageServerLoad = async ({ params, platform }) => {
 	const { slug } = params;
@@ -12,21 +14,29 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	try {
 		// Get the tag to verify it exists
-		const tag = await getTagBySlug(platform.env.DB, slug);
+		const tagRaw = await getTagBySlug(platform.env.DB as D1Database, slug);
 
-		if (!tag) {
+		if (!tagRaw) {
 			throw error(404, `Tag "${slug}" not found`);
 		}
 
+		const tag = tagSchema.parse(tagRaw);
+
 		// Get all posts with this tag
-		const posts = await getPostsByTag(platform.env.DB, slug, 100, 0);
+		const postsRaw = await getPostsByTag(platform.env.DB as D1Database, slug, 100, 0);
+		const posts = postSchema.array().parse(postsRaw);
 
 		return {
 			tag,
 			posts
 		};
-	} catch (err: any) {
-		if (err.status === 404) {
+	} catch (err: unknown) {
+		if (
+			err &&
+			typeof err === 'object' &&
+			'status' in err &&
+			(err as { status?: number }).status === 404
+		) {
 			throw err;
 		}
 		console.error('Failed to load tag page:', err);

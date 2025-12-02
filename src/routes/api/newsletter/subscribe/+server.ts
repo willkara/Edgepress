@@ -1,12 +1,22 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
+interface SubscribePayload {
+	email?: unknown;
+}
+
+function validateEmail(email: unknown): boolean {
+	if (typeof email !== 'string') {
+		return false;
+	}
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
-		const { email } = await request.json();
+		const { email } = (await request.json()) as SubscribePayload;
 
-		// Validate email
-		if (!email || typeof email !== 'string' || !email.includes('@')) {
+		if (!email || typeof email !== 'string' || !validateEmail(email)) {
 			return json({ error: 'Invalid email address' }, { status: 400 });
 		}
 
@@ -20,7 +30,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const db = platform.env.DB;
 
 		// Check if email already exists
-		const existing = await db
+		const existing = await (db as any)
 			.prepare('SELECT id FROM newsletter_subscribers WHERE email = ?')
 			.bind(email.toLowerCase())
 			.first();
@@ -31,9 +41,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// Insert new subscriber
 		await db
-			.prepare(
-				'INSERT INTO newsletter_subscribers (email, subscribed_at, status) VALUES (?, ?, ?)'
-			)
+			.prepare('INSERT INTO newsletter_subscribers (email, subscribed_at, status) VALUES (?, ?, ?)')
 			.bind(email.toLowerCase(), new Date().toISOString(), 'pending')
 			.run();
 

@@ -53,7 +53,7 @@
 		if (postSlug && scrollProgress > 10 && scrollProgress < 95) {
 			try {
 				localStorage.setItem(`reading-progress-${postSlug}`, scrollProgress.toString());
-			} catch (e) {
+			} catch {
 				// Ignore localStorage errors
 			}
 		}
@@ -62,7 +62,7 @@
 		if (postSlug && scrollProgress >= 95) {
 			try {
 				localStorage.removeItem(`reading-progress-${postSlug}`);
-			} catch (e) {
+			} catch {
 				// Ignore localStorage errors
 			}
 		}
