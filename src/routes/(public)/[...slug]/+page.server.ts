@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 			slug
 		);
 
-		if (!page || page.status !== 'published') {
+		if (page?.status !== 'published') {
 			throw error(404, `Page not found: /${slug}`);
 		}
 
