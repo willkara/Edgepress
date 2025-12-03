@@ -3,6 +3,8 @@ import type { RequestHandler } from './$types';
 import { getAllPages, createPage, pageSlugExists } from '$lib/server/db/pages';
 import { syncPostMedia } from '$lib/server/db/media';
 import { invalidateCache, getCacheKey } from '$lib/server/cache/cache';
+import { createPageSchema, listPagesQuerySchema } from '$lib/schemas/pages';
+import { ZodError } from 'zod';
 
 /**
  * GET /api/admin/pages
@@ -19,14 +21,22 @@ export const GET: RequestHandler = async ({ platform, locals, url }): Promise<Re
 
 	const db = platform.env.DB;
 
-	// Parse query parameters
-	const limit = parseInt(url.searchParams.get('limit') ?? '50');
-	const offset = parseInt(url.searchParams.get('offset') ?? '0');
-
 	try {
-		const pages = await getAllPages(db, limit, offset);
+		// Validate query parameters
+		const queryParams = listPagesQuerySchema.parse({
+			limit: url.searchParams.get('limit'),
+			offset: url.searchParams.get('offset')
+		});
+
+		const pages = await getAllPages(db, queryParams.limit, queryParams.offset);
 		return json({ pages });
 	} catch (err) {
+		if (err instanceof ZodError) {
+			throw error(400, {
+				message: 'Invalid query parameters',
+				errors: err.format()
+			});
+		}
 		console.error('Failed to list pages:', err);
 		throw error(500, 'Failed to list pages');
 	}
@@ -50,14 +60,12 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 	try {
 		const body = await request.json();
 
-		// Validate required fields
-		if (!body.title || !body.content_md || !body.content_html) {
-			throw error(400, 'Missing required fields: title, content_md, content_html');
-		}
+		// Validate request body with Zod schema
+		const validatedData = createPageSchema.parse(body);
 
 		// Check if slug already exists
-		if (body.slug) {
-			const exists = await pageSlugExists(db, body.slug);
+		if (validatedData.slug) {
+			const exists = await pageSlugExists(db, validatedData.slug);
 			if (exists) {
 				throw error(409, 'A page with this slug already exists');
 			}
@@ -66,26 +74,33 @@ export const POST: RequestHandler = async ({ platform, locals, request }): Promi
 		// Create page with current user as author
 		const pageId = await createPage(db, {
 			author_id: locals.user.id,
-			title: body.title,
-			slug: body.slug,
-			content_md: body.content_md,
-			content_html: body.content_html,
-			excerpt: body.excerpt,
-			hero_image_id: body.hero_image_id,
-			status: body.status ?? 'draft',
-			template: body.template ?? 'page.njk'
+			title: validatedData.title,
+			slug: validatedData.slug,
+			content_md: validatedData.content_md,
+			content_html: validatedData.content_html,
+			excerpt: validatedData.excerpt ?? null,
+			hero_image_id: validatedData.hero_image_id ?? null,
+			status: validatedData.status,
+			template: validatedData.template
 		});
 
 		// Sync media relationships (same as posts)
-		await syncPostMedia(db, pageId, body.content_html, body.hero_image_id ?? null);
+		await syncPostMedia(db, pageId, validatedData.content_html, validatedData.hero_image_id ?? null);
 
 		// Invalidate cache if publishing
-		if (body.status === 'published' && platform.env.CACHE) {
-			await invalidateCache(platform.env.CACHE, getCacheKey('page', body.slug));
+		if (validatedData.status === 'published' && platform.env.CACHE) {
+			await invalidateCache(platform.env.CACHE, getCacheKey('page', validatedData.slug));
 		}
 
 		return json({ id: pageId }, { status: 201 });
 	} catch (err) {
+		if (err instanceof ZodError) {
+			throw error(400, {
+				message: 'Invalid page data',
+				errors: err.format()
+			});
+		}
+
 		console.error('Failed to create page:', err);
 
 		const message = err instanceof Error ? err.message : '';

@@ -2,6 +2,8 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getPageById, updatePage, deletePage, pageSlugExists, invalidatePageCache } from '$lib/server/db/pages';
 import { syncPostMedia } from '$lib/server/db/media';
+import { updatePageSchema } from '$lib/schemas/pages';
+import { ZodError } from 'zod';
 
 /**
  * GET /api/admin/pages/[id]
@@ -54,6 +56,9 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 	try {
 		const body = await request.json();
 
+		// Validate request body with Zod schema
+		const validatedData = updatePageSchema.parse(body);
+
 		// Get the current page to check slug changes
 		const currentPage = await getPageById(db, params.id);
 		if (!currentPage) {
@@ -61,8 +66,8 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 		}
 
 		// If slug is changing, check if new slug already exists
-		if (body.slug && body.slug !== currentPage.slug) {
-			const exists = await pageSlugExists(db, body.slug, params.id);
+		if (validatedData.slug && validatedData.slug !== currentPage.slug) {
+			const exists = await pageSlugExists(db, validatedData.slug, params.id);
 			if (exists) {
 				throw error(409, 'A page with this slug already exists');
 			}
@@ -70,27 +75,27 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 
 		// Update the page
 		await updatePage(db, params.id, {
-			title: body.title,
-			slug: body.slug,
-			content_md: body.content_md,
-			content_html: body.content_html,
-			excerpt: body.excerpt,
-			hero_image_id: body.hero_image_id,
-			status: body.status,
-			template: body.template
+			title: validatedData.title,
+			slug: validatedData.slug,
+			content_md: validatedData.content_md,
+			content_html: validatedData.content_html,
+			excerpt: validatedData.excerpt ?? undefined,
+			hero_image_id: validatedData.hero_image_id ?? undefined,
+			status: validatedData.status,
+			template: validatedData.template
 		});
 
 		// Sync media relationships
-		if (body.content_html) {
-			await syncPostMedia(db, params.id, body.content_html, body.hero_image_id ?? null);
+		if (validatedData.content_html) {
+			await syncPostMedia(db, params.id, validatedData.content_html, validatedData.hero_image_id ?? null);
 		}
 
 		// Invalidate cache for both old and new slugs
 		if (currentPage.slug) {
 			await invalidatePageCache(cache, currentPage.slug);
 		}
-		if (body.slug && body.slug !== currentPage.slug) {
-			await invalidatePageCache(cache, body.slug);
+		if (validatedData.slug && validatedData.slug !== currentPage.slug) {
+			await invalidatePageCache(cache, validatedData.slug);
 		}
 
 		// Get updated page to return
@@ -98,6 +103,13 @@ export const PUT: RequestHandler = async ({ platform, locals, params, request })
 
 		return json(updatedPage);
 	} catch (err) {
+		if (err instanceof ZodError) {
+			throw error(400, {
+				message: 'Invalid page data',
+				errors: err.format()
+			});
+		}
+
 		console.error('Failed to update page:', err);
 
 		const message = err instanceof Error ? err.message : '';
