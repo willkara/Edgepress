@@ -10,6 +10,7 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 			post: null,
 			tags: [],
 			relatedPosts: [],
+			imageHash: '',
 			envMissing: true
 		};
 	}
@@ -40,7 +41,8 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 		return {
 			post,
 			tags,
-			relatedPosts
+			relatedPosts,
+			imageHash: platform.env.CF_IMAGES_HASH || ''
 		};
 	} catch (err) {
 		if (err instanceof Error && 'status' in err) {

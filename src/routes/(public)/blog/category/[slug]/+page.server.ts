@@ -28,7 +28,8 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 		return {
 			category,
-			posts
+			posts,
+			imageHash: platform.env.CF_IMAGES_HASH || ''
 		};
 	} catch (err) {
 		if (err && typeof err === 'object' && 'status' in err) {

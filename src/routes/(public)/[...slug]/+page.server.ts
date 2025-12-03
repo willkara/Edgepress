@@ -47,7 +47,8 @@ export const load: PageServerLoad = async ({ params, platform, setHeaders }) => 
 			context: {
 				type: 'page' as const,
 				slug: page.slug
-			}
+			},
+			imageHash: platform.env.CF_IMAGES_HASH || ''
 		};
 	} catch (err: any) {
 		// If it's already a 404 error, re-throw it
